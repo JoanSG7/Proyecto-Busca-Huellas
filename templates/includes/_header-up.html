@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registrar Mascota Perdida | Busca Huellas</title>
+<link href="{{ url_for('static', filename='css/header_iniciada.css') }}" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+<div class="header-content">
+<a class="logo" href="#">Busca Huellas</a>
+<nav class="desktop-nav">
+<a class="active" href="{{ url_for('usuario.inicio_sesion') }}">Inicio</a>
+<a href="{{ url_for('adopcion.adopcion') }}">Adopciones</a>
+<a href="{{ url_for('usuario.noticia') }}">Noticias</a>
+</nav>
+<div class="header-actions">
+<button class="icon-btn">
+<a href="{{ url_for('inicio.inicio') }}"><span class="material-symbols-outlined">account_circle</span></a>
+</button>
+</div>
+</div>
+</header>
+<!-- Mobile Navigation -->
+<nav class="nav-bar">
+<a class="nav-link" href="#">
+<span class="material-symbols-outlined">home</span>
+<label>Inicio</label>
+</a>
+<a class="nav-link" href="#">
+<span class="material-symbols-outlined">explore</span>
+<label>Explorar</label>
+</a>
+<button class="camera-btn">
+<span class="material-symbols-rounded fill">photo_camera</span>
+</button>
+<a class="nav-link" href="#">
+<span class="material-symbols-outlined">newspaper</span>
+<label>Noticias</label>
+</a>
+<a class="nav-link" href="#">
+<span class="material-symbols-outlined">person</span>
+<label>Perfil</label>
+</a>
+</nav>
+<!-- Desktop Floating Action Button -->
+<div class="desktop-fab">
+<button class="camera-btn">
+<span class="material-symbols-rounded fill">photo_camera</span>
+</button>
+</div>
+
+</body></html>

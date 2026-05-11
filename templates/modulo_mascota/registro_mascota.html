@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registrar Mascota Perdida | Busca Huellas</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --primary: #2d6a4f;
+            --primary-container: #40916c;
+            --on-primary: #ffffff;
+            --background: #fdfaf5;
+            --surface: #ffffff;
+            --surface-container-low: #f5f0e8;
+            --surface-container-high: #ede7dd;
+            --on-surface: #1a1c1a;
+            --on-surface-variant: #424940;
+            --outline: #72796f;
+            --error: #ba1a1a;
+            --primary-fixed: #b7f397;
+            --on-primary-fixed-variant: #002107;
+            --secondary-container: #d9e7cb;
+            --radius-lg: 2rem;
+            --radius-xl: 3.5rem;
+            --radius-full: 9999px;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --shadow-soft: 0 10px 40px rgba(0,0,0,0.03);
+            --shadow-strong: 0 20px 60px rgba(45, 106, 79, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--background);
+            color: var(--on-surface);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 8rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+
+        @media (min-width: 1024px) {
+            main {
+                grid-template-columns: 1.1fr 1fr;
+                padding: 4rem 1.5rem 6rem;
+                gap: 5rem;
+                align-items: start;
+            }
+        }
+
+        /* Left Column */
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        @media (min-width: 1024px) {
+            .info-section {
+                position: sticky;
+                top: 8rem;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: #d8eada;
+            color: var(--primary);
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            letter-spacing: -0.04em;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            h1 { font-size: 4.5rem; }
+        }
+
+        .subtitle {
+            font-size: 1.15rem;
+            color: var(--on-surface-variant);
+            line-height: 1.6;
+            max-width: 500px;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            margin: 1.5rem 0;
+            align-self: center;
+        }
+
+        @media (min-width: 1024px) {
+            .image-container { align-self: flex-start; }
+        }
+
+        .blob-bg {
+            position: absolute;
+            inset: -20px;
+            background-color: var(--primary-fixed);
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            opacity: 0.35;
+            transform: rotate(5deg);
+            z-index: 1;
+        }
+
+        .main-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Right Column Form */
+        .form-card {
+            background-color: var(--surface);
+            padding: 2.5rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-strong);
+        }
+
+        @media (min-width: 768px) {
+            .form-card { padding: 3.5rem; }
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 3.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-header span {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+        }
+
+        /* Fixed Grid Alignment for Data Section */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem 2rem;
+        }
+
+        @media (min-width: 640px) {
+            .input-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .input-group label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--on-surface-variant);
+            padding-left: 0.25rem;
+        }
+
+        input, textarea {
+            background-color: var(--surface-container-low);
+            border: 2px solid transparent;
+            padding: 1.1rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--on-surface);
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        textarea {
+            border-radius: 1.5rem;
+            resize: none;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            background-color: var(--surface);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.06);
+        }
+
+        /* Toggle Group */
+        .toggle-group {
+            display: flex;
+            gap: 0.5rem;
+            background-color: var(--surface-container-low);
+            padding: 0.4rem;
+            border-radius: var(--radius-full);
+            width: 100%;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.7rem 0.25rem;
+            border-radius: var(--radius-full);
+            background: none;
+            border: none;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(45, 106, 79, 0.2);
+        }
+
+        /* Map Styling */
+        .map-container {
+            width: 100%;
+            height: 260px;
+            background-color: var(--secondary-container);
+            border-radius: 2rem;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            border: 8px solid var(--surface-container-low);
+        }
+
+        .map-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: saturate(0.8) contrast(0.9);
+        }
+
+        .map-marker {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #d63031;
+            font-size: 3rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        .map-badge {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0.6rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            white-space: nowrap;
+        }
+
+        /* Photos */
+        .photo-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .photo-slot {
+            aspect-ratio: 1/1;
+            border: 2px dashed var(--outline);
+            border-radius: 1.5rem;
+            background-color: var(--surface-container-low);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.7;
+        }
+
+        .photo-slot:hover {
+            opacity: 1;
+            border-color: var(--primary);
+            background-color: var(--surface-container-high);
+            color: var(--primary);
+        }
+
+        .photo-slot span { font-size: 1.75rem; margin-bottom: 0.25rem; }
+        .photo-slot small { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
+
+        /* Submit Button */
+        .submit-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1.25rem;
+            border-radius: var(--radius-full);
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(45, 106, 79, 0.2);
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            background-color: var(--primary-container);
+            box-shadow: 0 15px 40px rgba(45, 106, 79, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--background);
+            padding: 4rem 1.5rem 8rem;
+            border-top: 1px solid rgba(0,0,0,0.03);
+        }
+
+        @media (min-width: 768px) {
+            footer { padding: 4rem 1.5rem; }
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .footer-inner {
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+            }
+        }
+
+        .footer-inner p { font-size: 0.85rem; color: var(--on-surface-variant); }
+        .footer-nav { display: flex; gap: 2rem; }
+        .footer-nav a { text-decoration: none; font-size: 0.85rem; font-weight: 600; color: var(--on-surface-variant); }
+
+        /* Navigation & Floating Button */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 0.75rem 1rem 2rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            z-index: 1000;
+            border-radius: 2rem 2rem 0 0;
+        }
+
+        @media (min-width: 768px) {
+            .nav-bar {
+                display: none;
+            }
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--on-surface-variant);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nav-link.active { color: var(--primary); }
+        .nav-link span { font-size: 1.5rem; }
+        .nav-link label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
+
+        /* Adaptive Camera Button */
+        .camera-btn {
+            background-color: var(--primary);
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(45, 106, 79, 0.3);
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .camera-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Mobile Integrated Cam */
+        .nav-bar .camera-btn {
+            margin-top: -3.5rem;
+            width: 64px;
+            height: 64px;
+            border: 4px solid var(--background);
+        }
+
+        /* Desktop Floating Cam */
+        @media (min-width: 768px) {
+            .desktop-fab {
+                position: fixed;
+                bottom: 2.5rem;
+                right: 2.5rem;
+                width: 72px;
+                height: 72px;
+                z-index: 999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .desktop-fab .camera-btn {
+                width: 100%;
+                height: 100%;
+            }
+            .desktop-fab .camera-btn span {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .desktop-fab { display: none; }
+        }
+
+        .material-symbols-outlined, .material-symbols-rounded {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body>
+{% include 'includes/_header-up.html' %}
+<main>
+<div class="info-section">
+<div>
+<span class="badge">Emergencia</span>
+<h1>Registrar Mascota Perdida</h1>
+<p class="subtitle">Ayúdanos a encontrar a tu compañero. Completar este reporte permitirá que nuestra comunidad forestal esté alerta en tu zona.</p>
+</div>
+<div class="image-container">
+<div class="blob-bg"></div>
+<img alt="Mascota 3D" class="main-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoDDOnQoF5PXzlJXnvFMni1S6MC3NovYp733Jj1se2vRnjD2B8vwiCPJCP9I7Tp4qtt2zSZPSWZ-B0sT1L2UxZYNEjOjDUzXBHfaZQKdmlWtYhOGRcljTkVQR664tQToy8StqQgsQ7tM2T2QSrPs5Ad6IQKBGmzQcYYff32ik20iY7rMjC3pU_-nsntSTff_pcq52asSEO9tr3OGOMCWYI8jx00zQCgR-PVt6tImCJboGav8A4YPBV3rL8Sp1X51-htCim_LrYGS-b"/>
+</div>
+</div>
+<div class="form-card">
+<form onsubmit="event.preventDefault();">
+<!-- Data Section with Grid Alignment -->
+<section>
+<div class="section-header">
+<span class="material-symbols-outlined fill">pets</span>
+<h2>Datos de tu Mascota</h2>
+</div>
+<div class="input-grid">
+<div class="input-group">
+<label>Nombre de la mascota</label>
+<input placeholder="Ej: Canela" type="text"/>
+</div>
+<div class="input-group">
+<label>Raza</label>
+<input placeholder="Ej: Golden Retriever" type="text"/>
+</div>
+<div class="input-group">
+<label>Edad exacta (años)</label>
+<input placeholder="Ej: 3" type="number"/>
+</div>
+<div class="input-group">
+<label>Tamaño</label>
+<div class="toggle-group" id="size-toggle">
+<button class="toggle-btn active" data-val="pequeño" type="button">Pequeño</button>
+<button class="toggle-btn" data-val="mediano" type="button">Mediano</button>
+<button class="toggle-btn" data-val="grande" type="button">Grande</button>
+</div>
+</div>
+</div>
+<div class="input-group" style="margin-top: 2rem;">
+<label>Características distintivas</label>
+<textarea placeholder="Describe manchas, cicatrices, collar o cualquier rasgo único..." rows="3"></textarea>
+</div>
+</section>
+<section>
+<div class="section-header">
+<span class="material-symbols-outlined fill">location_on</span>
+<h2>Ubicación Exacta</h2>
+</div>
+<div class="map-container">
+<img alt="Mapa de búsqueda" class="map-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPLz3q7Q0n1POP3IB0EwzTYjbPFVRALfXY2-q9bYaFFRZw2tqodHLPGNiGhn-VseHhXmJ0chP-C4ggqMhu7Awk0TgXEU9utglvO1cDdWDi4W7o0C2x59B9Tmm-5gAH7dOQYz_DsyXiVviF5zoNtYqgJGUxWDfOoxPt4kJf9b22Ve688h0kodCTso-ak8EN-1EHsMGarMB4hrl8Vyxk5tWSrLp7njxVc5s5lc3DhZtkYbIJw2JeFjfAE-wbnia9HBrNhtS1faezu1Vs"/>
+<span class="material-symbols-outlined map-marker fill">location_on</span>
+<div class="map-badge">Toca el mapa para precisar el lugar</div>
+</div>
+</section>
+<section>
+<div class="section-header">
+<span class="material-symbols-outlined fill">add_a_photo</span>
+<h2>Fotos Recientes (Mínimo 2)</h2>
+</div>
+<div class="photo-upload-grid">
+<div class="photo-slot">
+<span class="material-symbols-outlined">add_photo_alternate</span>
+<small>Subir</small>
+</div>
+<div class="photo-slot">
+<span class="material-symbols-outlined">add_photo_alternate</span>
+<small>Subir</small>
+</div>
+<div class="photo-slot">
+<span class="material-symbols-outlined">add_photo_alternate</span>
+<small>Subir</small>
+</div>
+</div>
+</section>
+<button class="submit-btn" type="submit">Publicar Reporte</button>
+</form>
+</div>
+</main>
+<footer>
+<div class="footer-inner">
+<p>© 2024 Busca Huellas. Hecho con amor por los animales.</p>
+<nav class="footer-nav">
+<a href="#">Privacidad</a>
+<a href="#">Términos</a>
+<a href="#">Contacto</a>
+</nav>
+</div>
+</footer>
+<script>
+        // Size toggle logic
+        const toggleButtons = document.querySelectorAll('#size-toggle .toggle-btn');
+        toggleButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                toggleButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+    </script>
+</body></html>
