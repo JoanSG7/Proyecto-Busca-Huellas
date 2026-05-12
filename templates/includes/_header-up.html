@@ -11,11 +11,11 @@
 <body>
 <header>
 <div class="header-content">
-<a class="logo" href="#">Busca Huellas</a>
+<a class="logo" href="{{ url_for('inicio.inicio') }}">Busca Huellas</a>
 <nav class="desktop-nav">
-<a class="active" href="{{ url_for('usuario.inicio_sesion') }}">Inicio</a>
-<a href="{{ url_for('adopcion.adopcion') }}">Adopciones</a>
-<a href="{{ url_for('usuario.noticia') }}">Noticias</a>
+<a class="active" href="{{ url_for('inicio.inicio') }}">Inicio</a>
+<a href="{{ url_for('articulo.lista_articulos') }}">Articulos</a>
+<a href="{{ url_for('alerta.alertas') }}">Alertas</a>
 </nav>
 <div class="header-actions">
 <button class="icon-btn">
@@ -26,20 +26,20 @@
 </header>
 <!-- Mobile Navigation -->
 <nav class="nav-bar">
-<a class="nav-link" href="#">
+<a class="nav-link" href="{{ url_for('inicio.inicio') }}">
 <span class="material-symbols-outlined">home</span>
 <label>Inicio</label>
 </a>
-<a class="nav-link" href="#">
-<span class="material-symbols-outlined">explore</span>
-<label>Explorar</label>
+<a class="nav-link" href="{{ url_for('inicio.inicio') }}">
+<span class="material-symbols-outlined">newspaper</span>
+<label>Articulo</label>
 </a>
 <button class="camera-btn">
 <span class="material-symbols-rounded fill">photo_camera</span>
 </button>
 <a class="nav-link" href="#">
-<span class="material-symbols-outlined">newspaper</span>
-<label>Noticias</label>
+<span class="material-symbols-outlined">notifications</span>
+<label>Alertas</label>
 </a>
 <a class="nav-link" href="#">
 <span class="material-symbols-outlined">person</span>

@@ -19,15 +19,14 @@ def mostrar_registro_usuario():
 def mostrar_recuperar_contrasena():
     return render_template('modulo_usuario/recuperar_contraseña.html')
 
-def mostrar_noticias():
-    return render_template('modulo_usuario/noticias.html')
+#Modulo alertas
 
-# modulo adopcion
-def mostrar_adopcion():
-    return render_template('modulo_adopcion/adopcion.html')
+def mostrar_lista_alertas():
+    return render_template('modulo_alerta/lista_alertas.html')
 
-def mostrar_registro_mascota_adopcion():
-    return render_template('modulo_adopcion/registro_mascota_adopcion.html')
+# modulo articulo
+def mostrar_lista_articulos():
+    return render_template('modulo_articulo/lista_articulos.html')
 
 # modulo mascota
 def mostrar_registro_mascota():
