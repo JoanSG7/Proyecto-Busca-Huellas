@@ -1,10 +1,16 @@
-<!DOCTYPE html><html lang="es"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Busca Huellas - Artículos</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<style>
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca Huellas - Artículos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <style>
         :root {
             --surface: #fdf9f1;
             --surface-container-low: #f7f3eb;
@@ -199,7 +205,7 @@
         .divider {
             height: 1px;
             width: 3rem;
-            background-color: rgba(0,0,0,0.1);
+            background-color: rgba(0, 0, 0, 0.1);
         }
 
         @media (min-width: 768px) {
@@ -345,7 +351,7 @@
             justify-content: space-around;
             padding: 1rem 0 2rem;
             border-radius: 3rem 3rem 0 0;
-            box-shadow: 0 -10px 40px rgba(28,28,23,0.06);
+            box-shadow: 0 -10px 40px rgba(28, 28, 23, 0.06);
             z-index: 50;
         }
 
@@ -385,89 +391,107 @@
             align-items: center;
             margin-top: -3rem;
             border: 8px solid var(--surface);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
         }
 
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
-</head>
+</head> 
+
 <body>
     {% include 'includes/_header-up.html' %}
-<main class="container">
-<section class="hero">
-<div class="hero-content">
-<h1 class style>Bienvendido a nuestro refugio Digital</h1>
-<p class style>Tu presencia fortalece nuestro refugio digital. Juntos, seguimos conectando corazones y encontrando caminos a casa.</p>
-<div class="btn-group">
-<a class="enlace-btn-principal" href="{{ url_for('usuario.inicio_sesion') }}"><button class="btn btn-primary" style>Reportar Hallazgo</button></a>
-<a class="enlace-btn-principal" href="{{ url_for('mascota.registro_mascota') }}"><button class="btn btn-secondary" style>Registrar Mascota Perdida</button></a>
-</div>
-</div>
-<div class="blob-container">
-<div class="blob-bg"></div>
-<img class="organic-blob" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClyJ_lZS7IRCQe_uoT1FJ-6Gu-A0TC4m9mscM7v8G8sb6W55XlrEfWWn7teSFLHz2hqfu1x6bzBbFviH0Em4tmRHa3HWVsxAAf4bdAAdoQx4vQq11qFnvKkyfrqguvwvTR4PVIi1SU85fjblUh2NJix0CWPdZHpOiT6jaRxlLLyb0G-rYS4k5ZyqaK-wNOXh4LiuFEorL4nkrRFy-crCBs9LncIl4IbzHivPE2Zb034ISaJoaie7ajmpShkoab1jZw1dw1uGF-vDW4" alt="Perro amigable" style>
-</div>
-</section>
-<section class="impact-section">
-<div class="impact-grid">
-<div class="impact-item">
-<h3 class style>1,284</h3>
-<p class style>Mascotas Reencontradas</p>
-</div>
-<div class="divider"></div>
-<div class="impact-item">
-<h3 class style>842</h3>
-<p class style>Voluntarios Activos</p>
-</div>
-<div class="divider"></div>
-<div class="impact-item alt">
-<h3 class style>12</h3>
-<p class style>Reportes Activos Hoy</p>
-</div>
-</div>
-</section>
-<section id="articulos">
-<div class="articles-header">
-<div>
-<h2 class style>Artículos</h2>
-<p class style="color: var(--on-surface-variant);">Consejos expertos para mantener a nuestros compañeros del bosque sanos y seguros.</p>
-</div>
-<a class="view-all" href="#" style>
+    <main class="container">
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class style>Bienvendido a nuestro refugio Digital</h1>
+                <p class style>Tu presencia fortalece nuestro refugio digital. Juntos, seguimos conectando corazones y
+                    encontrando caminos a casa.</p>
+                <div class="btn-group">
+                    <a class="enlace-btn-principal" href="{{ url_for('usuario.inicio_sesion') }}"><button
+                            class="btn btn-primary" style>Reportar Hallazgo</button></a>
+                    <a class="enlace-btn-principal" href="{{ url_for('mascota.registro_mascota') }}"><button
+                            class="btn btn-secondary" style>Registrar Mascota Perdida</button></a>
+                </div>
+            </div>
+            <div class="blob-container">
+                <div class="blob-bg"></div>
+                <img class="organic-blob"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuClyJ_lZS7IRCQe_uoT1FJ-6Gu-A0TC4m9mscM7v8G8sb6W55XlrEfWWn7teSFLHz2hqfu1x6bzBbFviH0Em4tmRHa3HWVsxAAf4bdAAdoQx4vQq11qFnvKkyfrqguvwvTR4PVIi1SU85fjblUh2NJix0CWPdZHpOiT6jaRxlLLyb0G-rYS4k5ZyqaK-wNOXh4LiuFEorL4nkrRFy-crCBs9LncIl4IbzHivPE2Zb034ISaJoaie7ajmpShkoab1jZw1dw1uGF-vDW4"
+                    alt="Perro amigable" style>
+            </div>
+        </section>
+        <section class="impact-section">
+            <div class="impact-grid">
+                <div class="impact-item">
+                    <h3 class style>1,284</h3>
+                    <p class style>Mascotas Reencontradas</p>
+                </div>
+                <div class="divider"></div>
+                <div class="impact-item">
+                    <h3 class style>842</h3>
+                    <p class style>Voluntarios Activos</p>
+                </div>
+                <div class="divider"></div>
+                <div class="impact-item alt">
+                    <h3 class style>12</h3>
+                    <p class style>Reportes Activos Hoy</p>
+                </div>
+            </div>
+        </section>
+        <section id="articulos">
+            <div class="articles-header">
+                <div>
+                    <h2 class style>Artículos</h2>
+                    <p class style="color: var(--on-surface-variant);">Consejos expertos para mantener a nuestros
+                        compañeros del bosque sanos y seguros.</p>
+                </div>
+                <a class="view-all" href="#" style>
                     Ver todos los artículos <span class="material-symbols-outlined" style>arrow_forward</span>
-</a>
-</div>
-<div class="articles-grid">
-<!-- Articulo 1 -->
-<article class="article-card">
-<div class="article-image-wrapper">
-<span class="badge" style>Adopción</span>
-<img class src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT-PCtlZXh7uM-FRrlkL-p-lRPhlW7VabAcUfCufM8VWvDncETZppFVGa7WbNs15QqV2Zz1DeCje_D6PDyE1bNcl1S-eky8m_K3GAYJXxPFTUVvxbL5gAV89hVLXS92NvHtktzIR_RGHeSEe-IJZku7gGhfEN_Rjc0IUpd8FSe7bZTV3UK9CIYueN-IgJZa5ovJkZeM1zGnUNQQszrPbmm0eWN44GiaVbpR4a2vcbtGRkyFPw_zrwwEJTTnCeLXVuVl02RvVy_6jgf" alt="Perro feliz" style>
-</div>
-<h3 class style>Cómo hacer que un perro adoptado se adapte a ti</h3>
-<p class style>Los primeros días son fundamentales. Te enseñamos técnicas de paciencia y refuerzo positivo para crear un vínculo irrompible.</p>
-</article>
-<!-- Articulo 2 -->
-<article class="article-card">
-<div class="article-image-wrapper">
-<span class="badge alt" style>Bienestar</span>
-<img class src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOlsI3O_TPKIfMAtUW3XiBETwZolKvWC0yxrslWbCLbXVvZfk6lPUxZ5Js25ZaZMjBblL4JmhRe1EgUF7QQMZs8EgtySstLUhLR6qMeSM6KvlkWuacd1mjsujFzfVvZvd8WUDWL7hKz1uC8VbYe-HBFPn-IGrl11xJma9oCXNGrrfed9WZRRM61pyXLptgYGFZwpNgRcoa5RnMBT7AXVsJpWPB3_heID34fneAY8ifnEtrr8xBj9sXZS8sRC3dWCxPC8QhpSA8X4Cj" alt="Mascota y humano" style>
-</div>
-<h3 class style>Beneficios de tener una mascota</h3>
-<p class style>Más allá de la compañía, tener un animal reduce el estrés y mejora la salud cardiovascular de toda la familia.</p>
-</article>
-<!-- Articulo 3 -->
-<article class="article-card">
-<div class="article-image-wrapper">
-<span class="badge" style>Diversión</span>
-<img class src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs3-MZXw-5mXISpV36N-kGHyDBWsoT1LJ42TULeRQFugVEDhUzNF9feXOI5HRChZ_wg-X2mo0G_SQRXPl7QTHEfIPpKTEA7wu8xkX22FKlDFJoyN7csMdS2OFxwq2WPU95-0W6_N_El6OhM5B6yK_q1FeCGyZZ7I5VmD9_PczfVL99mjCLxh1IFm83u1jryGrNzFnmuKYsFvkuEN91sZ56IpTewTQ6KjgVOMQnF-Uhhvqlzs3fYbKAXt_05yAK7I_w8n-T8j7oOfwz" alt="Perro jugando" style>
-</div>
-<h3 class style>Sorpresas que puedes hacerle a tu perro</h3>
-<p class style>Desde juguetes caseros hasta excursiones a nuevos senderos, descubre cómo mantener la curiosidad de tu mejor amigo.</p>
-</article>
-</div>
-</section>
-<div style="padding-bottom: 8rem;"></div>
-</main>
-</body></html>
+                </a>
+            </div>
+            <div class="articles-grid">
+                <!-- Articulo 1 -->
+                <article class="article-card">
+                    <div class="article-image-wrapper">
+                        <span class="badge" style>Adopción</span>
+                        <img class
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT-PCtlZXh7uM-FRrlkL-p-lRPhlW7VabAcUfCufM8VWvDncETZppFVGa7WbNs15QqV2Zz1DeCje_D6PDyE1bNcl1S-eky8m_K3GAYJXxPFTUVvxbL5gAV89hVLXS92NvHtktzIR_RGHeSEe-IJZku7gGhfEN_Rjc0IUpd8FSe7bZTV3UK9CIYueN-IgJZa5ovJkZeM1zGnUNQQszrPbmm0eWN44GiaVbpR4a2vcbtGRkyFPw_zrwwEJTTnCeLXVuVl02RvVy_6jgf"
+                            alt="Perro feliz" style>
+                    </div>
+                    <h3 class style>Cómo hacer que un perro adoptado se adapte a ti</h3>
+                    <p class style>Los primeros días son fundamentales. Te enseñamos técnicas de paciencia y refuerzo
+                        positivo para crear un vínculo irrompible.</p>
+                </article>
+                <!-- Articulo 2 -->
+                <article class="article-card">
+                    <div class="article-image-wrapper">
+                        <span class="badge alt" style>Bienestar</span>
+                        <img class
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOlsI3O_TPKIfMAtUW3XiBETwZolKvWC0yxrslWbCLbXVvZfk6lPUxZ5Js25ZaZMjBblL4JmhRe1EgUF7QQMZs8EgtySstLUhLR6qMeSM6KvlkWuacd1mjsujFzfVvZvd8WUDWL7hKz1uC8VbYe-HBFPn-IGrl11xJma9oCXNGrrfed9WZRRM61pyXLptgYGFZwpNgRcoa5RnMBT7AXVsJpWPB3_heID34fneAY8ifnEtrr8xBj9sXZS8sRC3dWCxPC8QhpSA8X4Cj"
+                            alt="Mascota y humano" style>
+                    </div>
+                    <h3 class style>Beneficios de tener una mascota</h3>
+                    <p class style>Más allá de la compañía, tener un animal reduce el estrés y mejora la salud
+                        cardiovascular de toda la familia.</p>
+                </article>
+                <!-- Articulo 3 -->
+                <article class="article-card">
+                    <div class="article-image-wrapper">
+                        <span class="badge" style>Diversión</span>
+                        <img class
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs3-MZXw-5mXISpV36N-kGHyDBWsoT1LJ42TULeRQFugVEDhUzNF9feXOI5HRChZ_wg-X2mo0G_SQRXPl7QTHEfIPpKTEA7wu8xkX22FKlDFJoyN7csMdS2OFxwq2WPU95-0W6_N_El6OhM5B6yK_q1FeCGyZZ7I5VmD9_PczfVL99mjCLxh1IFm83u1jryGrNzFnmuKYsFvkuEN91sZ56IpTewTQ6KjgVOMQnF-Uhhvqlzs3fYbKAXt_05yAK7I_w8n-T8j7oOfwz"
+                            alt="Perro jugando" style>
+                    </div>
+                    <h3 class style>Sorpresas que puedes hacerle a tu perro</h3>
+                    <p class style>Desde juguetes caseros hasta excursiones a nuevos senderos, descubre cómo mantener la
+                        curiosidad de tu mejor amigo.</p>
+                </article>
+            </div>
+        </section>
+        <div style="padding-bottom: 8rem;"></div>
+    </main>
+</body>
+
+</html>

@@ -19,6 +19,9 @@ def mostrar_registro_usuario():
 def mostrar_recuperar_contrasena():
     return render_template('modulo_usuario/recuperar_contraseña.html')
 
+def mostrar_perfil_usuario():
+    return render_template('modulo_usuario/perfil_usuario.html')
+
 #Modulo alertas
 
 def mostrar_lista_alertas():
