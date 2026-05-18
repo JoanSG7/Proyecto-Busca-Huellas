@@ -22,8 +22,10 @@ def mostrar_recuperar_contrasena():
 def mostrar_perfil_usuario():
     return render_template('modulo_usuario/perfil_usuario.html')
 
-#Modulo alertas
+def mostrar_editar_perfil():
+    return render_template('modulo_usuario/editar_perfil.html')
 
+#Modulo alertas
 def mostrar_lista_alertas():
     return render_template('modulo_alerta/lista_alertas.html')
 
@@ -31,6 +33,16 @@ def mostrar_lista_alertas():
 def mostrar_lista_articulos():
     return render_template('modulo_articulo/lista_articulos.html')
 
+def mostrar_articulo_completo():
+    return render_template('modulo_articulo/articulo_completo.html')
+
 # modulo mascota
 def mostrar_registro_mascota():
     return render_template('modulo_mascota/registro_mascota.html')
+
+def mostrar_info_mascota():
+    return render_template('modulo_mascota/info_mascota.html')
+
+# modulo reconocimiento
+def mostrar_capturar_foto():
+    return render_template('modulo_reconocimiento/capturar_foto.html')

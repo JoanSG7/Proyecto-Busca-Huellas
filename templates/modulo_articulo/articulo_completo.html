@@ -1,0 +1,425 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Cuidado invernal para cachorros - Busca Huellas</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        :root {
+            --primary: #0f5238;
+            --primary-container: #2d6a4f;
+            --on-primary: #ffffff;
+            --secondary: #79573a;
+            --secondary-container: #ffd1ac;
+            --tertiary: #5c4225;
+            --background: #fdf9f1;
+            --surface: #fdf9f1;
+            --surface-container: #f1ede5;
+            --surface-container-low: #f7f3eb;
+            --surface-container-high: #ece8e0;
+            --on-surface: #1c1c17;
+            --on-surface-variant: #404943;
+            --outline: #707973;
+            --radius-default: 1rem;
+            --radius-lg: 2rem;
+            --radius-xl: 3rem;
+            --radius-full: 9999px;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--background);
+            color: var(--on-surface);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+        }
+
+        .article-header {
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            font-weight: 800;
+            color: var(--on-surface);
+            letter-spacing: -0.03em;
+            margin-bottom: 2rem;
+        }
+
+        .hero-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 4rem;
+        }
+
+        .hero-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        article {
+            font-size: 1.125rem;
+            color: var(--on-surface);
+        }
+
+        .lead {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--on-surface-variant);
+            font-style: italic;
+            margin-bottom: 2.5rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 3rem 0 1.5rem;
+            letter-spacing: -0.01em;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: var(--on-surface-variant);
+        }
+
+        .checklist {
+            list-style: none;
+            margin-bottom: 2.5rem;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            color: var(--on-surface-variant);
+        }
+
+        .checklist .material-symbols-outlined {
+            color: var(--primary-container);
+            font-size: 1.25rem;
+            margin-top: 0.2rem;
+        }
+
+        .callout {
+            background-color: var(--surface-container-low);
+            padding: 2.5rem;
+            border-radius: var(--radius-default);
+            border-left: 8px solid var(--primary);
+            margin: 3rem 0;
+        }
+
+        .callout h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .callout p {
+            margin-bottom: 0;
+        }
+
+        /* Related Articles Section */
+        .related-section {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .related-section h2 {
+            color: var(--on-surface);
+            font-size: 2.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .article-card {
+            background: var(--surface-container-low);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            text-decoration: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .article-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        }
+
+        .card-img-wrapper {
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+        }
+
+        .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .article-card:hover .card-img-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            padding: 2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-tag {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--on-surface);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .card-excerpt {
+            font-size: 0.9375rem;
+            color: var(--on-surface-variant);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--surface-container-low);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            margin-top: 4rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .footer-copy {
+            font-size: 0.875rem;
+            color: var(--on-surface-variant);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            font-size: 0.875rem;
+            color: var(--on-surface-variant);
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: var(--radius-full);
+            background: var(--surface-container-high);
+            border: none;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .social-btn:hover {
+            background: var(--primary);
+            color: var(--on-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .related-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .nav-links { display: none; }
+            .related-grid { grid-template-columns: 1fr; }
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 2.5rem;
+            }
+            .footer-links { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    {% include 'includes/_header-up.html' %}
+<main>
+<header class="article-header" style="position: static;">
+<h1 class="">Cuidado invernal para cachorros: Guía completa</h1>
+</header>
+<div class="hero-wrapper">
+<img alt="Golden Retriever con bufanda" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMRmtUdWs1P_C6l0qWa0mgOfcZPRSXBHuEaGryAey4LLIfUtSflOWEbq4hYBr1CrpnAQaN2HZNf8FbFk60qykV0bTAMbeARv-SHIpaiPITOQkCs-ZzJka2rmA4OmsDB8Ry-UquiqFVwCV6J3LEFQFm_XoeazftyRodJ0twmpbuhJc_Qy77BBy0FFk7pewOsvOf1x-SNImGSwC-lpb1x8Lw0EbHIWLe3icnWIum88I8ekuG0kP83dE9H4RX-vtFMwPuBX1aIiqguoBZ">
+</div>
+<article>
+<p class="lead">
+                A medida que las temperaturas descienden, nuestros amigos más jóvenes requieren una atención especial. El invierno puede ser una estación mágica, pero para un cachorro, el frío extremo presenta desafíos biológicos que todo dueño responsable debe conocer.
+            </p>
+<h2 class="">Ajustes en la dieta para el frío</h2>
+<p class="">
+                Durante los meses de invierno, el cuerpo de un cachorro gasta mucha más energía para mantener su temperatura corporal basal. No se trata simplemente de darles más comida, sino de proporcionarles nutrientes de alta calidad que soporten este gasto metabólico extra.
+            </p>
+<ul class="checklist">
+<li class="">
+<span class="material-symbols-outlined">check_circle</span>
+<span class="">Aumenta ligeramente la ración calórica si el cachorro pasa tiempo activo en el exterior.</span>
+</li>
+<li class="">
+<span class="material-symbols-outlined">check_circle</span>
+<span class="">Asegúrate de que el agua siempre esté a temperatura ambiente, nunca helada.</span>
+</li>
+</ul>
+<h2 class="">Cuidado de las almohadillas y patas</h2>
+<p class="">
+                Las patas de los cachorros son extremadamente sensibles. La nieve, el hielo y, especialmente, la sal utilizada para deshielar las calles pueden causar quemaduras químicas y grietas dolorosas.
+            </p>
+<div class="callout">
+<h3 class="">Consejo Pro: El Bálsamo Protector</h3>
+<p class="">Aplica un bálsamo de cera natural antes de salir. Al regresar a casa, limpia sus patas con agua tibia para eliminar restos de sal o productos químicos.</p>
+</div>
+<h2 class="">Vestimenta: ¿Es necesaria?</h2>
+<p class="">
+                A diferencia de los perros adultos de razas nórdicas, los cachorros aún no tienen su pelaje definitivo ni la grasa corporal suficiente para aislarse del frío. Un buen abrigo no es solo estética, es una necesidad de salud para razas de pelo corto o ejemplares muy jóvenes.
+            </p>
+</article>
+</main>
+<section class="related-section">
+<h2 class="">Artículos relacionados</h2>
+<div class="related-grid">
+<!-- Card 1 -->
+<a class="article-card" href="#">
+<div class="card-img-wrapper">
+<img alt="Nutrición canina" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqvk7PXcXLMWh2PlNSqhXng3QFusH0qtmhQ3OjUDrU579ZvienxQZOgkL-D6x6C2bExA-AVpSG8HAAxjU9K7HscU_gnzP2czl4upH9CeKY8GF3y-zRWwy1ifpHlADE0AlvWb0TzjeOQ1nC4giIzHlGRiJKlNmg8fw9MxhOcqvLBPcAufzmrdedeT97Txbpe_Ntfn3S4Bx-XrGx0JCDZ9CA8-LRqQgTsM5V0B560JyHTJbxbyUGOzosov6S14YcnsurXz07WQcyLIrY">
+</div>
+<div class="card-content">
+<span class="card-tag">Nutrición</span>
+<h3 class="card-title">Alimentación natural: Beneficios para el crecimiento</h3>
+<p class="card-excerpt">Descubre por qué una dieta equilibrada es la base de una vida larga y feliz...</p>
+</div>
+</a>
+<!-- Card 2 -->
+<a class="article-card" href="#">
+<div class="card-img-wrapper">
+<img alt="Higiene de mascotas" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCd6UD7_loq-2sqmPkPrrPdahHEIhkc-sW3dp3qitUA5CYNJzCTJzQ3WYEkxyIdvfsnFZQuoOQoBjXrKsa38DVmvtpTDuSLnXahoOdcR7rT1fI2H6FAmDHOmYxxrXE3l0_wVeOpHGca3I7PTEQzqJK-U7EG5XGlAcGhyjyRl4mRcIGCu_CsGHOFoRlkT3hqWyNlGV6RQao2oHG8AC3qtB_0eThHLxwP7X29Ec3I9NGq3433Sr9wRZIxKSd0GTg3oH3TT9AHmcKhXTxg">
+</div>
+<div class="card-content">
+<span class="card-tag">Higiene</span>
+<h3 class="card-title">El primer baño de tu cachorro: Guía sin estrés</h3>
+<p class="card-excerpt">Hacer del baño una experiencia positiva fortalecerá el vínculo con tu mascota...</p>
+</div>
+</a>
+<!-- Card 3 -->
+<a class="article-card" href="#">
+<div class="card-img-wrapper">
+<img alt="Comportamiento" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs-J73zn9IvwQNUo519foPmnCrkIVzRARbsq4AdPGKnc2rVSVeoAVXNHmrQ85Akbawb9imfnRcETh4gRHwOixQZcC3m2RgnRgcyt4CatnUMkcnoz9DdekYf2wHJw_IXDjI_QFI_XAVBIkT0o1b_pp4xeF1bWyJ90wSnTbJgEglR3CrxHBr1xXs6RMmaOIgEZQU28nK5cymLDaEIMHBePhR--d1rHxpCnKHNRhsXB5iMHgdAbLfHIK4gGwYLhVVdMAa_r3AWWfwhMJT">
+</div>
+<div class="card-content">
+<span class="card-tag">Entrenamiento</span>
+<h3 class="card-title">Socialización temprana: Claves del éxito</h3>
+<p class="card-excerpt">Aprende cómo presentarle el mundo a tu cachorro de forma segura y divertida...</p>
+</div>
+</a>
+</div>
+</section>
+<footer>
+<div class="footer-container">
+<div class="footer-info">
+<span class="footer-logo">Busca Huellas</span>
+<p class="footer-copy">© 2024 Busca Huellas. El Santuario Digital de tus Mascotas.</p>
+</div>
+<div class="footer-links">
+<a href="#" class="">Términos Legales</a>
+<a href="#" class="">Privacidad</a>
+<a href="#" class="">Contacto</a>
+<a href="#" class="">Preguntas Frecuentes</a>
+</div>
+<div class="footer-socials">
+<button class="social-btn">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="social-btn">
+<span class="material-symbols-outlined">mail</span>
+</button>
+</div>
+</div>
+</footer>
+
+
+</body></html>

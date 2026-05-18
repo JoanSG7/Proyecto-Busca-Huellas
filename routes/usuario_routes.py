@@ -1,6 +1,6 @@
 from flask import Blueprint
 # Importamos las funciones del controlador
-from controllers.auth_controller import mostrar_inicio_sesion, mostrar_registro_usuario, mostrar_recuperar_contrasena, mostrar_perfil_usuario
+from controllers.auth_controller import mostrar_inicio_sesion, mostrar_registro_usuario, mostrar_recuperar_contrasena, mostrar_perfil_usuario, mostrar_editar_perfil
 
 usuario_bp = Blueprint('usuario', __name__)
 
@@ -20,3 +20,7 @@ def recuperar_contrasena():
 @usuario_bp.route('/perfil')
 def perfil_usuario():
     return mostrar_perfil_usuario()
+
+@usuario_bp.route('/editar-perfil')
+def editar_perfil():
+    return mostrar_editar_perfil()

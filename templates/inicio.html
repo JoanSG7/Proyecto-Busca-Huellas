@@ -216,6 +216,11 @@
         }
 
         /* Articles Section */
+        .article-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        
         .articles-header {
             display: flex;
             justify-content: space-between;
@@ -258,7 +263,6 @@
 
         .article-card {
             cursor: pointer;
-            group: hover;
         }
 
         .article-image-wrapper {
@@ -454,6 +458,7 @@
             <div class="articles-grid">
                 <!-- Articulo 1 -->
                 <article class="article-card">
+                    <a class="article-link" href="{{ url_for('articulo.articulo_completo') }}">
                     <div class="article-image-wrapper">
                         <span class="badge" style>Adopción</span>
                         <img class
@@ -463,9 +468,11 @@
                     <h3 class style>Cómo hacer que un perro adoptado se adapte a ti</h3>
                     <p class style>Los primeros días son fundamentales. Te enseñamos técnicas de paciencia y refuerzo
                         positivo para crear un vínculo irrompible.</p>
+                    </a>
                 </article>
                 <!-- Articulo 2 -->
                 <article class="article-card">
+                    <a class="article-link" href="{{ url_for('articulo.articulo_completo') }}">
                     <div class="article-image-wrapper">
                         <span class="badge alt" style>Bienestar</span>
                         <img class
@@ -475,9 +482,11 @@
                     <h3 class style>Beneficios de tener una mascota</h3>
                     <p class style>Más allá de la compañía, tener un animal reduce el estrés y mejora la salud
                         cardiovascular de toda la familia.</p>
+                    </a>
                 </article>
                 <!-- Articulo 3 -->
                 <article class="article-card">
+                    <a class="article-link" href="{{ url_for('articulo.articulo_completo') }}">
                     <div class="article-image-wrapper">
                         <span class="badge" style>Diversión</span>
                         <img class
@@ -487,6 +496,7 @@
                     <h3 class style>Sorpresas que puedes hacerle a tu perro</h3>
                     <p class style>Desde juguetes caseros hasta excursiones a nuevos senderos, descubre cómo mantener la
                         curiosidad de tu mejor amigo.</p>
+                    </a>
                 </article>
             </div>
         </section>

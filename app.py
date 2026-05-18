@@ -8,7 +8,7 @@ from routes.alerta_routes import alerta_bp
 from routes.articulo_routes import articulo_bp
 from routes.mascota_routes import mascota_bp
 # from routes.mensaje_routes import mensaje_bp
-# from routes.reconocimiento_routes import reconocimiento_bp
+from routes.reconocimiento_routes import reconocimiento_bp
 # from routes.validacion_routes import validacion_bp
 
 # 1. Inicializamos la aplicación
@@ -23,7 +23,7 @@ app.register_blueprint(alerta_bp, url_prefix='/alertas')
 # app.register_blueprint(informe_bp, url_prefix='/informe')
 app.register_blueprint(mascota_bp, url_prefix='/mascota')
 # app.register_blueprint(mensaje_bp, url_prefix='/mansaje')
-# app.register_blueprint(reconocimiento_bp, url_prefix='/reconocimiento')
+app.register_blueprint(reconocimiento_bp, url_prefix='/reconocimiento')
 # app.register_blueprint(validacion_bp, url_prefix='/validacion')
 
 

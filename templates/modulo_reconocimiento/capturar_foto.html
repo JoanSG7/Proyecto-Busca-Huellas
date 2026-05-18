@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Capturar Foto - The Forest Sanctuary</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        :root {
+            --primary: #0f5238;
+            --primary-container: #2d6a4f;
+            --on-primary: #ffffff;
+            --background: #fdf9f1;
+            --surface: #fdf9f1;
+            --surface-container-low: #f7f3eb;
+            --surface-container-highest: #e6e2da;
+            --on-surface: #1c1c17;
+            --on-surface-variant: #404943;
+            --outline-variant: #bfc9c1;
+            --secondary: #79573a;
+            --secondary-container: #ffd1ac;
+            --on-secondary-container: #7a583b;
+            --error: #ba1a1a;
+            --radius-default: 1rem;
+            --radius-lg: 2rem;
+            --radius-xl: 3rem;
+            --radius-full: 9999px;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--on-surface);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        /* Fixed Circular Back Button */
+        .btn-back-round {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-full);
+            background-color: var(--surface-container-low);
+            border: 1px solid var(--outline-variant);
+            color: var(--on-surface-variant);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .btn-back-round:hover {
+            transform: scale(1.1);
+            background-color: var(--surface-container-highest);
+            color: var(--primary);
+        }
+
+        /* Main Content Container */
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1.5rem;
+            max-width: 40rem;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Viewfinder Section */
+        .camera-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 5;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .camera-container:hover {
+            transform: scale(1.02);
+        }
+
+        .camera-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .viewfinder-ui {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem;
+            pointer-events: none;
+        }
+
+        .viewfinder-corners-top, .viewfinder-corners-bottom {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .viewfinder-corner {
+            width: 40px;
+            height: 40px;
+            border-color: rgba(255, 255, 255, 0.9);
+            border-style: solid;
+        }
+
+        .corner-tl { border-width: 4px 0 0 4px; border-top-left-radius: 0.5rem; }
+        .corner-tr { border-width: 4px 4px 0 0; border-top-right-radius: 0.5rem; }
+        .corner-bl { border-width: 0 0 4px 4px; border-bottom-left-radius: 0.5rem; }
+        .corner-br { border-width: 0 4px 4px 0; border-bottom-right-radius: 0.5rem; }
+
+        .viewfinder-center {
+            align-self: center;
+            margin-bottom: 2rem;
+        }
+
+        .focus-ring {
+            width: 4rem;
+            height: 4rem;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .focus-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: var(--error);
+            border-radius: var(--radius-full);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .badge-live {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: rgba(253, 249, 241, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .badge-live span {
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Buttons and Sections */
+        .action-group {
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background-color: var(--surface-container-low);
+            border: 2px solid var(--outline-variant);
+            color: var(--secondary);
+            font-weight: 700;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            transform: scale(1.02);
+            background-color: var(--surface-container-highest);
+        }
+
+        .location-card {
+            margin-top: 1.5rem;
+            width: 100%;
+            background-color: var(--surface-container-low);
+            padding: 1.5rem;
+            border-radius: var(--radius-default);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .location-icon-container {
+            width: 3rem;
+            height: 3rem;
+            background-color: var(--secondary-container);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--on-secondary-container);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .location-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .location-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--on-surface-variant);
+        }
+
+        .location-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--on-surface);
+            line-height: 1.2;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1.5rem 2rem;
+            margin-top: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-container));
+            color: var(--on-primary);
+            border: none;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            box-shadow: 0 10px 30px rgba(15, 82, 56, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 35px rgba(15, 82, 56, 0.3);
+        }
+
+        .btn-primary .material-symbols-outlined {
+            font-size: 1.75rem;
+            transition: transform 0.3s;
+        }
+
+        .btn-primary:hover .material-symbols-outlined {
+            transform: rotate(12deg);
+        }
+
+        .help-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--on-surface-variant);
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+<!-- Fixed Navigation Element -->
+<button aria-label="Atrás" class="btn-back-round" onclick="history.back();">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<main>
+    <h1 class="page-title">Tu foto</h1>
+<!-- Central Image Card -->
+<div class="camera-container">
+<img alt="Found Golden Retriever" class="camera-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBanWIuko4rvREnUvvCFc1n1nHeGq--cLFXuXkSW4dt3k47BPr0m-TmJCt-fEWKGRajvUqEJ2R1UJ6CdR2kQ9dueKe1BeASwsi9rXMC0JYZDAAYX8mJ8xasYgFS8z9Y6i720KwCwEtS0_sKGm5Mi7H57ER-3v-Boz0iBlTcGGr4zgGfWp4WXYhLIKr_1lPMpDi6phi-qqdL8fAnFPwDcZtBrj7JiqCaVnPoprDsUWZnex01vv7e6wqd1PwwzhhfZyV6wxGejlQQ5tVS"/>
+<div class="viewfinder-ui">
+<div class="viewfinder-corners-top">
+<div class="viewfinder-corner corner-tl"></div>
+<div class="viewfinder-corner corner-tr"></div>
+</div>
+<div class="viewfinder-center">
+<div class="focus-ring">
+<div class="focus-dot"></div>
+</div>
+</div>
+<div class="viewfinder-corners-bottom">
+<div class="viewfinder-corner corner-bl"></div>
+<div class="viewfinder-corner corner-br"></div>
+</div>
+</div>
+<div class="badge-live">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">shutter_speed</span>
+<span>Live Preview</span>
+</div>
+</div>
+<!-- Action Button -->
+<div class="action-group">
+<button class="btn-secondary">
+<span class="material-symbols-outlined">refresh</span>
+                Reintentar foto
+            </button>
+</div>
+<!-- Location Information -->
+<div class="location-card">
+<div class="location-icon-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<div class="location-info">
+<span class="location-label">Ubicación detectada</span>
+<span class="location-value">Parque Nacional El Chico, Hidalgo, México</span>
+</div>
+</div>
+<!-- Primary Call to Action -->
+<a href="{{ url_for('inicio.inicio') }}" class="btn-primary">
+<span class="material-symbols-outlined">search</span>
+<span>Buscar</span>
+</a>
+<p class="help-text">
+            Analizaremos los rasgos del perro para encontrar coincidencias en nuestra base de datos.
+        </p>
+</main>
+</body></html>

@@ -271,6 +271,11 @@
             transform: scale(1.02);
         }
 
+        .link-boton-editarInformacion {
+            text-decoration: none;
+            border-radius: 100%;
+        }
+
         /* Gallery Section */
         .section-header {
             display: flex;
@@ -468,10 +473,10 @@
                             14 de mayo, 1994
                         </div>
 </div>
-<button class="btn-edit">
-<span class="material-symbols-outlined" style="font-size: 1.125rem;">edit</span>
-                        Editar Información
-                    </button>
+<a class="btn-edit" href="{{ url_for('usuario.editar_perfil') }}">
+    <span class="material-symbols-outlined" style="font-size: 1.125rem;">edit</span>
+    Editar Información
+</a>
 </div>
 </div>
 </section>
