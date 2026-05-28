@@ -1,57 +1,39 @@
 <!DOCTYPE html>
-
-<html lang="es"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Capturar Foto - The Forest Sanctuary</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<style>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capturar Foto - Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
         :root {
             --primary: #0f5238;
             --primary-container: #2d6a4f;
-            --on-primary: #ffffff;
             --background: #fdf9f1;
-            --surface: #fdf9f1;
             --surface-container-low: #f7f3eb;
             --surface-container-highest: #e6e2da;
             --on-surface: #1c1c17;
             --on-surface-variant: #404943;
             --outline-variant: #bfc9c1;
-            --secondary: #79573a;
             --secondary-container: #ffd1ac;
-            --on-secondary-container: #7a583b;
             --error: #ba1a1a;
-            --radius-default: 1rem;
-            --radius-lg: 2rem;
-            --radius-xl: 3rem;
             --radius-full: 9999px;
             --font-main: 'Plus Jakarta Sans', sans-serif;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background-color: var(--background);
             color: var(--on-surface);
             font-family: var(--font-main);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            line-height: 1.5;
-            overflow-x: hidden;
         }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
+        main {
+            width: min(100%, 42rem);
+            margin: 0 auto;
+            padding: 2rem 1.25rem 4rem;
         }
-
-        /* Fixed Circular Back Button */
         .btn-back-round {
             position: fixed;
             top: 20px;
@@ -66,59 +48,46 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.3s ease, background-color 0.3s ease;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            z-index: 10;
         }
-
-        .btn-back-round:hover {
-            transform: scale(1.1);
-            background-color: var(--surface-container-highest);
-            color: var(--primary);
-        }
-
-        /* Main Content Container */
-        main {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem 1.5rem;
-            max-width: 40rem;
-            margin: 0 auto;
-            width: 100%;
-        }
-
         .page-title {
-            font-size: 1.75rem;
-            font-weight: 700;
+            font-size: clamp(2rem, 7vw, 3.25rem);
+            font-weight: 800;
             color: var(--primary);
-            margin-bottom: 1.5rem;
+            margin: 3rem 0 1rem;
+            text-align: center;
         }
-
-        /* Viewfinder Section */
+        .help-text {
+            text-align: center;
+            color: var(--on-surface-variant);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        .flash {
+            margin: 0 auto 1rem;
+            max-width: 36rem;
+            font-weight: 800;
+            text-align: center;
+        }
         .camera-container {
             position: relative;
             width: 100%;
             aspect-ratio: 4 / 5;
-            border-radius: var(--radius-lg);
+            border-radius: 2rem;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            margin-top: 1rem;
+            background: #111;
+            box-shadow: 0 16px 40px rgba(15, 82, 56, 0.16);
         }
-
-        .camera-container:hover {
-            transform: scale(1.02);
-        }
-
-        .camera-image {
+        video,
+        canvas,
+        .captured-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
         }
-
+        canvas { display: none; }
+        .captured-image { display: none; }
         .viewfinder-ui {
             position: absolute;
             inset: 0;
@@ -128,242 +97,250 @@
             padding: 1.5rem;
             pointer-events: none;
         }
-
-        .viewfinder-corners-top, .viewfinder-corners-bottom {
+        .viewfinder-corners-top,
+        .viewfinder-corners-bottom {
             display: flex;
             justify-content: space-between;
         }
-
         .viewfinder-corner {
             width: 40px;
             height: 40px;
             border-color: rgba(255, 255, 255, 0.9);
             border-style: solid;
         }
-
-        .corner-tl { border-width: 4px 0 0 4px; border-top-left-radius: 0.5rem; }
-        .corner-tr { border-width: 4px 4px 0 0; border-top-right-radius: 0.5rem; }
-        .corner-bl { border-width: 0 0 4px 4px; border-bottom-left-radius: 0.5rem; }
-        .corner-br { border-width: 0 4px 4px 0; border-bottom-right-radius: 0.5rem; }
-
-        .viewfinder-center {
-            align-self: center;
-            margin-bottom: 2rem;
-        }
-
-        .focus-ring {
-            width: 4rem;
-            height: 4rem;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .focus-dot {
-            width: 0.5rem;
-            height: 0.5rem;
-            background-color: var(--error);
-            border-radius: var(--radius-full);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
+        .corner-tl { border-width: 4px 0 0 4px; border-top-left-radius: .5rem; }
+        .corner-tr { border-width: 4px 4px 0 0; border-top-right-radius: .5rem; }
+        .corner-bl { border-width: 0 0 4px 4px; border-bottom-left-radius: .5rem; }
+        .corner-br { border-width: 0 4px 4px 0; border-bottom-right-radius: .5rem; }
         .badge-live {
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background-color: rgba(253, 249, 241, 0.6);
-            backdrop-filter: blur(8px);
-            padding: 0.5rem 1rem;
+            background-color: rgba(253, 249, 241, 0.82);
+            padding: .5rem 1rem;
             border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .badge-live span {
             color: var(--primary);
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: .75rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
         }
-
-        /* Buttons and Sections */
-        .action-group {
-            margin-top: 1.5rem;
-            width: 100%;
+        .actions {
+            display: grid;
+            gap: .85rem;
+            margin-top: 1.25rem;
         }
-
-        .btn-secondary {
+        .btn {
             width: 100%;
-            padding: 1rem 1.5rem;
-            background-color: var(--surface-container-low);
-            border: 2px solid var(--outline-variant);
-            color: var(--secondary);
-            font-weight: 700;
+            border: 0;
             border-radius: var(--radius-full);
-            display: flex;
+            padding: 1rem 1.25rem;
+            font: inherit;
+            font-weight: 800;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: .5rem;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
-
-        .btn-secondary:hover {
-            transform: scale(1.02);
-            background-color: var(--surface-container-highest);
-        }
-
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--surface-container-low); color: var(--primary); border: 2px solid var(--outline-variant); }
+        .btn-search { margin-top: .5rem; padding: 1.3rem; font-size: 1.15rem; background: linear-gradient(135deg, var(--primary), var(--primary-container)); color: white; }
+        .btn[disabled] { opacity: .55; cursor: not-allowed; }
         .location-card {
-            margin-top: 1.5rem;
-            width: 100%;
+            margin-top: 1.25rem;
             background-color: var(--surface-container-low);
-            padding: 1.5rem;
-            border-radius: var(--radius-default);
+            padding: 1.25rem;
+            border-radius: 1rem;
             display: flex;
             align-items: center;
             gap: 1rem;
         }
-
-        .location-icon-container {
+        .location-icon {
             width: 3rem;
             height: 3rem;
-            background-color: var(--secondary-container);
+            background: var(--secondary-container);
+            color: var(--primary);
             border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--on-secondary-container);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
         }
-
-        .location-info {
-            display: flex;
-            flex-direction: column;
-        }
-
         .location-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            display: block;
             color: var(--on-surface-variant);
-        }
-
-        .location-value {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--on-surface);
-            line-height: 1.2;
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 1.5rem 2rem;
-            margin-top: 2rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-container));
-            color: var(--on-primary);
-            border: none;
-            border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            font-size: 1.25rem;
+            font-size: .75rem;
             font-weight: 800;
-            letter-spacing: -0.025em;
-            box-shadow: 0 10px 30px rgba(15, 82, 56, 0.2);
-            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: .08em;
         }
-
-        .btn-primary:hover {
-            transform: scale(1.03);
-            box-shadow: 0 15px 35px rgba(15, 82, 56, 0.3);
-        }
-
-        .btn-primary .material-symbols-outlined {
-            font-size: 1.75rem;
-            transition: transform 0.3s;
-        }
-
-        .btn-primary:hover .material-symbols-outlined {
-            transform: rotate(12deg);
-        }
-
-        .help-text {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: var(--on-surface-variant);
-            font-size: 0.875rem;
-            font-weight: 500;
-            padding-bottom: 2rem;
+        .location-value {
+            display: block;
+            color: var(--on-surface);
+            font-weight: 700;
+            word-break: break-word;
         }
     </style>
 </head>
 <body>
-<!-- Fixed Navigation Element -->
-<button aria-label="Atrás" class="btn-back-round" onclick="history.back();">
-<span class="material-symbols-outlined">arrow_back</span>
-</button>
-<main>
-    <h1 class="page-title">Tu foto</h1>
-<!-- Central Image Card -->
-<div class="camera-container">
-<img alt="Found Golden Retriever" class="camera-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBanWIuko4rvREnUvvCFc1n1nHeGq--cLFXuXkSW4dt3k47BPr0m-TmJCt-fEWKGRajvUqEJ2R1UJ6CdR2kQ9dueKe1BeASwsi9rXMC0JYZDAAYX8mJ8xasYgFS8z9Y6i720KwCwEtS0_sKGm5Mi7H57ER-3v-Boz0iBlTcGGr4zgGfWp4WXYhLIKr_1lPMpDi6phi-qqdL8fAnFPwDcZtBrj7JiqCaVnPoprDsUWZnex01vv7e6wqd1PwwzhhfZyV6wxGejlQQ5tVS"/>
-<div class="viewfinder-ui">
-<div class="viewfinder-corners-top">
-<div class="viewfinder-corner corner-tl"></div>
-<div class="viewfinder-corner corner-tr"></div>
-</div>
-<div class="viewfinder-center">
-<div class="focus-ring">
-<div class="focus-dot"></div>
-</div>
-</div>
-<div class="viewfinder-corners-bottom">
-<div class="viewfinder-corner corner-bl"></div>
-<div class="viewfinder-corner corner-br"></div>
-</div>
-</div>
-<div class="badge-live">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 14px;">shutter_speed</span>
-<span>Live Preview</span>
-</div>
-</div>
-<!-- Action Button -->
-<div class="action-group">
-<button class="btn-secondary">
-<span class="material-symbols-outlined">refresh</span>
-                Reintentar foto
+    <button aria-label="Atrás" class="btn-back-round" onclick="history.back();">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+
+    <main>
+        <h1 class="page-title">Tomar foto</h1>
+        <p class="help-text">La búsqueda necesita una foto tomada con la cámara y tu ubicación actual.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <p class="flash" style="color: {% if category == 'error' %}#ba1a1a{% else %}#2d6a4f{% endif %};">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form id="search-form" action="{{ url_for('reconocimiento.capturar_foto') }}" method="POST">
+            <input id="foto_capturada" name="foto_capturada" type="hidden">
+            <input id="latitud" name="latitud" type="hidden">
+            <input id="longitud" name="longitud" type="hidden">
+
+            <div class="camera-container">
+                <video id="camera" autoplay playsinline></video>
+                <canvas id="snapshot"></canvas>
+                <img id="captured-image" class="captured-image" alt="Foto tomada">
+                <div class="viewfinder-ui">
+                    <div class="viewfinder-corners-top">
+                        <div class="viewfinder-corner corner-tl"></div>
+                        <div class="viewfinder-corner corner-tr"></div>
+                    </div>
+                    <div class="viewfinder-corners-bottom">
+                        <div class="viewfinder-corner corner-bl"></div>
+                        <div class="viewfinder-corner corner-br"></div>
+                    </div>
+                </div>
+                <div class="badge-live" id="camera-status">Solicitando cámara</div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" id="capture-btn" type="button" disabled>
+                    <span class="material-symbols-outlined">photo_camera</span>
+                    Tomar foto
+                </button>
+                <button class="btn btn-secondary" id="retry-btn" type="button" disabled>
+                    <span class="material-symbols-outlined">refresh</span>
+                    Reintentar foto
+                </button>
+            </div>
+
+            <div class="location-card">
+                <div class="location-icon">
+                    <span class="material-symbols-outlined">location_on</span>
+                </div>
+                <div>
+                    <span class="location-label">Ubicación detectada</span>
+                    <span class="location-value" id="location-status">Solicitando permiso de ubicación...</span>
+                </div>
+            </div>
+
+            <button class="btn btn-search" id="search-btn" type="submit" disabled>
+                <span class="material-symbols-outlined">search</span>
+                Buscar
             </button>
-</div>
-<!-- Location Information -->
-<div class="location-card">
-<div class="location-icon-container">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">location_on</span>
-</div>
-<div class="location-info">
-<span class="location-label">Ubicación detectada</span>
-<span class="location-value">Parque Nacional El Chico, Hidalgo, México</span>
-</div>
-</div>
-<!-- Primary Call to Action -->
-<a href="{{ url_for('inicio.inicio') }}" class="btn-primary">
-<span class="material-symbols-outlined">search</span>
-<span>Buscar</span>
-</a>
-<p class="help-text">
-            Analizaremos los rasgos del perro para encontrar coincidencias en nuestra base de datos.
-        </p>
-</main>
-</body></html>
+        </form>
+    </main>
+
+    <script>
+        const video = document.getElementById('camera');
+        const canvas = document.getElementById('snapshot');
+        const capturedImage = document.getElementById('captured-image');
+        const captureBtn = document.getElementById('capture-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const searchBtn = document.getElementById('search-btn');
+        const photoInput = document.getElementById('foto_capturada');
+        const latInput = document.getElementById('latitud');
+        const lngInput = document.getElementById('longitud');
+        const cameraStatus = document.getElementById('camera-status');
+        const locationStatus = document.getElementById('location-status');
+        const form = document.getElementById('search-form');
+
+        let stream = null;
+
+        function updateSearchState() {
+            searchBtn.disabled = !(photoInput.value && latInput.value && lngInput.value);
+        }
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } },
+                    audio: false
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                capturedImage.style.display = 'none';
+                captureBtn.disabled = false;
+                cameraStatus.textContent = 'Cámara activa';
+            } catch (error) {
+                cameraStatus.textContent = 'Permiso de cámara requerido';
+            }
+        }
+
+        function requestLocation() {
+            if (!navigator.geolocation) {
+                locationStatus.textContent = 'Este dispositivo no permite obtener ubicación.';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const { latitude, longitude } = position.coords;
+                    latInput.value = latitude.toFixed(7);
+                    lngInput.value = longitude.toFixed(7);
+                    locationStatus.textContent = `${latInput.value}, ${lngInput.value}`;
+                    updateSearchState();
+                },
+                () => {
+                    locationStatus.textContent = 'Permiso de ubicación requerido para buscar.';
+                },
+                { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+            );
+        }
+
+        captureBtn.addEventListener('click', () => {
+            if (!video.videoWidth || !video.videoHeight) return;
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            photoInput.value = dataUrl;
+            capturedImage.src = dataUrl;
+            capturedImage.style.display = 'block';
+            video.style.display = 'none';
+            retryBtn.disabled = false;
+            cameraStatus.textContent = 'Foto tomada';
+            updateSearchState();
+        });
+
+        retryBtn.addEventListener('click', () => {
+            photoInput.value = '';
+            capturedImage.removeAttribute('src');
+            capturedImage.style.display = 'none';
+            video.style.display = 'block';
+            retryBtn.disabled = true;
+            cameraStatus.textContent = 'Cámara activa';
+            updateSearchState();
+        });
+
+        form.addEventListener('submit', event => {
+            if (!photoInput.value || !latInput.value || !lngInput.value) {
+                event.preventDefault();
+                alert('Debes tomar una foto y permitir la ubicación antes de buscar.');
+            }
+        });
+
+        startCamera();
+        requestLocation();
+    </script>
+</body>
+</html>

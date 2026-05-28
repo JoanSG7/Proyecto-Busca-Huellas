@@ -5,6 +5,6 @@ from controllers.auth_controller import mostrar_capturar_foto
 reconocimiento_bp = Blueprint('reconocimiento', __name__)
 
 # modulo reconocimiento
-@reconocimiento_bp.route('/capturar-foto')
+@reconocimiento_bp.route('/capturar-foto', methods=['GET', 'POST'])
 def capturar_foto():
     return mostrar_capturar_foto()

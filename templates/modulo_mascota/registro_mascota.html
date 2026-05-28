@@ -559,7 +559,14 @@
             </div>
         </div>
         <div class="form-card">
-            <form onsubmit="event.preventDefault();">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <p style="margin-bottom: 1rem; color: {% if category == 'error' %}#ba1a1a{% else %}#2d6a4f{% endif %}; font-weight: 800;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <form action="{{ url_for('mascota.registro_mascota') }}" method="POST" enctype="multipart/form-data">
                 <!-- Data Section with Grid Alignment -->
                 <section>
                     <div class="section-header">
@@ -569,15 +576,15 @@
                     <div class="input-grid">
                         <div class="input-group">
                             <label>Nombre de la mascota</label>
-                            <input placeholder="Ej: Canela" type="text" />
+                            <input name="nombre_mascota" placeholder="Ej: Canela" required type="text" />
                         </div>
                         <div class="input-group">
                             <label>Raza</label>
-                            <input placeholder="Ej: Golden Retriever" type="text" />
+                            <input name="raza" placeholder="Ej: Golden Retriever" type="text" />
                         </div>
                         <div class="input-group">
                             <label>Edad exacta (años)</label>
-                            <input placeholder="Ej: 3" type="number" />
+                            <input name="edad" min="0" placeholder="Ej: 3" type="number" />
                         </div>
                         <div class="input-group">
                             <label>Tamaño</label>
@@ -586,12 +593,29 @@
                                 <button class="toggle-btn" data-val="mediano" type="button">Mediano</button>
                                 <button class="toggle-btn" data-val="grande" type="button">Grande</button>
                             </div>
+                            <input id="tamano" name="tamano" type="hidden" value="pequeño" />
+                        </div>
+                        <div class="input-group">
+                            <label>Color</label>
+                            <input name="color" placeholder="Ej: Café con blanco" type="text" />
+                        </div>
+                        <div class="input-group">
+                            <label>Pelaje</label>
+                            <input name="pelaje" placeholder="Ej: Corto, largo, rizado" type="text" />
+                        </div>
+                        <div class="input-group">
+                            <label>Estado</label>
+                            <select name="estado" style="background-color: var(--surface-container-low); border: 2px solid transparent; padding: 1.1rem 1.5rem; border-radius: var(--radius-full); font-family: inherit; font-size: 0.95rem;">
+                                <option value="perdida">Perdida</option>
+                                <option value="encontrada">Encontrada</option>
+                                <option value="en proceso">En proceso</option>
+                            </select>
                         </div>
                     </div>
                     <div class="input-group" style="margin-top: 2rem;">
                         <label>Características distintivas</label>
                         <textarea placeholder="Describe manchas, cicatrices, collar o cualquier rasgo único..."
-                            rows="3"></textarea>
+                            name="descripcion" rows="3"></textarea>
                     </div>
                 </section>
                 <section>
@@ -612,18 +636,21 @@
                         <h2>Fotos Recientes (Mínimo 2)</h2>
                     </div>
                     <div class="photo-upload-grid">
-                        <div class="photo-slot">
+                        <label class="photo-slot" for="foto-1">
                             <span class="material-symbols-outlined">add_photo_alternate</span>
                             <small>Subir</small>
-                        </div>
-                        <div class="photo-slot">
+                            <input id="foto-1" name="fotos_mascota" type="file" accept="image/*" hidden required>
+                        </label>
+                        <label class="photo-slot" for="foto-2">
                             <span class="material-symbols-outlined">add_photo_alternate</span>
                             <small>Subir</small>
-                        </div>
-                        <div class="photo-slot">
+                            <input id="foto-2" name="fotos_mascota" type="file" accept="image/*" hidden required>
+                        </label>
+                        <label class="photo-slot" for="foto-3">
                             <span class="material-symbols-outlined">add_photo_alternate</span>
                             <small>Subir</small>
-                        </div>
+                            <input id="foto-3" name="fotos_mascota" type="file" accept="image/*" hidden>
+                        </label>
                     </div>
                 </section>
                 <button class="submit-btn" type="submit">Publicar Reporte</button>
@@ -647,6 +674,29 @@
             btn.addEventListener('click', () => {
                 toggleButtons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                document.getElementById('tamano').value = btn.dataset.val;
+            });
+        });
+
+        document.querySelectorAll('.photo-slot input[type="file"]').forEach(input => {
+            input.addEventListener('change', () => {
+                const slot = input.closest('.photo-slot');
+                const file = input.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = event => {
+                    slot.style.backgroundImage = `url(${event.target.result})`;
+                    slot.style.backgroundSize = 'cover';
+                    slot.style.backgroundPosition = 'center';
+                    slot.style.borderStyle = 'solid';
+                    slot.querySelector('span').style.display = 'none';
+                    slot.querySelector('small').textContent = 'Lista';
+                    slot.querySelector('small').style.background = 'rgba(255,255,255,.9)';
+                    slot.querySelector('small').style.padding = '.3rem .6rem';
+                    slot.querySelector('small').style.borderRadius = '999px';
+                };
+                reader.readAsDataURL(file);
             });
         });
     </script>
