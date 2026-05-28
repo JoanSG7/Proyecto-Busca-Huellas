@@ -16,7 +16,7 @@ def crear_fotos_mascota(id_mascota, urls_fotos):
     if not urls_fotos:
         return 0
 
-    sql = "INSERT INTO foto_mascota (id_mascota, url_foto) VALUES (%s, %s)"
+    sql = "INSERT INTO foto_mascota (id_mascota, url_imagen) VALUES (%s, %s)"
     with db_cursor(commit=True) as cursor:
         cursor.executemany(sql, [(id_mascota, url_foto) for url_foto in urls_fotos])
         return cursor.rowcount
@@ -24,11 +24,12 @@ def crear_fotos_mascota(id_mascota, urls_fotos):
 
 def listar_fotos_mascota(id_mascota):
     sql = """
-        SELECT id_foto_mascota, url_foto
+
+        SELECT id_foto, url_imagen
         FROM foto_mascota
         WHERE id_mascota = %s
-        ORDER BY id_foto_mascota ASC
-    """
+        ORDER BY id_foto ASC
+
     with db_cursor() as cursor:
         cursor.execute(sql, (id_mascota,))
         return cursor.fetchall()
