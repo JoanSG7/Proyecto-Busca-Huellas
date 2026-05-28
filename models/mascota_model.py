@@ -24,11 +24,12 @@ def crear_fotos_mascota(id_mascota, urls_fotos):
 
 def listar_fotos_mascota(id_mascota):
     sql = """
+
         SELECT id_foto, url_imagen
         FROM foto_mascota
         WHERE id_mascota = %s
         ORDER BY id_foto ASC
-    """
+
     with db_cursor() as cursor:
         cursor.execute(sql, (id_mascota,))
         return cursor.fetchall()
