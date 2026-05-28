@@ -274,7 +274,8 @@
         input[type="tel"],
         input[type="email"],
         input[type="date"],
-        input[type="password"] {
+        input[type="password"],
+        select {
             background-color: var(--surface-container-high);
             border: none;
             border-radius: var(--radius-full);
@@ -286,8 +287,21 @@
             outline: none;
         }
 
+        select {
+            appearance: none;
+            cursor: pointer;
+        }
+
         input:focus {
             box-shadow: 0 0 0 2px var(--primary-container);
+        }
+
+        .admin-code-field {
+            display: none;
+        }
+
+        .admin-code-field.is-visible {
+            display: flex;
         }
 
         .checkbox-container {
@@ -391,7 +405,14 @@
                         <h2>Crear una cuenta</h2>
                         <p>Comienza tu viaje hacia una nueva amistad</p>
                     </div>
-                    <form action="#" class="form-grid" method="POST">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <p style="color: {% if category == 'error' %}#ba1a1a{% else %}#2d6a4f{% endif %}; font-weight: 700;">{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                    <form action="{{ url_for('usuario.registro_usuario') }}" class="form-grid" method="POST">
                         <div class="form-grid two-cols">
                             <div class="input-group">
                                 <label for="name">Nombre completo</label>
@@ -409,6 +430,19 @@
                         <div class="input-group">
                             <label for="dob">Fecha de nacimiento</label>
                             <input id="dob" name="dob" required="" type="date" />
+                        </div>
+                        <div class="form-grid two-cols">
+                            <div class="input-group">
+                                <label for="role">Tipo de cuenta</label>
+                                <select id="role" name="role" required>
+                                    <option value="usuario">Usuario normal</option>
+                                    <option value="admin">Administrador</option>
+                                </select>
+                            </div>
+                            <div class="input-group admin-code-field" id="admin-code-field">
+                                <label for="admin_code">Código admin</label>
+                                <input id="admin_code" name="admin_code" placeholder="Código especial" type="password" />
+                            </div>
                         </div>
                         <div class="form-grid two-cols">
                             <div class="input-group">
@@ -447,6 +481,23 @@
             <a href="#">Contacto</a>
         </div>
     </footer>
+    <script>
+        const roleSelect = document.getElementById('role');
+        const adminCodeField = document.getElementById('admin-code-field');
+        const adminCodeInput = document.getElementById('admin_code');
+
+        function toggleAdminCode() {
+            const isAdmin = roleSelect.value === 'admin';
+            adminCodeField.classList.toggle('is-visible', isAdmin);
+            adminCodeInput.required = isAdmin;
+            if (!isAdmin) {
+                adminCodeInput.value = '';
+            }
+        }
+
+        roleSelect.addEventListener('change', toggleAdminCode);
+        toggleAdminCode();
+    </script>
 </body>
 
 </html>

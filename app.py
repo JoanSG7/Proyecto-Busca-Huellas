@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, redirect, url_for
 # Importamos el Blueprint que creamos en tu carpeta de rutas
 from routes.inicio_routes import inicio_bp
@@ -13,6 +15,7 @@ from routes.reconocimiento_routes import reconocimiento_bp
 
 # 1. Inicializamos la aplicación
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'busca-huellas-dev-secret-change-me')
 
 # 2. Registramos las rutas (Blueprints)
 app.register_blueprint(inicio_bp)

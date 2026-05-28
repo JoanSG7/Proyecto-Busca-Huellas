@@ -1,533 +1,83 @@
-<!DOCTYPE html><html lang="es"><head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Perfil de Usuario - Busca Huellas</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<style>
-        :root {
-            --primary: #0f5238;
-            --primary-container: #2d6a4f;
-            --on-primary: #ffffff;
-            --primary-fixed: #b1f0ce;
-            --primary-fixed-dim: #95d4b3;
-            --on-primary-fixed-variant: #0e5138;
-            
-            --secondary: #79573a;
-            --secondary-container: #ffd1ac;
-            --on-secondary-container: #7a583b;
-            --on-secondary: #ffffff;
-            
-            --surface: #fdf9f1;
-            --surface-container-low: #f7f3eb;
-            --surface-container-high: #ece8e0;
-            --surface-container-highest: #e6e2da;
-            --on-surface: #1c1c17;
-            --on-surface-variant: #404943;
-            --outline-variant: #bfc9c1;
-            
-            --error: #ba1a1a;
-            --on-error: #ffffff;
-            
-            --radius-default: 1rem;
-            --radius-lg: 2rem;
-            --radius-xl: 3rem;
-            --radius-full: 9999px;
-            
-            --font-main: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-main);
-            background-color: var(--surface);
-            color: var(--on-surface);
-            line-height: 1.5;
-            min-height: 100vh;
-        }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-
-        /* Layout */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-        }
-
-        /* Main Content */
-        main {
-            padding: 3rem 0 6rem;
-        }
-
-        .profile-section {
-            position: relative;
-            background-color: var(--surface-container-low);
-            border-radius: var(--radius-xl);
-            padding: 2rem;
-            margin-bottom: 4rem;
-            overflow: hidden;
-        }
-
-        @media (min-width: 1024px) {
-            .profile-section { padding: 3rem; }
-        }
-
-        .organic-blob {
-            position: absolute;
-            top: -3rem;
-            right: -3rem;
-            width: 16rem;
-            height: 16rem;
-            background-color: rgba(177, 240, 206, 0.2);
-            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-            filter: blur(48px);
-            pointer-events: none;
-        }
-
-        .action-buttons {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            display: flex;
-            gap: 0.75rem;
-            z-index: 10;
-        }
-
-        .btn-logout {
-            padding: 0.625rem 1.25rem;
-            background-color: var(--secondary-container);
-            color: var(--on-secondary-container);
-            border: none;
-            border-radius: var(--radius-full);
-            font-weight: 700;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-logout:hover {
-            background-color: var(--secondary);
-            color: var(--on-secondary);
-        }
-
-        .btn-settings {
-            width: 3rem;
-            height: 3rem;
-            border-radius: var(--radius-full);
-            background-color: var(--surface-container-highest);
-            color: var(--on-surface-variant);
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-settings:hover {
-            background-color: var(--primary);
-            color: var(--on-primary);
-        }
-
-        .profile-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        @media (min-width: 768px) {
-            .profile-content {
-                flex-direction: row;
-                align-items: flex-start;
-                gap: 3rem;
-                text-align: left;
-            }
-        }
-
-        .profile-avatar {
-            width: 10rem;
-            height: 10rem;
-            border-radius: var(--radius-full);
-            border: 4px solid var(--surface);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        @media (min-width: 768px) {
-            .profile-avatar {
-                width: 12rem;
-                height: 12rem;
-            }
-        }
-
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .profile-details {
-            flex: 1;
-            text-align: center;
-        }
-
-        @media (min-width: 768px) {
-            .profile-details { text-align: left; }
-        }
-
-        .profile-name {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.025em;
-            margin-bottom: 0.5rem;
-        }
-
-        @media (min-width: 1024px) {
-            .profile-name { font-size: 3rem; }
-        }
-
-        .profile-email {
-            color: var(--on-surface-variant);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        @media (min-width: 768px) {
-            .profile-email { justify-content: flex-start; }
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        @media (min-width: 640px) {
-            .info-grid { grid-template-columns: 1fr 1fr; }
-        }
-
-        .info-item {
-            background-color: rgba(236, 232, 224, 0.5);
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            color: var(--on-surface-variant);
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        @media (min-width: 768px) {
-            .info-item { justify-content: flex-start; }
-        }
-
-        .btn-edit {
-            padding: 1rem 2rem;
-            background: linear-gradient(to right, var(--primary), var(--primary-container));
-            color: var(--on-primary);
-            border: none;
-            border-radius: var(--radius-full);
-            font-weight: 700;
-            font-size: 0.875rem;
-            letter-spacing: 0.025em;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 0 auto;
-        }
-
-        @media (min-width: 768px) {
-            .btn-edit { margin: 0; }
-        }
-
-        .btn-edit:hover {
-            box-shadow: 0 10px 15px -3px rgba(15, 82, 56, 0.3);
-            transform: scale(1.02);
-        }
-
-        .link-boton-editarInformacion {
-            text-decoration: none;
-            border-radius: 100%;
-        }
-
-        /* Gallery Section */
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .section-title {
-            font-size: 1.875rem;
-            font-weight: 700;
-            color: var(--on-surface);
-            letter-spacing: -0.025em;
-            white-space: nowrap;
-        }
-
-        .section-divider {
-            height: 4px;
-            flex: 1;
-            background-color: var(--surface-container-highest);
-            border-radius: var(--radius-full);
-            display: none;
-        }
-
-        @media (min-width: 640px) {
-            .section-divider { display: block; }
-        }
-
-        .pets-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2.5rem;
-        }
-
-        @media (min-width: 640px) {
-            .pets-grid { grid-template-columns: 1fr 1fr; }
-        }
-
-        @media (min-width: 1024px) {
-            .pets-grid { grid-template-columns: 1fr 1fr 1fr; }
-        }
-
-        .pet-card {
-            background-color: var(--surface-container-low);
-            border-radius: var(--radius-default);
-            overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .pet-card:hover {
-            transform: translateY(-0.5rem);
-        }
-
-        .pet-image-container {
-            position: relative;
-            height: 16rem;
-            overflow: hidden;
-        }
-
-        .pet-image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.7s;
-        }
-
-        .pet-card:hover .pet-image-container img {
-            transform: scale(1.1);
-        }
-
-        .status-badge {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            padding: 0.375rem 1rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border-radius: var(--radius-full);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .badge-lost {
-            background-color: var(--error);
-            color: var(--on-error);
-        }
-
-        .badge-found {
-            background-color: var(--primary-fixed);
-            color: var(--on-primary-fixed-variant);
-        }
-
-        .pet-info {
-            padding: 1.5rem;
-        }
-
-        .pet-name {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .pet-location {
-            color: var(--on-surface-variant);
-            font-size: 0.875rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Add New Card */
-        .add-pet-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 23rem;
-            border: 4px dashed rgba(191, 201, 193, 0.4);
-            border-radius: var(--radius-default);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .add-pet-card:hover {
-            border-color: rgba(15, 82, 56, 0.4);
-            background-color: rgba(177, 240, 206, 0.1);
-        }
-
-        .add-icon-wrapper {
-            width: 4rem;
-            height: 4rem;
-            border-radius: var(--radius-full);
-            background-color: var(--secondary-container);
-            color: var(--on-secondary-container);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-            transition: transform 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .add-pet-card:hover .add-icon-wrapper {
-            transform: scale(1.1);
-        }
-
-        .add-text {
-            color: var(--on-surface-variant);
-            font-weight: 700;
-            letter-spacing: 0.025em;
-        }
-
-        .add-subtext {
-            color: rgba(64, 73, 67, 0.6);
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-        }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario - Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #fdf9f1; color: #1c1c17; }
+        main { max-width: 1120px; margin: 0 auto; padding: 5rem 1.5rem; }
+        .profile { background: #f7f3eb; border-radius: 2rem; padding: 2rem; display: grid; grid-template-columns: 160px 1fr auto; gap: 2rem; align-items: center; }
+        .avatar { width: 160px; height: 160px; border-radius: 999px; object-fit: cover; background: #ece8e0; }
+        h1 { color: #0f5238; margin: 0 0 .5rem; font-size: clamp(2rem, 4vw, 3rem); }
+        .muted { color: #404943; margin: .35rem 0; font-weight: 600; }
+        .actions { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: flex-end; }
+        .btn { border: 0; border-radius: 999px; padding: .9rem 1.35rem; font-weight: 800; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; }
+        .btn-primary { background: #2d6a4f; color: white; }
+        .btn-soft { background: #ffd1ac; color: #7a583b; }
+        .section-title { margin: 3rem 0 1.5rem; color: #0f5238; font-size: 1.75rem; }
+        .pets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; }
+        .pet-card { background: #f1ede5; border-radius: 1rem; padding: 1.25rem; text-decoration: none; color: inherit; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; }
+        .pet-card:hover { transform: translateY(-3px); transition: .2s; }
+        .badge { align-self: flex-start; border-radius: 999px; padding: .35rem .8rem; font-size: .75rem; font-weight: 800; text-transform: uppercase; background: #ba1a1a; color: white; }
+        .badge.found { background: #b1f0ce; color: #0e5138; }
+        .flash { margin-bottom: 1rem; font-weight: 800; color: #2d6a4f; }
+        @media (max-width: 760px) { .profile { grid-template-columns: 1fr; text-align: center; } .avatar { margin: 0 auto; } .actions { justify-content: center; } }
     </style>
-<style data-stitch-cursor=""></style><style data-stitch-scroll-lock=""></style></head>
+</head>
 <body>
     {% include 'includes/_header-up.html' %}
-<main class="container" style="margin-top: 2rem;">
-<!-- Profile Container -->
-<section class="profile-section">
-<div class="organic-blob"></div>
-<div class="action-buttons">
-<button class="btn-logout">
-<span class="material-symbols-outlined" style="font-size: 1.125rem;">logout</span>
-                    Cerrar Sesión
-                </button>
-<button class="btn-settings">
-<span class="material-symbols-outlined">settings</span>
-</button>
-</div>
-<div class="profile-content">
-<div class="profile-avatar">
-<img alt="Mateo Villalobos" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQxql-ramTcLrEhuemAkW0U3-n4-_spJykZQ6EfvPJ_v5Tqa5EA84zztJSl1SVWzaobYi5XxJ7iE9GZmo6MF88c3S5ejeDcD4lHzWF5uOCMhXdESjG7MPwPWTFeXZBwWKbSSW1JQVeA7pJaHW2O_CVcaZZGaRxOLK6LRSeJnOe5dzIxwU15MZTPIG2yY3ZMmaXWXlP9qUzsX96TBCaurKdn3xtWLhyvh9zu4u01Y-JErbddolycf1tUWSLqy5OohCH1I4fSM2otT_W">
-</div>
-<div class="profile-details">
-<h1 class="profile-name">Mateo Villalobos</h1>
-<p class="profile-email">
-<span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.25rem;">mail</span>
-                        mateo.v@bosque.org
-                    </p>
-<div class="info-grid">
-<div class="info-item">
-<span class="material-symbols-outlined" style="color: var(--secondary);">call</span>
-                            +34 612 345 678
-                        </div>
-<div class="info-item">
-<span class="material-symbols-outlined" style="color: var(--secondary);">cake</span>
-                            14 de mayo, 1994
-                        </div>
-</div>
-<a class="btn-edit" href="{{ url_for('usuario.editar_perfil') }}">
-    <span class="material-symbols-outlined" style="font-size: 1.125rem;">edit</span>
-    Editar Información
-</a>
-</div>
-</div>
-</section>
-<!-- Gallery Section -->
-<section>
-<div class="section-header">
-<h2 class="section-title">Mis Mascotas Perdidas</h2>
-<div class="section-divider"></div>
-</div>
-<div class="pets-grid">
-<!-- Pet 1 -->
-<article class="pet-card">
-<div class="pet-image-container">
-<img alt="Bruno" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYvB-BtKRlyvWtsh75693T-Gii8J9Yho1m23KERkeO2LiZ9OgUKa4NsAzjD6CzVLymK7_wNL10ZlEPtQHUJqG9cQ4YgDOZrA_sMTrczpBKBu7AcxwLsYKWyFjplT1q1rNGdHHb1KB8ffVuYz0QN1BTg1a7YeUmA0aZ3JozbFl_FuBNXEvG8pbuAnFt42HWAipnLm-PY_OPcCh-sNamZhvBMoSlIWw65T0dS2jV5SW7Av5go9t6vOV0DVEqy0mfP2L70s1ErSKu0VoO">
-<span class="status-badge badge-lost">Buscado</span>
-</div>
-<div class="pet-info">
-<h3 class="pet-name">Bruno</h3>
-<p class="pet-location">
-<span class="material-symbols-outlined" style="font-size: 1rem;">location_on</span>
-                            Última vez visto en Parque Central
-                        </p>
-</div>
-</article>
-<!-- Pet 2 -->
-<article class="pet-card">
-<div class="pet-image-container">
-<img alt="Luna" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9D2bdRVWNG1kTDACzCXEObVZs7DO1D5qVGJFatjg54qR6qUbtdp3BZ3Ah9HYXuia3U_0ioR6LwdWDgJjmCcKeVcwUO84M76CQWLchSNO6lsXBaxFQBPPx4IYJpG1_m6lDEaoO0cljdwwwFHVE4OwW5wQpI1qh295fYeGV_v5mXOqu4yLiU2FOe9_8Io6yG7PvQaZ99WyRaZTuVwLtTok82o9mEWZtpYJgS2Z3tzY_FU8CRZpb94PGEYq349Ysh_vGhNErkUTpl7qd">
-<span class="status-badge badge-found">Encontrada</span>
-</div>
-<div class="pet-info">
-<h3 class="pet-name">Luna</h3>
-<p class="pet-location">
-<span class="material-symbols-outlined" style="font-size: 1rem;">home</span>
-                            ¡Ya está en casa!
-                        </p>
-</div>
-</article>
-<!-- Add Pet -->
-<div class="add-pet-card">
-<div class="add-icon-wrapper">
-<span class="material-symbols-outlined" style="font-size: 2rem;">add</span>
-</div>
-<p class="add-text">Reportar Nueva Huella</p>
-<p class="add-subtext">Ayúdanos a traerlos de vuelta</p>
-</div>
-</div>
-</section>
-</main>
-<!-- Visual balance spacing -->
-<div style="height: 6rem;"></div>
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <p class="flash" style="color: {% if category == 'error' %}#ba1a1a{% else %}#2d6a4f{% endif %};">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
 
+        <section class="profile">
+            <img class="avatar" alt="{{ usuario.nombre_completo }}" src="{{ usuario.foto_perfil or 'https://ui-avatars.com/api/?name=' ~ usuario.nombre_completo|urlencode ~ '&background=2d6a4f&color=fff' }}">
+            <div>
+                <h1>{{ usuario.nombre_completo }}</h1>
+                <p class="muted"><span class="material-symbols-outlined">mail</span> {{ usuario.correo }}</p>
+                <p class="muted"><span class="material-symbols-outlined">call</span> {{ usuario.telefono or 'Sin teléfono registrado' }}</p>
+                <p class="muted"><span class="material-symbols-outlined">verified_user</span> {{ usuario.nombre_rol or 'Usuario' }}</p>
+            </div>
+            <div class="actions">
+                <a class="btn btn-primary" href="{{ url_for('usuario.editar_perfil') }}">
+                    <span class="material-symbols-outlined">edit</span> Editar
+                </a>
+                <form action="{{ url_for('usuario.logout') }}" method="POST">
+                    <button class="btn btn-soft" type="submit">
+                        <span class="material-symbols-outlined">logout</span> Salir
+                    </button>
+                </form>
+            </div>
+        </section>
 
-</body></html>
+        <h2 class="section-title">Mis Mascotas</h2>
+        <section class="pets-grid">
+            {% for mascota in mascotas %}
+            <a class="pet-card" href="{{ url_for('mascota.info_mascota', id_mascota=mascota.id_mascota) }}">
+                <span class="badge {% if mascota.estado == 'encontrada' %}found{% endif %}">{{ mascota.estado or 'perdida' }}</span>
+                <div>
+                    <h3>{{ mascota.nombre_mascota }}</h3>
+                    <p class="muted">{{ mascota.raza or 'Sin raza' }}{% if mascota.tamano %} - {{ mascota.tamano }}{% endif %}</p>
+                    <p class="muted">{{ mascota.descripcion or 'Sin descripción registrada.' }}</p>
+                </div>
+            </a>
+            {% endfor %}
+            <a class="pet-card" href="{{ url_for('mascota.registro_mascota') }}">
+                <span class="material-symbols-outlined" style="font-size: 2.5rem; color: #2d6a4f;">add_circle</span>
+                <div>
+                    <h3>Reportar Nueva Huella</h3>
+                    <p class="muted">Registra una mascota perdida o encontrada.</p>
+                </div>
+            </a>
+        </section>
+    </main>
+</body>
+</html>

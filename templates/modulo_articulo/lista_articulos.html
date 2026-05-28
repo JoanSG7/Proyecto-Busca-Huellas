@@ -1,220 +1,67 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artículos y Consejos | Forest Sanctuary</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
-        rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet">
+    <title>Artículos | Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <style>
-        :root {
-            /* Forest Sanctuary Theme Tokens */
-            --primary: #0f5238;
-            --primary-container: #2d6a4f;
-            --on-primary: #ffffff;
-            --on-primary-container: #a8e7c5;
-            --background: #fdf9f1;
-            --surface: #fdf9f1;
-            --surface-container: #f1ede5;
-            --surface-container-low: #f7f3eb;
-            --surface-container-high: #ece8e0;
-            --on-surface: #1c1c17;
-            --on-surface-variant: #404943;
-            --secondary: #79573a;
-            --outline-variant: #bfc9c1;
-            --primary-fixed: #b1f0ce;
-            --on-primary-fixed-variant: #0e5138;
-            --radius-lg: 2rem;
-            --radius-xl: 3rem;
-            --font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: var(--background);
-            color: var(--on-surface);
-            font-family: var(--font-family);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Main Content */
-        main {
-            max-width: 1440px;
-            margin: 0 auto;
-            padding: 48px 24px 80px 24px;
-        }
-
-        .articles-list {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
-        }
-
-        @media (min-width: 640px) {
-            .articles-list {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .articles-list {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .article-card {
-            display: flex;
-            flex-direction: column;
-            background-color: var(--surface-container);
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease;
-        }
-
-        .article-card:hover {
-            transform: translateY(-12px);
-            background-color: var(--surface-container-high);
-        }
-
-        .article-image-container {
-            padding: 16px;
-        }
-
-        .article-image {
-            width: 100%;
-            height: 240px;
-            object-fit: cover;
-            border-radius: var(--radius-lg);
-        }
-
-        .article-content {
-            padding: 8px 32px 32px 32px;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-
-        .article-title {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: var(--primary);
-            line-height: 1.3;
-            margin-bottom: 12px;
-        }
-
-        .article-description {
-            font-size: 0.95rem;
-            color: var(--on-surface-variant);
-            margin-bottom: 24px;
-            flex-grow: 1;
-        }
-
-        .article-btn {
-            align-self: flex-start;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background-color: var(--primary-container);
-            color: #ffffff;
-            padding: 12px 24px;
-            border-radius: var(--radius-lg);
-            font-weight: 700;
-            font-size: 0.875rem;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-        }
-
-        .article-card:hover .article-btn {
-            opacity: 0.95;
-            transform: scale(1.05);
-        }
-
-        .material-symbols-outlined {
-            font-size: 1.25rem;
-        }
+        body { margin: 0; background: #fdf9f1; color: #1c1c17; font-family: 'Plus Jakarta Sans', sans-serif; }
+        main { max-width: 1180px; margin: 0 auto; padding: 6rem 1.5rem; }
+        h1 { color: #0f5238; font-size: clamp(2.4rem, 5vw, 4rem); margin: 0 0 2rem; }
+        .articles { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+        .card { background: #f1ede5; border-radius: 1.5rem; overflow: hidden; color: inherit; text-decoration: none; display: flex; flex-direction: column; min-height: 360px; }
+        .card:hover { transform: translateY(-4px); transition: .2s; }
+        img { width: 100%; height: 190px; object-fit: cover; background: #ece8e0; }
+        .content { padding: 1.4rem; display: flex; flex-direction: column; flex: 1; }
+        h2 { color: #0f5238; margin: 0 0 .75rem; font-size: 1.25rem; }
+        p { color: #404943; }
+        .meta { margin-top: auto; font-size: .85rem; font-weight: 800; color: #79573a; }
+        .empty { background: #f1ede5; border-radius: 1.5rem; padding: 2rem; color: #404943; font-weight: 700; }
+        form.create { background: white; border-radius: 1.5rem; padding: 1.25rem; display: grid; gap: .8rem; margin-bottom: 2rem; }
+        input, textarea { border: 0; border-radius: 1rem; background: #ece8e0; padding: .9rem 1rem; font: inherit; }
+        button { border: 0; border-radius: 999px; padding: .9rem 1.2rem; font-weight: 800; background: #2d6a4f; color: white; cursor: pointer; }
     </style>
 </head>
-
 <body>
     {% include 'includes/_header-up.html' %}
     <main>
-        <div class="articles-list">
-            <!-- Article 1 -->
-            <a class="article-card" href="{{ url_for('articulo.articulo_completo') }}">
-                <div class="article-image-container">
-                    <img class="article-image"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgkrFYX1BpMTOV_-78Xdkg4q1QDMyqmQa9uTL9k8rIDcMQGc3eTMfcWQAsBlLxgbHTqp2a4k9uw9TCHSX1Amc3iae89M7HvxnmvQ0bYSnI4ZnEQjsWKbw9e-FaZgz-U9NSfYmZumolR9vt9bxyX923JUp1Jq6aeT9opkVUkhMiNxz2DxN1QDapZICsjmaIMUzcH_RJdcfhseRf_1xbLPOtBSYuN_G8Uhnk4YRsfHW4-EeEISt717X0FUhelHsVRh55gpO-AIFO-cKW"
-                        alt="Cuidado invernal">
-                </div>
-                <div class="article-content">
-                    <h2 class="article-title">Cuidado invernal para cachorros</h2>
-                    <p class="article-description">Protege a los más pequeños del frío con ajustes en su dieta y pelaje.
-                    </p>
-                    <div class="article-btn">
-                        Leer más <span class="material-symbols-outlined">arrow_forward</span>
+        <h1>Artículos y consejos</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <p style="font-weight: 800; color: {% if category == 'error' %}#ba1a1a{% else %}#2d6a4f{% endif %};">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% if session.get('rol_id') == 2 %}
+        <form class="create" action="{{ url_for('articulo.crear') }}" method="POST" enctype="multipart/form-data">
+            <input name="titulo" maxlength="255" placeholder="Título del artículo" required>
+            <textarea name="contenido" rows="4" placeholder="Contenido del artículo" required></textarea>
+            <input name="imagen_articulo" type="file" accept="image/*">
+            <button type="submit">Publicar artículo</button>
+        </form>
+        {% endif %}
+        {% if articulos %}
+        <section class="articles">
+            {% for articulo in articulos %}
+            <a class="card" href="{{ url_for('articulo.articulo_completo', id_articulo=articulo.id_articulo) }}">
+                <img alt="{{ articulo.titulo }}" src="{{ articulo.url_imagen or 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=900&q=80' }}">
+                <div class="content">
+                    <h2>{{ articulo.titulo or 'Artículo sin título' }}</h2>
+                    <p>{{ (articulo.contenido or '')[:150] }}{% if articulo.contenido and articulo.contenido|length > 150 %}...{% endif %}</p>
+                    <div class="meta">
+                        {{ articulo.autor or 'Busca Huellas' }}
+                        {% if articulo.fecha_publicacion %} · {{ articulo.fecha_publicacion }}{% endif %}
                     </div>
                 </div>
             </a>
-            <!-- Article 2 -->
-            <a class="article-card" href="{{ url_for('articulo.articulo_completo') }}">
-                <div class="article-image-container">
-                    <img class="article-image"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZoPQjzD1nMl0AznuL9A2urAW05tLd2jH-DJhqlIn-J46g4gwIDN4ti-w7VEYh3XRpC_YCIIdOIDUELvKLVr6KgJKNMfWSBEdbm5uDWUWEu1FheBTwjeKAdF-h0PesOJIv9VhkVFO4cTISzNPaki97gwL01iI_S_dvyuIqCuamVmInWmiYPGT3SUNDOiXgeYulBqAfTu9zwjZ-CDY09oaiMaXc7lP7xIaWU2ZDEfKgoWtoEjY0LX9ZOWrO_3iPCwU6oh4f9hVhmVxL"
-                        alt="Socialización">
-                </div>
-                <div class="article-content">
-                    <h2 class="article-title">Socialización en la naturaleza</h2>
-                    <p class="article-description">Consejos para que tu perro conviva mejor en senderos y bosques.</p>
-                    <div class="article-btn">
-                        Leer más <span class="material-symbols-outlined">arrow_forward</span>
-                    </div>
-                </div>
-            </a>
-            <!-- Article 3 -->
-            <a class="article-card" href="{{ url_for('articulo.articulo_completo') }}">
-                <div class="article-image-container">
-                    <img class="article-image"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAxaPES43T9K2_suNHOwRcM2WJ7_A_AHTgF1oImz9cLdI_Zud8bkCkmDNa7KJgcWLu6_EEDfdUheXKmHMV7ReXqmwSVfjkRXutktz59oH5RaZXWlpn4MRJ0-oNyw5vzFWo2v6Mzmh1kRbmvjyca5xeXhEpRQZzUj4lB-kFl17laBg7Q6dfIf0KNXA-XXvvvPSYIoQ5OWP6t3aNKqDUysPeuu0-JjKg0mTm2BJa8G1iLoig97o5tWO5YuSu-fs9qB1oaccByPGg8vaI"
-                        alt="Lenguaje de colas">
-                </div>
-                <div class="article-content">
-                    <h2 class="article-title">El lenguaje de las colas</h2>
-                    <p class="article-description">Interpreta cada movimiento y entiende qué intenta decirte tu amigo.
-                    </p>
-                    <div class="article-btn">
-                        Leer más <span class="material-symbols-outlined">arrow_forward</span>
-                    </div>
-                </div>
-            </a>
-            <!-- Article 4 -->
-            <a class="article-card" href="{{ url_for('articulo.articulo_completo') }}">
-                <div class="article-image-container">
-                    <img class="article-image"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDN68Y6g83qLv4IlKcCwf08pJP42g-SEJgAL6Ni-Hh6KUxM4Ss7oom6pYTyqy4gVZksVCTvRwwdUitGF6qQZV_aEG8rG0KTkEAtak9AEN-axvjTdPJGnJZV2xF3f9PlJI8chb6fb4lDmlOfClMt4veMjQ_W-ajifldkGWUmpY99G5bcK1-uMJkYWHb4kqfN7tU7GATdRtziHeAVLPJyFWdBr37RPlXiX01It8U6hlrzCk5my_F9J4QngbkRJ_ZvotJBQcBN7fiN3ZDw"
-                        alt="Dietas naturales">
-                </div>
-                <div class="article-content">
-                    <h2 class="article-title">Dietas naturales y vitalidad</h2>
-                    <p class="article-description">Integra ingredientes frescos para mejorar el brillo de su pelaje.</p>
-                    <div class="article-btn">
-                        Leer más <span class="material-symbols-outlined">arrow_forward</span>
-                    </div>
-                </div>
-            </a>
-        </div>
+            {% endfor %}
+        </section>
+        {% else %}
+        <div class="empty">Aún no hay artículos registrados en la base de datos.</div>
+        {% endif %}
     </main>
 </body>
-
 </html>
