@@ -1,509 +1,59 @@
-<!DOCTYPE html><html lang="es" style=""><head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Busca Huellas - Bruno</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<style>
-        :root {
-            --primary: #0f5238;
-            --primary-container: #2d6a4f;
-            --on-primary: #ffffff;
-            --primary-fixed: #b1f0ce;
-            --on-primary-fixed-variant: #0e5138;
-            --secondary: #79573a;
-            --background: #fdf9f1;
-            --surface: #fdf9f1;
-            --surface-variant: #e6e2da;
-            --surface-container: #f1ede5;
-            --surface-container-low: #f7f3eb;
-            --surface-container-high: #ece8e0;
-            --on-surface: #1c1c17;
-            --on-surface-variant: #404943;
-            --outline: #707973;
-            --outline-variant: #bfc9c1;
-            --error: #ba1a1a;
-            --error-container: #ffdad6;
-            --radius-default: 1rem;
-            --radius-lg: 2rem;
-            --radius-xl: 3rem;
-            --radius-full: 9999px;
-            --font-main: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-main);
-            background-color: var(--background);
-            color: var(--on-background);
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .container {
-            max-width: 1024px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-        }
-
-        main {
-            padding: 3rem 0 8rem;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 3rem;
-            align-items: center;
-            margin-bottom: 4rem;
-        }
-
-        @media (min-width: 1024px) {
-            .hero-grid {
-                grid-template-columns: repeat(12, 1fr);
-            }
-            .hero-visual { grid-column: span 7; }
-            .hero-content { grid-column: span 5; }
-        }
-
-        .hero-visual {
-            position: relative;
-        }
-
-        .main-photo {
-            width: 100%;
-            aspect-ratio: 4 / 5;
-            object-fit: cover;
-            border-radius: var(--radius-default);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            transition: transform 0.5s;
-        }
-
-        .main-photo:hover {
-            transform: scale(1.02);
-        }
-
-        .secondary-photo-wrapper {
-            position: absolute;
-            bottom: -2.5rem;
-            right: -1.5rem;
-            width: 12rem;
-            z-index: 20;
-        }
-
-        @media (min-width: 1024px) {
-            .secondary-photo-wrapper {
-                right: -3rem;
-                width: 16rem;
-            }
-        }
-
-        .blob-mask {
-            width: 100%;
-            aspect-ratio: 1/1;
-            object-fit: cover;
-            border: 8px solid var(--surface);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            border-radius: 41% 59% 40% 60% / 65% 31% 69% 35%;
-            transition: all 0.3s;
-        }
-
-        .blob-mask:hover {
-            transform: rotate(3deg);
-        }
-
-        .badge {
-            background-color: var(--primary-fixed);
-            color: var(--on-primary-fixed-variant);
-            padding: 0.375rem 1rem;
-            border-radius: var(--radius-full);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 1rem;
-        }
-
-        .hero-content h1 {
-            font-size: 3.75rem;
-            font-weight: 800;
-            letter-spacing: -0.05em;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .pet-subtitle {
-            font-size: 1.25rem;
-            font-weight: 500;
-            color: var(--secondary);
-            margin-bottom: 2rem;
-        }
-
-        .tags-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .tag {
-            background-color: var(--surface-container-low);
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-        }
-
-        .tag .material-symbols-outlined {
-            color: var(--primary);
-            font-size: 1.25rem;
-        }
-
-        .actions-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        @media (min-width: 640px) {
-            .actions-wrapper {
-                flex-direction: row;
-            }
-        }
-
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 1rem 2rem;
-            border-radius: var(--radius-full);
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            flex: 1;
-            font-size: 1rem;
-            font-family: inherit;
-        }
-
-        .btn-primary {
-            background: linear-gradient(to right, var(--primary), var(--primary-container));
-            color: var(--on-primary);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.95);
-        }
-
-        .btn-outline-error {
-            border: 2px solid var(--error);
-            color: var(--error);
-            background: transparent;
-        }
-
-        .btn-outline-error:hover {
-            background-color: rgba(255, 218, 214, 0.2);
-        }
-
-        .btn-outline-error:active {
-            transform: scale(0.95);
-        }
-
-        .characteristics-section {
-            background-color: #f4f1ea;
-            padding: 2.5rem;
-            border-radius: var(--radius-default);
-            margin-bottom: 4rem;
-        }
-
-        @media (min-width: 768px) {
-            .characteristics-section {
-                padding: 3.5rem;
-                border-radius: var(--radius-full);
-            }
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-header .material-symbols-outlined {
-            font-size: 1.875rem;
-            color: var(--primary);
-        }
-
-        .section-header h2 {
-            font-size: 2.25rem;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.05em;
-        }
-
-        .section-text {
-            font-size: 1.25rem;
-            color: var(--on-surface-variant);
-            max-width: 56rem;
-        }
-
-        .location-card {
-            background-color: var(--surface-container-high);
-            border-radius: var(--radius-default);
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: 1fr;
-        }
-
-        @media (min-width: 768px) {
-            .location-card {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .location-content {
-            padding: 2.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .location-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--secondary);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-        }
-
-        .location-content h3 {
-            font-size: 1.875rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .location-content p {
-            color: var(--on-surface-variant);
-            margin-bottom: 1.5rem;
-        }
-
-        .location-map {
-            height: 20rem;
-            position: relative;
-        }
-
-        @media (min-width: 768px) {
-            .location-map {
-                height: auto;
-                min-height: 18.75rem;
-            }
-        }
-
-        .location-map img {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .map-overlay {
-            position: absolute;
-            inset: 0;
-            background-color: rgba(15, 82, 56, 0.1);
-            pointer-events: none;
-        }
-
-        .gallery-section {
-            margin-top: 6rem;
-        }
-
-        .gallery-header h3 {
-            font-size: 2.25rem;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.05em;
-            margin-bottom: 2.5rem;
-        }
-
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .gallery-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        .gallery-img {
-            width: 100%;
-            aspect-ratio: 1/1;
-            object-fit: cover;
-            border-radius: 0.5rem;
-            filter: grayscale(100%);
-            transition: all 0.5s;
-            cursor: pointer;
-        }
-
-        .gallery-img:hover {
-            border-radius: var(--radius-default);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            filter: grayscale(0%);
-        }
-
-        .floating-action {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 1.5rem;
-            display: flex;
-            justify-content: center;
-            pointer-events: none;
-            z-index: 40;
-        }
-
-        @media (min-width: 1024px) {
-            .floating-action { display: none; }
-        }
-
-        .floating-pill {
-            background-color: rgba(253, 249, 241, 0.8);
-            backdrop-filter: blur(20px);
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-full);
-            border: 1px solid rgba(191, 201, 193, 0.2);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            pointer-events: auto;
-        }
-
-        .floating-text {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--on-surface-variant);
-            padding: 0 0.5rem;
-        }
-
-        .floating-pill .btn-sm {
-            background-color: var(--primary);
-            color: var(--on-primary);
-            font-size: 0.625rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-full);
-            border: none;
-            cursor: pointer;
-        }
-
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ mascota.nombre_mascota }} - Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #fdf9f1; color: #1c1c17; }
+        main { max-width: 960px; margin: 0 auto; padding: 6rem 1.5rem; }
+        .hero { background: #f1ede5; border-radius: 2rem; padding: 2rem; display: grid; gap: 1.5rem; }
+        h1 { color: #0f5238; font-size: clamp(3rem, 8vw, 5rem); margin: 0; }
+        .badge { display: inline-block; background: #b1f0ce; color: #0e5138; border-radius: 999px; padding: .45rem 1rem; font-weight: 800; text-transform: uppercase; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .item { background: white; border-radius: 1rem; padding: 1rem; }
+        .label { color: #404943; font-size: .8rem; text-transform: uppercase; font-weight: 800; }
+        .value { font-weight: 700; margin-top: .35rem; }
+        .description { background: white; border-radius: 1rem; padding: 1.5rem; margin-top: 1.5rem; color: #404943; }
+        .photos { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .photos img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 1rem; background: #ece8e0; }
+        .actions { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+        .btn { border-radius: 999px; padding: 1rem 1.35rem; text-decoration: none; font-weight: 800; background: #2d6a4f; color: white; }
+        .btn-soft { background: #ffd1ac; color: #7a583b; }
     </style>
 </head>
 <body>
     {% include 'includes/_header-up.html' %}
-<main class="container" style="padding-top: 5rem;">
-<div class="hero-grid">
-<div class="hero-visual">
-<img alt="Bruno el Golden Retriever" class="main-photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDM7xstKjFPm1PBCVQ0CJBSb78ieVC7G8rj5IrUqby20jzw-SrTorexmHwV_jdwcDKJzi-YgKsnkpgeZL5yHS7rVaI2lN8VpACAkLXUNUaWTBmDicfFrsVo6jQ4PlCVAK_FiwpD-z76YYV2bMPub686xzLuAjXqzDX9Z7sC7eM9FsInWykaTnxdndG2SSPhmIDQCzQAgZD-g7_8w44pnqnev_E6v2j9EeN4jYo47gvqfbHUYU__N3yXlMEWQiF5QAr1T2-DNEr86NUE">
-<div class="secondary-photo-wrapper">
-<img alt="Close up de Bruno" class="blob-mask" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMwSgtg0maqznHh4P0i7JqHSMljiAa0ocs4II2Gibv1_UIgmaYOMbw4e80aWGShZ2ryBqbsV3Ro8XsLDNoMNdDlwf1zPpuZgw0FD7Tt8pJVcX4iKnG1xq8l19PT_jRYlPmqnqpJE24eJnN7YncGy2P5LjE6XhkQYuQiw_2k375BJajIuntCzE6b8ql5NinxJaA8uvdH78ZkJcGR5GAGGAFYECnABkcxHDTzcenyjZm3IIgaSqVIAcUFq2-kqjXmIZnGq0ZhrgwzAd6">
-</div>
-</div>
-<div class="hero-content">
-
-<h1 class="">Bruno</h1>
-<p class="pet-subtitle">Golden Retriever • 3 años</p>
-<div class="tags-wrapper">
-<div class="tag">
-<span class="material-symbols-outlined">straighten</span>
-<span class="">Grande</span>
-</div>
-
-</div>
-<div class="actions-wrapper">
-<button class="btn btn-primary">
-<span class="material-symbols-outlined">edit</span>
-                        Editar Mascota
-                    </button>
-<button class="btn btn-outline-error">
-<span class="material-symbols-outlined">delete</span>
-                        Eliminar
-                    </button>
-</div>
-</div>
-</div>
-<section class="characteristics-section">
-<div class="section-header">
-<span class="material-symbols-outlined">eco</span>
-<h2 class="">Características</h2>
-</div>
-<p class="section-text">
-                Tiene una mancha blanca en el pecho y es muy juguetón. Le encanta correr por el parque y es muy sociable con otros perros. Es un compañero leal con un carácter tranquilo en casa pero lleno de energía cuando sale a explorar la naturaleza.
-            </p>
-</section>
-<div class="location-card">
-<div class="location-content">
-<div class="location-label">
-<span class="material-symbols-outlined" style="font-size: 1rem;">location_on</span>
-                    Última Ubicación
-                </div>
-<h3 class="">San Isidro, Buenos Aires</h3>
-<p class="">
-                    Bruno suele pasear por la zona costera y el Parque Aguirre. Su hogar se encuentra cerca de la Catedral, una zona tranquila y llena de árboles perfecta para sus paseos diarios.
-                </p>
-</div>
-<div class="location-map">
-<img alt="Mapa de ubicación" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChtP_GSvmRXl3R66pA7vpVxr2wuOpdc9jGj1MrCC8-XdQ33lvEy26_bDG_EUDepo6VE3q5-hpnMcs1JOoYBrAbbHx_IGxxlmDAWdwy48RXf65yCYyibPNCZRi2ZrKGiTaE5LGeKkn8n9llUZJFpmhHDyqfz47LxnBUq_5wyYySgNrcXKFAbFHnHsHO4cb0sdQ_gPfnri6nBbqvpEeTGKXG2AXFHcXPMA_ns8Ym8w6sCjSMNGnd1juPuuZgJ-iMf66z9dxkhLHK2Vz-">
-<div class="map-overlay"></div>
-</div>
-</div>
-<section class="gallery-section">
-<div class="gallery-header">
-<h3 class="">Fotos</h3>
-</div>
-<div class="gallery-grid">
-<img alt="Cachorro Golden Retriever" class="gallery-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDrKIyx2n_CQ8pJFqnHN8B_Z41x0N0lRlSchmpfWZ71Mk5ejtbACBVk87f-AbytS29w3YBobV0TAhL5Op7gEMLEbmS08ZKzTKzRZEBAtZRdvbtP0haMOSGTH66Z35yxvAY1Rgo3r2A473Xfc8rHDazGcfWQTvr-Fma7dhGZUG8zAZh0TqmZ7BDL2s77YQvg0EReiqE8b1BQ1V9ZSyqelzL3ruI1v54HTrtDfTdmzYRMa_odRbva-hHVBTEzKGftOz-3OMN64muwe41">
-<img alt="Perro corriendo en el bosque" class="gallery-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPwmnlaqBWSndkajlXeClNhGsz0zbgQ_6Lg7fldlv8NCbZEL1CRSVOU7ibgmZy4AMaepJcKBGfwuQt8BHQazWT2uZ0bBeJ3qR2jcDkj4RrQN0yTy-WoAIRspBNxTkx-OWSFL0GOMe9jQHSYJdJkr8TxE733S9IKU230x7vFTkcIQRGZqQOovOPpqMR8Yuexy0fbhWtB7z-JOFUKGZD6j61sU7zpFOEQLXrP4Er9C6u-zCCDv34KAsq5W8JEoPGcSnWiCOCBpA6b5Ps">
-<img alt="Perro descansando" class="gallery-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwKW3ymSJQcPPrmAUgSO9sE-KbPQjzSon0WoL2VVegRFhQQwEH5lzp169L0gof5fF6Nq-A559NREDQxmbx9C-CVuGzbU5IEm3n0zADpTcQ74yzD9ry8PQsREvV_G6b0tsKkOvjh0ch3BAtb4ADJXomA92Vea0VEHqtB00osqyesbUNPMhYyQMeOIhr219yXWbj3R1aJc36608hLRUv5PAXvFFGNFlTY3kMUQZ9ct2nj_dyacFYqmpwYQyoGGhM8s_QyGICMv2g68Aj">
-<img alt="Perro en casa moderna" class="gallery-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAsaqg9pWNon63-XrXuntFVp26ugecQNuyv6H5FAi6SRIK7zQ4hwWq0sYFBZBM_usndx9RsHfG2VUdZ0rkZ4lwYAWgTCT_7ZjWr6RCDgRqYnEtwCf701vLDEDfE-ttJvaJI8pVxxlLuSsKElj562QLw8mk9GAbdAj3eXMwq938Llx3NhRoGeW-FCdAWK16psV2KLmq03NUZFWBsx2LhKOyIyUNSuM4AC9KhcnvCMod4__6mD0jpXoafE-nrwmCbCySopedYqqfE7MS">
-</div>
-</section>
-</main>
-<div class="floating-action">
-<div class="floating-pill">
-<span class="floating-text">¿Necesitas hacer cambios?</span>
-<button class="btn-sm">Editar</button>
-</div>
-</div>
-
-
-</body></html>
+    <main>
+        <section class="hero">
+            <span class="badge">{{ mascota.estado or 'perdida' }}</span>
+            <h1>{{ mascota.nombre_mascota }}</h1>
+            <div class="grid">
+                <div class="item"><div class="label">Raza</div><div class="value">{{ mascota.raza or 'No registrada' }}</div></div>
+                <div class="item"><div class="label">Edad</div><div class="value">{{ mascota.edad if mascota.edad is not none else 'No registrada' }}</div></div>
+                <div class="item"><div class="label">Tamaño</div><div class="value">{{ mascota.tamano or 'No registrado' }}</div></div>
+                <div class="item"><div class="label">Color</div><div class="value">{{ mascota.color or 'No registrado' }}</div></div>
+                <div class="item"><div class="label">Pelaje</div><div class="value">{{ mascota.pelaje or 'No registrado' }}</div></div>
+                <div class="item"><div class="label">Contacto</div><div class="value">{{ mascota.telefono or mascota.correo or 'No registrado' }}</div></div>
+            </div>
+            <div class="description">
+                <strong>Características</strong>
+                <p>{{ mascota.descripcion or 'No hay descripción registrada para esta mascota.' }}</p>
+            </div>
+            {% if fotos %}
+            <div class="photos">
+                {% for foto in fotos %}
+                <img alt="Foto de {{ mascota.nombre_mascota }}" src="{{ foto.url_foto }}">
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="actions">
+                <a class="btn" href="{{ url_for('usuario.perfil_usuario') }}">Volver al perfil</a>
+                <a class="btn btn-soft" href="{{ url_for('mascota.registro_mascota') }}">Registrar otra mascota</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
