@@ -409,11 +409,11 @@
     <main class="container">
         <section class="hero">
             <div class="hero-content">
-                <h1 class style>Bienvendido a nuestro refugio Digital</h1>
+                <h1 class style>Bienvenido a nuestro refugio Digital</h1>
                 <p class style>Tu presencia fortalece nuestro refugio digital. Juntos, seguimos conectando corazones y
                     encontrando caminos a casa.</p>
                 <div class="btn-group">
-                    <a class="enlace-btn-principal" href="{{ url_for('usuario.inicio_sesion') }}"><button
+                    <a class="enlace-btn-principal" href="{{ url_for('reconocimiento.capturar_foto') }}"><button
                             class="btn btn-primary" style>Reportar Hallazgo</button></a>
                     <a class="enlace-btn-principal" href="{{ url_for('mascota.registro_mascota') }}"><button
                             class="btn btn-secondary" style>Registrar Mascota Perdida</button></a>
@@ -429,17 +429,17 @@
         <section class="impact-section">
             <div class="impact-grid">
                 <div class="impact-item">
-                    <h3 class style>1,284</h3>
+                    <h3 class style>{{ estadisticas.mascotas_reencontradas }}</h3>
                     <p class style>Mascotas Reencontradas</p>
                 </div>
                 <div class="divider"></div>
                 <div class="impact-item">
-                    <h3 class style>842</h3>
+                    <h3 class style>{{ estadisticas.voluntarios_activos }}</h3>
                     <p class style>Voluntarios Activos</p>
                 </div>
                 <div class="divider"></div>
                 <div class="impact-item alt">
-                    <h3 class style>12</h3>
+                    <h3 class style id="reportes-activos">{{ estadisticas.reportes_activos_hoy }}</h3>
                     <p class style>Reportes Activos Hoy</p>
                 </div>
             </div>
@@ -451,57 +451,90 @@
                     <p class style="color: var(--on-surface-variant);">Consejos expertos para mantener a nuestros
                         compañeros del bosque sanos y seguros.</p>
                 </div>
-                <a class="view-all" href="#" style>
+                <a class="view-all" href="{{ url_for('articulo.lista_articulos') }}" style>
                     Ver todos los artículos <span class="material-symbols-outlined" style>arrow_forward</span>
                 </a>
             </div>
             <div class="articles-grid">
-                <!-- Articulo 1 -->
+                {% for articulo in articulos %}
                 <article class="article-card">
-                    <a class="article-link" href="{{ url_for('articulo.articulo_completo') }}">
-                    <div class="article-image-wrapper">
-                        <span class="badge" style>Adopción</span>
-                        <img class
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT-PCtlZXh7uM-FRrlkL-p-lRPhlW7VabAcUfCufM8VWvDncETZppFVGa7WbNs15QqV2Zz1DeCje_D6PDyE1bNcl1S-eky8m_K3GAYJXxPFTUVvxbL5gAV89hVLXS92NvHtktzIR_RGHeSEe-IJZku7gGhfEN_Rjc0IUpd8FSe7bZTV3UK9CIYueN-IgJZa5ovJkZeM1zGnUNQQszrPbmm0eWN44GiaVbpR4a2vcbtGRkyFPw_zrwwEJTTnCeLXVuVl02RvVy_6jgf"
-                            alt="Perro feliz" style>
-                    </div>
-                    <h3 class style>Cómo hacer que un perro adoptado se adapte a ti</h3>
-                    <p class style>Los primeros días son fundamentales. Te enseñamos técnicas de paciencia y refuerzo
-                        positivo para crear un vínculo irrompible.</p>
+                    <a class="article-link" href="{{ url_for('articulo.articulo_completo', id_articulo=articulo.id_articulo) }}">
+                        <div class="article-image-wrapper">
+                            <span class="badge {% if loop.index is even %}alt{% endif %}" style>Artículo</span>
+                            <img class
+                                src="{{ articulo.url_imagen or 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=900&q=80' }}"
+                                alt="{{ articulo.titulo or 'Artículo de Busca Huellas' }}" style>
+                        </div>
+                        <h3 class style>{{ articulo.titulo or 'Artículo sin título' }}</h3>
+                        <p class style>{{ (articulo.contenido or '')[:150] }}{% if articulo.contenido and articulo.contenido|length > 150 %}...{% endif %}</p>
                     </a>
                 </article>
-                <!-- Articulo 2 -->
-                <article class="article-card">
-                    <a class="article-link" href="{{ url_for('articulo.articulo_completo') }}">
-                    <div class="article-image-wrapper">
-                        <span class="badge alt" style>Bienestar</span>
-                        <img class
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOlsI3O_TPKIfMAtUW3XiBETwZolKvWC0yxrslWbCLbXVvZfk6lPUxZ5Js25ZaZMjBblL4JmhRe1EgUF7QQMZs8EgtySstLUhLR6qMeSM6KvlkWuacd1mjsujFzfVvZvd8WUDWL7hKz1uC8VbYe-HBFPn-IGrl11xJma9oCXNGrrfed9WZRRM61pyXLptgYGFZwpNgRcoa5RnMBT7AXVsJpWPB3_heID34fneAY8ifnEtrr8xBj9sXZS8sRC3dWCxPC8QhpSA8X4Cj"
-                            alt="Mascota y humano" style>
-                    </div>
-                    <h3 class style>Beneficios de tener una mascota</h3>
-                    <p class style>Más allá de la compañía, tener un animal reduce el estrés y mejora la salud
-                        cardiovascular de toda la familia.</p>
-                    </a>
-                </article>
-                <!-- Articulo 3 -->
-                <article class="article-card">
-                    <a class="article-link" href="{{ url_for('articulo.articulo_completo') }}">
-                    <div class="article-image-wrapper">
-                        <span class="badge" style>Diversión</span>
-                        <img class
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs3-MZXw-5mXISpV36N-kGHyDBWsoT1LJ42TULeRQFugVEDhUzNF9feXOI5HRChZ_wg-X2mo0G_SQRXPl7QTHEfIPpKTEA7wu8xkX22FKlDFJoyN7csMdS2OFxwq2WPU95-0W6_N_El6OhM5B6yK_q1FeCGyZZ7I5VmD9_PczfVL99mjCLxh1IFm83u1jryGrNzFnmuKYsFvkuEN91sZ56IpTewTQ6KjgVOMQnF-Uhhvqlzs3fYbKAXt_05yAK7I_w8n-T8j7oOfwz"
-                            alt="Perro jugando" style>
-                    </div>
-                    <h3 class style>Sorpresas que puedes hacerle a tu perro</h3>
-                    <p class style>Desde juguetes caseros hasta excursiones a nuevos senderos, descubre cómo mantener la
-                        curiosidad de tu mejor amigo.</p>
-                    </a>
-                </article>
+                {% else %}
+                <p style="color: var(--on-surface-variant);">Aún no hay artículos publicados.</p>
+                {% endfor %}
             </div>
         </section>
         <div style="padding-bottom: 8rem;"></div>
     </main>
+    <script>
+        async function actualizarReportesActivos() {
+            try {
+                const respuesta = await fetch("{{ url_for('inicio.estadisticas') }}", { headers: { "Accept": "application/json" } });
+                if (!respuesta.ok) return;
+                const estadisticas = await respuesta.json();
+                const reportes = document.getElementById("reportes-activos");
+                if (reportes) reportes.textContent = estadisticas.reportes_activos_hoy ?? reportes.textContent;
+            } catch (error) {
+                console.warn("No se pudieron actualizar los reportes activos.", error);
+            }
+        }
+
+        actualizarReportesActivos();
+        setInterval(actualizarReportesActivos, 15000);
+
+        (function () {
+            const logoutUrl = "{{ url_for('usuario.logout') }}";
+            const loginUrl = "{{ url_for('usuario.inicio_sesion') }}";
+            let leavingByBack = false;
+
+            function logoutAndRedirect() {
+                let redirected = false;
+                const redirect = () => {
+                    if (redirected) return;
+                    redirected = true;
+                    window.location.replace(loginUrl);
+                };
+
+                fetch(logoutUrl, {
+                    method: "POST",
+                    credentials: "same-origin",
+                    keepalive: true
+                }).finally(redirect);
+                setTimeout(redirect, 800);
+            }
+
+            history.pushState({ buscaHuellasInicioGuard: true }, "", window.location.href);
+
+            window.addEventListener("popstate", () => {
+                if (leavingByBack) return;
+
+                const wantsToLeave = confirm("Seguro quieres salir de la pagina");
+                if (wantsToLeave) {
+                    leavingByBack = true;
+                    logoutAndRedirect();
+                    return;
+                }
+
+                history.pushState({ buscaHuellasInicioGuard: true }, "", window.location.href);
+            });
+
+            window.addEventListener("pageshow", event => {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>

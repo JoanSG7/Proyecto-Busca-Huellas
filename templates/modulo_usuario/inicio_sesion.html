@@ -287,6 +287,8 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 1rem;
+            color: var(--text-main);
+            text-decoration: none;
         }
 
         .social-btn:hover {
@@ -459,11 +461,11 @@
                     ellos.</p>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <span class="stat-value">+1.2k</span>
+                        <span class="stat-value">{{ estadisticas.mascotas_reencontradas }}</span>
                         <span class="stat-label">Mascotas Reencontradas</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-value">+850</span>
+                        <span class="stat-value">{{ estadisticas.hogares_felices }}</span>
                         <span class="stat-label">Hogares Felices</span>
                     </div>
                 </div>
@@ -474,12 +476,19 @@
                     <h2>¡Hola de nuevo!</h2>
                     <p>Inicia sesión para continuar ayudando a las mascotas.</p>
                 </div>
-                <form action="{{ url_for('inicio.inicio') }}" method="GET">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <p style="margin-bottom: 1rem; color: {% if category == 'error' %}#ba1a1a{% else %}#2D6A4F{% endif %}; font-weight: 700;">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+                {% endwith %}
+                <form action="{{ url_for('usuario.inicio_sesion') }}" method="POST">
                     <div class="input-group">
                         <label for="user">Correo o número de celular</label>
                         <div class="input-wrapper">
                             <span class="material-symbols-rounded">alternate_email</span>
-                            <input id="user" placeholder="ejemplo@correo.com" required="" type="text" />
+                            <input id="user" name="email" placeholder="ejemplo@correo.com" required="" type="email" />
                         </div>
                     </div>
                     <div class="input-group">
@@ -491,7 +500,7 @@
                         </div>
                         <div class="input-wrapper">
                             <span class="material-symbols-rounded">lock</span>
-                            <input id="pass" placeholder="••••••••" required="" type="password" />
+                            <input id="pass" name="password" placeholder="••••••••" required="" type="password" />
                         </div>
                     </div>
                     <div class="form-options">
@@ -506,16 +515,16 @@
                         <span>O continúa con</span>
                     </div>
                     <div class="social-btns">
-                        <button class="social-btn" type="button">
+                        <a class="social-btn" href="{{ url_for('usuario.oauth_login', provider='google') }}">
                             <img alt="Google"
                                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSygcWkBZlGcjLO4EApCvnAiep7JYEnYMOIShT1IXhzCq_8a91ZMUx_9HudJ_o6L0HnfDBtC1WbyhsTP7HJj5qEinEChUyWHcaORYI1fX10N2ziTUBesCAWOY0cdaC83NrKswXQolRSJzWau7NkLlS6DkLLoelO4PwSsuXgleLvwiOJVp9hOwIyyM4XQ3vjxk3IDrX1lltLRekiReEdiaF8XPP_G4RICcvVdDxIFwJE-byMKEHR8fu09tteosgyVNcqoM2e-PYpm4X" />
                             Google
-                        </button>
-                        <button class="social-btn" type="button">
+                        </a>
+                        <a class="social-btn" href="{{ url_for('usuario.oauth_login', provider='facebook') }}">
                             <img alt="Facebook"
                                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtrU5IbzztcAOlr7RdurpVHPOEAtAa54EIZ_qA3jiE6dTGPRL3jHeohCwj2MqNqZ9qCEEMQ83gU4ZLyQDMjwl-RKFIGF-WaURYgoKYkPTE5mmpOjyypNE8oJ2ttbBBRloOs4V5nIoVvGASC3zGGIX8egKIlSAh7A6r0pEhkqL8BXQT5J3NR78EdKOaenXCN_8PQJIXiP0gXLyvGkGbtrgcVgKl4GcZ5UD85ZqO2oBLiDijyQOySXwktKYmTSoNRvZBIp4bTgoTN5o2" />
                             Facebook
-                        </button>
+                        </a>
                     </div>
                     <div class="register-footer">
                         ¿Aún no tienes una cuenta? <a href="{{ url_for('usuario.registro_usuario') }}">Regístrate

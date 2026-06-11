@@ -114,14 +114,14 @@ INSERT INTO `avistamiento` (`id_avistamiento`, `id_usuario`, `id_mascota`, `foto
 CREATE TABLE `foto_adopcion` (
   `id_foto_publicacion` int(11) NOT NULL,
   `id_publicacion` int(11) DEFAULT NULL,
-  `url_foto` varchar(255) DEFAULT NULL
+  `url_imagen` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `foto_adopcion`
 --
 
-INSERT INTO `foto_adopcion` (`id_foto_publicacion`, `id_publicacion`, `url_foto`) VALUES
+INSERT INTO `foto_adopcion` (`id_foto_publicacion`, `id_publicacion`, `url_imagen`) VALUES
 (1, 1, 'https://cdn.example.com/fotos_adopcion/pub_1.jpg'),
 (2, 2, 'https://cdn.example.com/fotos_adopcion/pub_2.jpg'),
 (3, 3, 'https://cdn.example.com/fotos_adopcion/pub_3.jpg'),
@@ -152,14 +152,14 @@ INSERT INTO `foto_adopcion` (`id_foto_publicacion`, `id_publicacion`, `url_foto`
 CREATE TABLE `foto_mascota` (
   `id_foto_mascota` int(11) NOT NULL,
   `id_mascota` int(11) DEFAULT NULL,
-  `url_foto` varchar(255) DEFAULT NULL
+  `url_imagen` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `foto_mascota`
 --
 
-INSERT INTO `foto_mascota` (`id_foto_mascota`, `id_mascota`, `url_foto`) VALUES
+INSERT INTO `foto_mascota` (`id_foto_mascota`, `id_mascota`, `url_imagen`) VALUES
 (1, 1, 'https://cdn.example.com/fotos/mascota_1.jpg'),
 (2, 2, 'https://cdn.example.com/fotos/mascota_2.jpg'),
 (3, 3, 'https://cdn.example.com/fotos/mascota_3.jpg'),

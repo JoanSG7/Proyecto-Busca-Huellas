@@ -197,6 +197,11 @@
             transform: translateY(0);
         }
 
+        .flash {
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
         .back-to-login {
             margin-top: 2rem;
             display: inline-flex;
@@ -244,22 +249,62 @@
                 <span class="material-symbols-rounded">lock_reset</span>
             </div>
             <h1>¿Olvidaste tu contraseña?</h1>
-            <p class="description">No te preocupes, suele pasar. Ingresa tu correo electrónico y te enviaremos las
-                instrucciones para restablecerla.</p>
+            <p class="description">Ingresa tu correo electrónico. Si está vinculado a una cuenta, enviaremos un código
+                de 6 dígitos para restablecerla.</p>
 
-            <form>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <p class="flash" style="color: {% if category == 'error' %}#ba1a1a{% else %}#2D6A4F{% endif %};">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            {% if codigo_enviado %}
+            <form action="{{ url_for('usuario.recuperar_contrasena') }}" method="POST">
+                <input type="hidden" name="accion" value="cambiar_contrasena">
                 <div class="input-group">
                     <label for="email">Correo Electrónico</label>
                     <div class="input-wrapper">
                         <span class="material-symbols-rounded">mail</span>
-                        <input type="email" id="email" placeholder="ejemplo@correo.com" required>
+                        <input type="email" id="email" name="email" value="{{ correo }}" readonly required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="codigo">Código de verificación</label>
+                    <div class="input-wrapper">
+                        <span class="material-symbols-rounded">pin</span>
+                        <input type="text" id="codigo" name="codigo" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="password">Nueva contraseña</label>
+                    <div class="input-wrapper">
+                        <span class="material-symbols-rounded">lock</span>
+                        <input type="password" id="password" name="password" minlength="8" placeholder="Mínimo 8 caracteres" required>
                     </div>
                 </div>
                 <button type="submit">
-                    Enviar Instrucciones
+                    Cambiar contraseña
                     <span class="material-symbols-rounded">arrow_forward</span>
                 </button>
             </form>
+            {% else %}
+            <form action="{{ url_for('usuario.recuperar_contrasena') }}" method="POST">
+                <input type="hidden" name="accion" value="enviar_codigo">
+                <div class="input-group">
+                    <label for="email">Correo Electrónico</label>
+                    <div class="input-wrapper">
+                        <span class="material-symbols-rounded">mail</span>
+                        <input type="email" id="email" name="email" value="{{ correo or '' }}" placeholder="ejemplo@correo.com" required>
+                    </div>
+                </div>
+                <button type="submit">
+                    Enviar código
+                    <span class="material-symbols-rounded">arrow_forward</span>
+                </button>
+            </form>
+            {% endif %}
 
             <a href="{{ url_for('usuario.inicio_sesion') }}" class="back-to-login">
                 <span class="material-symbols-rounded">arrow_back</span>
