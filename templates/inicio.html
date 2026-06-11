@@ -409,11 +409,11 @@
     <main class="container">
         <section class="hero">
             <div class="hero-content">
-                <h1 class style>Bienvendido a nuestro refugio Digital</h1>
+                <h1 class style>Bienvenido a nuestro refugio Digital</h1>
                 <p class style>Tu presencia fortalece nuestro refugio digital. Juntos, seguimos conectando corazones y
                     encontrando caminos a casa.</p>
                 <div class="btn-group">
-                    <a class="enlace-btn-principal" href="{{ url_for('usuario.inicio_sesion') }}"><button
+                    <a class="enlace-btn-principal" href="{{ url_for('reconocimiento.capturar_foto') }}"><button
                             class="btn btn-primary" style>Reportar Hallazgo</button></a>
                     <a class="enlace-btn-principal" href="{{ url_for('mascota.registro_mascota') }}"><button
                             class="btn btn-secondary" style>Registrar Mascota Perdida</button></a>
@@ -439,7 +439,7 @@
                 </div>
                 <div class="divider"></div>
                 <div class="impact-item alt">
-                    <h3 class style>{{ estadisticas.reportes_activos_hoy }}</h3>
+                    <h3 class style id="reportes-activos">{{ estadisticas.reportes_activos_hoy }}</h3>
                     <p class style>Reportes Activos Hoy</p>
                 </div>
             </div>
@@ -476,6 +476,65 @@
         </section>
         <div style="padding-bottom: 8rem;"></div>
     </main>
+    <script>
+        async function actualizarReportesActivos() {
+            try {
+                const respuesta = await fetch("{{ url_for('inicio.estadisticas') }}", { headers: { "Accept": "application/json" } });
+                if (!respuesta.ok) return;
+                const estadisticas = await respuesta.json();
+                const reportes = document.getElementById("reportes-activos");
+                if (reportes) reportes.textContent = estadisticas.reportes_activos_hoy ?? reportes.textContent;
+            } catch (error) {
+                console.warn("No se pudieron actualizar los reportes activos.", error);
+            }
+        }
+
+        actualizarReportesActivos();
+        setInterval(actualizarReportesActivos, 15000);
+
+        (function () {
+            const logoutUrl = "{{ url_for('usuario.logout') }}";
+            const loginUrl = "{{ url_for('usuario.inicio_sesion') }}";
+            let leavingByBack = false;
+
+            function logoutAndRedirect() {
+                let redirected = false;
+                const redirect = () => {
+                    if (redirected) return;
+                    redirected = true;
+                    window.location.replace(loginUrl);
+                };
+
+                fetch(logoutUrl, {
+                    method: "POST",
+                    credentials: "same-origin",
+                    keepalive: true
+                }).finally(redirect);
+                setTimeout(redirect, 800);
+            }
+
+            history.pushState({ buscaHuellasInicioGuard: true }, "", window.location.href);
+
+            window.addEventListener("popstate", () => {
+                if (leavingByBack) return;
+
+                const wantsToLeave = confirm("Seguro quieres salir de la pagina");
+                if (wantsToLeave) {
+                    leavingByBack = true;
+                    logoutAndRedirect();
+                    return;
+                }
+
+                history.pushState({ buscaHuellasInicioGuard: true }, "", window.location.href);
+            });
+
+            window.addEventListener("pageshow", event => {
+                if (event.persisted) {
+                    window.location.reload();
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>

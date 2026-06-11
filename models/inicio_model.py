@@ -20,9 +20,8 @@ def obtener_estadisticas_inicio():
         """,
         "reportes_activos_hoy": """
             SELECT COUNT(*) AS total
-            FROM alerta
-            WHERE DATE(fecha_alerta) = CURDATE()
-              AND estado_alerta IN ('pendiente', 'enviada')
+            FROM mascota
+            WHERE LOWER(estado) = 'perdida'
         """,
     }
 

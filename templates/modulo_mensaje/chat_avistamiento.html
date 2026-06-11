@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat seguro - Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#fdf9f1; --surface:#fff; --soft:#f1ede5; --primary:#0f5238; --sent:#0f5238; --received:#ffffff; --text:#1c1c17; --muted:#56615a; --line:#d8ded7; --danger:#ba1a1a; --radius:8px; --font:'Plus Jakarta Sans',sans-serif; }
+        * { box-sizing:border-box; }
+        body { margin:0; background:var(--bg); color:var(--text); font-family:var(--font); }
+        main { width:min(100%, 820px); margin:0 auto; padding:1rem 1rem 7rem; }
+        .chat-shell { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; min-height:70vh; display:grid; grid-template-rows:auto 1fr auto; }
+        .chat-header { padding:1rem; background:var(--primary); color:#fff; display:flex; justify-content:space-between; gap:1rem; align-items:center; }
+        .chat-header h1 { font-size:1.2rem; margin:0; }
+        .chat-header p { margin:.2rem 0 0; opacity:.88; font-weight:700; font-size:.9rem; }
+        .back { color:#fff; text-decoration:none; font-weight:800; }
+        .messages { padding:1rem; background:#f8f5ee; overflow-y:auto; display:flex; flex-direction:column; gap:.75rem; }
+        .bubble { max-width:78%; border-radius:18px; padding:.75rem .9rem; box-shadow:0 4px 14px rgba(0,0,0,.05); }
+        .bubble.sent { align-self:flex-end; background:var(--sent); color:#fff; border-bottom-right-radius:4px; }
+        .bubble.received { align-self:flex-start; background:var(--received); border:1px solid var(--line); border-bottom-left-radius:4px; }
+        .author { display:block; font-size:.72rem; font-weight:800; opacity:.75; margin-bottom:.25rem; }
+        .text { margin:0; font-weight:600; line-height:1.45; }
+        .time { display:block; font-size:.68rem; opacity:.7; margin-top:.35rem; }
+        .composer { border-top:1px solid var(--line); padding:.75rem; background:#fff; }
+        .composer form { display:grid; grid-template-columns:1fr auto; gap:.6rem; }
+        textarea { resize:none; min-height:48px; max-height:110px; border:1px solid var(--line); border-radius:999px; padding:.85rem 1rem; font:inherit; }
+        button { border:0; background:var(--primary); color:#fff; border-radius:999px; width:52px; height:52px; display:grid; place-items:center; cursor:pointer; }
+        .notice { font-size:.78rem; color:var(--muted); font-weight:700; margin:.4rem 0 0; }
+        .flash { margin:.5rem 0; color:var(--danger); font-weight:800; }
+        .empty { color:var(--muted); font-weight:800; text-align:center; margin:auto; }
+    </style>
+</head>
+<body>
+    {% include 'includes/_header-up.html' %}
+    <main>
+        <section class="chat-shell">
+            <header class="chat-header">
+                <div>
+                    <h1>{{ chat.nombre_mascota }} · Alerta #{{ chat.id_alerta }}</h1>
+                    <p>{{ chat.nombre_alerta_usuario or 'Quien reporto' }} conversa con {{ chat.nombre_dueno or 'dueño/a' }}</p>
+                </div>
+                <a class="back" href="{{ url_for('mensaje.chat_seguro') }}">Chats</a>
+            </header>
+
+            <div class="messages">
+                {% with messages_flash = get_flashed_messages(with_categories=true) %}
+                {% if messages_flash %}
+                    {% for category, message in messages_flash %}
+                    <p class="flash">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                {% for mensaje in mensajes %}
+                <article class="bubble {% if mensaje.usuario_emisor == session.get('usuario_id') %}sent{% else %}received{% endif %}">
+                    <span class="author">{{ mensaje.nombre_emisor or 'Usuario' }}</span>
+                    <p class="text">{{ mensaje.mensaje_chat }}</p>
+                    <span class="time">{{ mensaje.fecha_envio }}</span>
+                </article>
+                {% else %}
+                <p class="empty">Aun no hay mensajes. Empieza coordinando la entrega con respeto y seguridad.</p>
+                {% endfor %}
+            </div>
+
+            <footer class="composer">
+                <form method="POST">
+                    <textarea name="mensaje" maxlength="700" placeholder="Escribe un mensaje seguro..." required></textarea>
+                    <button type="submit" aria-label="Enviar">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </form>
+                <p class="notice">No compartas contraseñas ni datos sensibles. El sistema bloquea insultos y palabras indebidas.</p>
+            </footer>
+        </section>
+    </main>
+</body>
+</html>

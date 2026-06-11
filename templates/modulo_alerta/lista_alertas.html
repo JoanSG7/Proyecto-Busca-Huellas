@@ -12,7 +12,6 @@
         :root {
             --primary-green: #2d6a4f;
             --primary-dark: #1b4332;
-            --secondary-green: #40916c;
             --accent-green: #b1f0ce;
             --bg-cream: #fdf9f1;
             --surface-cream: #f1ede5;
@@ -20,258 +19,51 @@
             --text-muted: #404943;
             --white: #ffffff;
             --radius-full: 9999px;
-            --radius-xl: 2.5rem;
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
             --shadow-md: 0 10px 30px rgba(0,0,0,0.04);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-cream);
-            color: var(--text-dark);
-            line-height: 1.6;
-            min-height: 100vh;
-            padding-bottom: 80px; /* Space for mobile nav */
-        }
-
-        /* Main Content */
-        main {
-            padding-top: 120px;
-            max-width: 800px;
-            margin: 0 auto;
-            padding-left: 24px;
-            padding-right: 24px;
-        }
-
-        .page-header {
-            margin-bottom: 40px;
-        }
-
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary-green);
-            margin-bottom: 8px;
-            letter-spacing: -0.03em;
-        }
-
-        .page-subtitle {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-        }
-
-        /* Notifications List */
-        .notifications-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .notification-item {
-            background-color: var(--white);
-            padding: 24px;
-            border-radius: 2rem;
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: pointer;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .notification-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .notif-icon-box {
-            width: 56px;
-            height: 56px;
-            min-width: 56px;
-            border-radius: 1.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--bg-cream);
-            color: var(--primary-green);
-        }
-
-        .notif-content {
-            flex-grow: 1;
-        }
-
-        .notif-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 4px;
-        }
-
-        .notif-title {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--text-dark);
-        }
-
-        .notif-time {
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            opacity: 0.6;
-        }
-
-        .notif-message {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-bottom: 12px;
-            line-height: 1.5;
-        }
-
-        .notif-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 12px;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background-color: var(--accent-green);
-            color: var(--primary-green);
-        }
-
-        /* Floating Camera Button */
-        .fab-camera {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            width: 72px;
-            height: 72px;
-            background-color: var(--primary-green);
-            color: var(--white);
-            border-radius: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 25px rgba(45, 106, 79, 0.3);
-            text-decoration: none;
-            z-index: 999;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .fab-camera:hover {
-            transform: scale(1.1) rotate(-5deg);
-            background-color: var(--primary-dark);
-        }
-
-        /* Mobile Nav Styles */
-        .mobile-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 90px;
-            background-color: rgba(253, 249, 241, 0.9);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
-            padding: 0 20px 20px 20px;
-            justify-content: space-around;
-            align-items: flex-end;
-            border-radius: 3rem 3rem 0 0;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.04);
-        }
-
-        .mobile-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: var(--text-muted);
-            gap: 4px;
-            padding: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-nav-item span.label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .mobile-nav-item.active {
-            color: var(--primary-green);
-            background-color: var(--white);
-            border-radius: 1.5rem;
-            padding: 12px 20px;
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .mobile-nav-item.active .material-symbols-rounded {
-            font-variation-settings: 'FILL' 1;
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            header {
-                padding: 0 24px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-cream); color: var(--text-dark); line-height: 1.6; min-height: 100vh; padding-bottom: 80px; }
+        main { padding-top: 120px; max-width: 800px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
+        .page-header { margin-bottom: 40px; }
+        .page-title { font-size: 2.5rem; font-weight: 800; color: var(--primary-green); margin-bottom: 8px; letter-spacing: -0.03em; }
+        .page-subtitle { color: var(--text-muted); font-size: 1.1rem; }
+        .notifications-container { display: flex; flex-direction: column; gap: 16px; }
+        .notification-item { background-color: var(--white); padding: 24px; border-radius: 2rem; display: flex; gap: 20px; align-items: flex-start; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-sm); }
+        .notification-item[data-chat-enabled="true"] { cursor: pointer; }
+        .notification-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .notif-icon-box, .notif-photo { width: 56px; height: 56px; min-width: 56px; border-radius: 1.25rem; background-color: var(--bg-cream); }
+        .notif-icon-box { display: flex; align-items: center; justify-content: center; color: var(--primary-green); }
+        .notif-photo { object-fit: cover; display: block; }
+        .notif-content { flex-grow: 1; }
+        .notif-header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 4px; }
+        .notif-title { font-weight: 700; font-size: 1.1rem; color: var(--text-dark); }
+        .notif-time { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); opacity: 0.65; white-space: nowrap; }
+        .notif-message { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 12px; line-height: 1.5; }
+        .notif-badge, .chat-action { display: inline-flex; align-items: center; border-radius: 1rem; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+        .notif-badge { padding: 4px 12px; background-color: var(--accent-green); color: var(--primary-green); }
+        .chat-action { margin-left: 10px; border: none; padding: 6px 12px; color: white; background: var(--primary-green); cursor: pointer; }
+        .chat-panel { position: fixed; right: 24px; bottom: 24px; width: min(380px, calc(100vw - 32px)); height: min(620px, calc(100vh - 48px)); background: var(--white); border-radius: 28px; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18); overflow: hidden; display: none; flex-direction: column; z-index: 2000; }
+        .chat-panel.open { display: flex; }
+        .chat-header { background: var(--primary-green); color: white; padding: 16px; display: flex; align-items: center; gap: 12px; }
+        .chat-header img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: rgba(255, 255, 255, 0.22); }
+        .chat-title { flex: 1; font-weight: 800; }
+        .chat-close { border: none; background: transparent; color: white; cursor: pointer; }
+        .chat-messages { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; background: var(--surface-cream); }
+        .chat-bubble { max-width: 82%; padding: 10px 13px; border-radius: 18px; font-size: 0.92rem; line-height: 1.4; background: white; }
+        .chat-bubble.mine { align-self: flex-end; background: var(--primary-green); color: white; border-bottom-right-radius: 6px; }
+        .chat-bubble.theirs { align-self: flex-start; border-bottom-left-radius: 6px; }
+        .chat-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(0, 0, 0, 0.06); }
+        .chat-form input { flex: 1; border: none; background: var(--bg-cream); border-radius: var(--radius-full); padding: 12px 14px; font: inherit; }
+        .chat-form button { width: 44px; height: 44px; border: none; border-radius: 50%; background: var(--primary-green); color: white; cursor: pointer; }
 
         @media (max-width: 768px) {
-            header {
-                height: 70px;
-                padding: 0 20px;
-            }
-
-            .header-container {
-                display: flex;
-                justify-content: space-between;
-            }
-
-            nav.desktop-nav {
-                display: none;
-            }
-
-            main {
-                padding-top: 100px;
-            }
-
-            .page-title {
-                font-size: 2rem;
-            }
-
-            .mobile-nav {
-                display: flex;
-            }
-
-            .fab-camera {
-                bottom: 110px;
-                right: 24px;
-                width: 64px;
-                height: 64px;
-            }
-
-            .notification-item {
-                padding: 16px;
-                gap: 16px;
-            }
-
-            .notif-icon-box {
-                width: 48px;
-                height: 48px;
-                min-width: 48px;
-            }
+            main { padding-top: 100px; }
+            .page-title { font-size: 2rem; }
+            .notification-item { padding: 16px; gap: 16px; }
+            .notif-icon-box, .notif-photo { width: 48px; height: 48px; min-width: 48px; }
+            .chat-panel { right: 12px; bottom: 100px; height: min(560px, calc(100vh - 124px)); }
         }
     </style>
 </head>
@@ -283,79 +75,124 @@
             <p class="page-subtitle">Mantente al tanto de tus huellas amigas.</p>
         </div>
 
-        <div class="notifications-container">
-            <!-- Alerta Mascota -->
-            <div class="notification-item">
+        <div class="notifications-container" id="notifications-container">
+            {% for alerta in alertas %}
+            {% set tipo = alerta.tipo or 'notificacion' %}
+            <div class="notification-item" data-alert-id="{{ alerta.id_alerta }}" data-chat-enabled="{{ 'true' if tipo == 'mascota_encontrada' else 'false' }}" data-pet-name="{{ alerta.nombre_mascota or 'Mascota encontrada' }}" data-pet-photo="{{ alerta.url_imagen or '' }}">
+                {% if alerta.url_imagen %}
+                <img class="notif-photo" src="{{ alerta.url_imagen }}" alt="{{ alerta.nombre_mascota or 'Mascota' }}">
+                {% else %}
                 <div class="notif-icon-box">
-                    <span class="material-symbols-rounded">pets</span>
+                    <span class="material-symbols-rounded">{% if tipo == 'perfil_actualizado' %}account_circle{% elif tipo == 'mascota_encontrada' %}forum{% elif tipo == 'mascota_cercana' %}near_me{% else %}pets{% endif %}</span>
                 </div>
+                {% endif %}
                 <div class="notif-content">
                     <div class="notif-header">
-                        <span class="notif-title">¡Nueva mascota perdida cerca!</span>
-                        <span class="notif-time">Hace 15 min</span>
+                        <span class="notif-title">{% if tipo == 'perfil_actualizado' %}Foto de perfil actualizada{% elif tipo == 'mascota_encontrada' %}Mascota encontrada{% elif tipo == 'mascota_cercana' %}Mascota cercana{% elif tipo == 'mascota_perdida' %}Reporte activo{% else %}Nueva notificacion{% endif %}</span>
+                        <span class="notif-time">{{ alerta.fecha_alerta }}</span>
                     </div>
-                    <p class="notif-message">Un pequeño Golden Retriever fue visto por última vez en el Parque Central hace unos minutos. ¿Lo reconoces?</p>
+                    <p class="notif-message">{{ alerta.mensaje or 'Tienes una nueva actualizacion en Busca Huellas.' }}</p>
                     <span class="notif-badge">Nuevo</span>
+                    {% if tipo == 'mascota_encontrada' %}
+                    <button class="chat-action" type="button">Abrir chat</button>
+                    {% endif %}
                 </div>
             </div>
-
-            <!-- Reporte Actualizado -->
+            {% else %}
             <div class="notification-item">
-                <div class="notif-icon-box">
-                    <span class="material-symbols-rounded">update</span>
-                </div>
+                <div class="notif-icon-box"><span class="material-symbols-rounded">notifications</span></div>
                 <div class="notif-content">
-                    <div class="notif-header">
-                        <span class="notif-title">Tu reporte ha sido actualizado</span>
-                        <span class="notif-time">Hace 2 horas</span>
-                    </div>
-                    <p class="notif-message">Tres personas han comentado en tu reporte sobre "Luna". Revisa los nuevos avistamientos ahora.</p>
+                    <div class="notif-header"><span class="notif-title">Sin notificaciones por ahora</span></div>
+                    <p class="notif-message">Cuando registres mascotas, cambies tu perfil o haya un hallazgo, apareceran aqui automaticamente.</p>
                 </div>
             </div>
-
-            <!-- Recordatorio Salud -->
-            <div class="notification-item">
-                <div class="notif-icon-box">
-                    <span class="material-symbols-rounded">medical_services</span>
-                </div>
-                <div class="notif-content">
-                    <div class="notif-header">
-                        <span class="notif-title">Recordatorio de salud</span>
-                        <span class="notif-time">Ayer, 10:30 AM</span>
-                    </div>
-                    <p class="notif-message">Es tiempo de la desparasitación anual para Toby. Encuentra clínicas cercanas con beneficios exclusivos.</p>
-                </div>
-            </div>
-
-            <!-- Match Adopción -->
-            <div class="notification-item">
-                <div class="notif-icon-box">
-                    <span class="material-symbols-rounded">favorite</span>
-                </div>
-                <div class="notif-content">
-                    <div class="notif-header">
-                        <span class="notif-title">¡Match de adopción!</span>
-                        <span class="notif-time">Hace 2 días</span>
-                    </div>
-                    <p class="notif-message">Hay un perrito en el refugio "Patitas" que coincide perfectamente con tus preferencias de estilo de vida.</p>
-                </div>
-            </div>
-
-            <!-- Perfil Verificado -->
-            <div class="notification-item">
-                <div class="notif-icon-box">
-                    <span class="material-symbols-rounded">verified_user</span>
-                </div>
-                <div class="notif-content">
-                    <div class="notif-header">
-                        <span class="notif-title">Perfil verificado</span>
-                        <span class="notif-time">Hace 3 días</span>
-                    </div>
-                    <p class="notif-message">¡Felicidades! Tu cuenta ahora es una cuenta verificada de rescatista. Gracias por ayudar a la comunidad.</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </main>
 
+    <aside class="chat-panel" id="chat-panel" aria-live="polite">
+        <div class="chat-header">
+            <img id="chat-photo" alt="">
+            <div class="chat-title" id="chat-title">Chat</div>
+            <button class="chat-close" id="chat-close" type="button" aria-label="Cerrar chat">
+                <span class="material-symbols-rounded">close</span>
+            </button>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <form class="chat-form" id="chat-form">
+            <input id="chat-input" type="text" placeholder="Escribe un mensaje" autocomplete="off">
+            <button type="submit" aria-label="Enviar"><span class="material-symbols-rounded">send</span></button>
+        </form>
+    </aside>
+
+    <script>
+        const chatPanel = document.getElementById('chat-panel');
+        const chatTitle = document.getElementById('chat-title');
+        const chatPhoto = document.getElementById('chat-photo');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        let activeChatKey = null;
+
+        function defaultMessages(petName) {
+            return [
+                { from: 'theirs', text: `Hola, creo que encontre a ${petName}.` },
+                { from: 'mine', text: 'Gracias por avisar. Puedes contarme donde esta?' }
+            ];
+        }
+
+        function renderChat(messages) {
+            chatMessages.innerHTML = '';
+            messages.forEach(message => {
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${message.from}`;
+                bubble.textContent = message.text;
+                chatMessages.appendChild(bubble);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function openChat(item) {
+            const alertId = item.dataset.alertId;
+            const petName = item.dataset.petName || 'Mascota encontrada';
+            activeChatKey = `busca-huellas-chat-${alertId}`;
+            chatTitle.textContent = petName;
+            chatPhoto.src = item.dataset.petPhoto || 'https://ui-avatars.com/api/?name=Mascota&background=2d6a4f&color=fff';
+            chatPhoto.alt = petName;
+
+            const saved = localStorage.getItem(activeChatKey);
+            const messages = saved ? JSON.parse(saved) : defaultMessages(petName);
+            localStorage.setItem(activeChatKey, JSON.stringify(messages));
+            renderChat(messages);
+            chatPanel.classList.add('open');
+            chatInput.focus();
+        }
+
+        document.querySelectorAll('.chat-action').forEach(button => {
+            button.addEventListener('click', event => {
+                event.stopPropagation();
+                openChat(button.closest('.notification-item'));
+            });
+        });
+
+        document.querySelectorAll('.notification-item[data-chat-enabled="true"]').forEach(item => {
+            item.addEventListener('click', () => openChat(item));
+        });
+
+        document.getElementById('chat-close').addEventListener('click', () => {
+            chatPanel.classList.remove('open');
+        });
+
+        chatForm.addEventListener('submit', event => {
+            event.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text || !activeChatKey) return;
+            const messages = JSON.parse(localStorage.getItem(activeChatKey) || '[]');
+            messages.push({ from: 'mine', text });
+            localStorage.setItem(activeChatKey, JSON.stringify(messages));
+            chatInput.value = '';
+            renderChat(messages);
+        });
+    </script>
 </body>
 </html>

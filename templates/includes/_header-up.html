@@ -7,10 +7,17 @@
             <a class="{% if request.endpoint == 'inicio.inicio' %}active{% endif %}" href="{{ url_for('inicio.inicio') }}">Inicio</a>
             <a class="{% if request.endpoint == 'articulo.lista_articulos' %}active{% endif %}" href="{{ url_for('articulo.lista_articulos') }}">Artículos</a>
             <a class="{% if request.endpoint == 'alerta.alertas' %}active{% endif %}" href="{{ url_for('alerta.alertas') }}">Alertas</a>
+            {% if session.get('rol_id') == 2 %}
+            <a class="{% if request.endpoint and request.endpoint.startswith('admin.') %}active{% endif %}" href="{{ url_for('admin.panel') }}">Admin</a>
+            {% endif %}
         </nav>
         <div class="header-actions">
             <a class="icon-btn" href="{{ url_for('usuario.perfil_usuario') }}" aria-label="Perfil">
+                {% if usuario_actual and usuario_actual.foto_perfil %}
+                <img class="header-avatar" src="{{ usuario_actual.foto_perfil }}" alt="{{ usuario_actual.nombre_completo or 'Perfil' }}">
+                {% else %}
                 <span class="material-symbols-outlined">account_circle</span>
+                {% endif %}
             </a>
         </div>
     </div>
@@ -24,6 +31,9 @@
         <span class="material-symbols-outlined">newspaper</span>
         <label>Artículo</label>
     </a>
+    <a class="chat-btn mobile-chat-btn" href="{{ url_for('mensaje.chat_seguro') }}" aria-label="Chat seguro">
+        <span class="material-symbols-rounded fill">chat</span>
+    </a>
     <a class="camera-btn" href="{{ url_for('reconocimiento.capturar_foto') }}">
         <span class="material-symbols-rounded fill">photo_camera</span>
     </a>
@@ -32,10 +42,19 @@
         <label>Alertas</label>
     </a>
     <a class="nav-link" href="{{ url_for('usuario.perfil_usuario') }}">
+        {% if usuario_actual and usuario_actual.foto_perfil %}
+        <img class="nav-avatar" src="{{ usuario_actual.foto_perfil }}" alt="{{ usuario_actual.nombre_completo or 'Perfil' }}">
+        {% else %}
         <span class="material-symbols-outlined">person</span>
+        {% endif %}
         <label>Perfil</label>
     </a>
 </nav>
+<div class="desktop-chat-fab">
+    <a href="{{ url_for('mensaje.chat_seguro') }}" class="chat-btn" aria-label="Chat seguro">
+        <span class="material-symbols-rounded fill">chat</span>
+    </a>
+</div>
 <div class="desktop-fab">
     <a href="{{ url_for('reconocimiento.capturar_foto') }}" class="camera-btn">
         <span class="material-symbols-rounded fill">photo_camera</span>

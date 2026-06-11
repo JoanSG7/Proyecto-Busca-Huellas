@@ -18,18 +18,17 @@ def crear_fotos_mascota(id_mascota, urls_fotos):
 
     sql = "INSERT INTO foto_mascota (id_mascota, url_imagen) VALUES (%s, %s)"
     with db_cursor(commit=True) as cursor:
-        cursor.executemany(sql, [(id_mascota, url_foto) for url_foto in urls_fotos])
+        cursor.executemany(sql, [(id_mascota, url_imagen) for url_imagen in urls_fotos])
         return cursor.rowcount
 
 
 def listar_fotos_mascota(id_mascota):
     sql = """
-
-        SELECT id_foto, url_imagen
+        SELECT id_foto AS id_foto_mascota, url_imagen
         FROM foto_mascota
         WHERE id_mascota = %s
         ORDER BY id_foto ASC
-
+    """
     with db_cursor() as cursor:
         cursor.execute(sql, (id_mascota,))
         return cursor.fetchall()

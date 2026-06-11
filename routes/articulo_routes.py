@@ -1,16 +1,18 @@
 from flask import Blueprint
 # Importamos las funciones del controlador
 from controllers.auth_controller import borrar_articulo, editar_articulo, mostrar_lista_articulos, mostrar_articulo_completo, registrar_articulo
-from controllers.security import admin_required
+from controllers.security import admin_required, login_required
 
 articulo_bp = Blueprint('articulo', __name__)
 
 # modulo articulo
 @articulo_bp.route('/lista')
+@login_required
 def lista_articulos():
     return mostrar_lista_articulos()
 
 @articulo_bp.route('/articulo/<int:id_articulo>')
+@login_required
 def articulo_completo(id_articulo):
     return mostrar_articulo_completo(id_articulo)
 

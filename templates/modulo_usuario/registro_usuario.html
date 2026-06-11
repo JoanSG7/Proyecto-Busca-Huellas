@@ -412,7 +412,19 @@
                         {% endfor %}
                     {% endif %}
                     {% endwith %}
+                    {% if codigo_enviado %}
                     <form action="{{ url_for('usuario.registro_usuario') }}" class="form-grid" method="POST">
+                        <input type="hidden" name="accion" value="verificar_codigo">
+                        <div class="input-group">
+                            <label for="codigo">Código enviado a {{ correo }}</label>
+                            <input id="codigo" name="codigo" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required type="text" />
+                        </div>
+                        <button class="btn-submit" type="submit">Verificar y crear cuenta</button>
+                        <p class="login-prompt">Revisa tu correo. El código vence en 15 minutos.</p>
+                    </form>
+                    {% else %}
+                    <form id="registration-form" action="{{ url_for('usuario.registro_usuario') }}" class="form-grid" method="POST">
+                        <input type="hidden" name="accion" value="enviar_codigo">
                         <div class="form-grid two-cols">
                             <div class="input-group">
                                 <label for="name">Nombre completo</label>
@@ -469,6 +481,7 @@
                                 aquí</a>
                         </p>
                     </form>
+                    {% endif %}
                 </div>
             </section>
         </div>
@@ -482,11 +495,18 @@
         </div>
     </footer>
     <script>
-        const roleSelect = document.getElementById('role');
-        const adminCodeField = document.getElementById('admin-code-field');
-        const adminCodeInput = document.getElementById('admin_code');
+        const registrationForm = document.getElementById('registration-form');
+
+        function getAdultLimitDate() {
+            const today = new Date();
+            today.setFullYear(today.getFullYear() - 19);
+            return today.toISOString().split('T')[0];
+        }
 
         function toggleAdminCode() {
+            const roleSelect = document.getElementById('role');
+            const adminCodeField = document.getElementById('admin-code-field');
+            const adminCodeInput = document.getElementById('admin_code');
             const isAdmin = roleSelect.value === 'admin';
             adminCodeField.classList.toggle('is-visible', isAdmin);
             adminCodeInput.required = isAdmin;
@@ -495,8 +515,23 @@
             }
         }
 
-        roleSelect.addEventListener('change', toggleAdminCode);
+        if (registrationForm) {
+            const roleSelect = document.getElementById('role');
+            const dobInput = document.getElementById('dob');
+
+            roleSelect.addEventListener('change', toggleAdminCode);
         toggleAdminCode();
+
+        dobInput.max = getAdultLimitDate();
+
+        registrationForm.addEventListener('submit', event => {
+            if (!dobInput.value || dobInput.value > dobInput.max) {
+                event.preventDefault();
+                alert('Debes ser mayor de 18 años para registrarte.');
+                dobInput.focus();
+            }
+            });
+        }
     </script>
 </body>
 

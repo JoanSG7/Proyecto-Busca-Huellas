@@ -3,13 +3,15 @@ import json
 import secrets
 import smtplib
 import time
+import unicodedata
+from datetime import date, datetime
 from email.message import EmailMessage
 from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from mysql.connector import IntegrityError
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from controllers.security import (
@@ -25,9 +27,16 @@ from controllers.security import (
     is_admin,
 )
 from controllers.upload_utils import guardar_imagen, guardar_imagen_base64
+from models.alerta_model import crear_alerta, listar_alertas_usuario
 from models.articulo_model import actualizar_articulo, crear_articulo, eliminar_articulo, listar_articulos, obtener_articulo
 from models.inicio_model import obtener_estadisticas_inicio
 from models.mascota_model import crear_fotos_mascota, crear_mascota, listar_fotos_mascota, listar_mascotas_por_usuario, obtener_mascota
+from models.mensaje_model import (
+    crear_mensaje_alerta,
+    listar_chats_alerta,
+    listar_mensajes_alerta,
+    obtener_chat_alerta,
+)
 from models.usuario_model import (
     actualizar_contrasena_usuario,
     actualizar_usuario,
@@ -57,10 +66,27 @@ OAUTH_PROVIDERS = {
 }
 
 
+def _es_mayor_de_edad(fecha_nacimiento_raw):
+    try:
+        fecha_nacimiento = datetime.strptime(fecha_nacimiento_raw or "", "%Y-%m-%d").date()
+    except ValueError:
+        return False
+
+    hoy = date.today()
+    edad = hoy.year - fecha_nacimiento.year - (
+        (hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day)
+    )
+    return edad > 18
+
+
 def mostrar_inicio():
     articulos = listar_articulos()[:3]
     estadisticas = obtener_estadisticas_inicio()
     return render_template("inicio.html", articulos=articulos, estadisticas=estadisticas)
+
+
+def obtener_estadisticas_inicio_json():
+    return jsonify(obtener_estadisticas_inicio())
 
 
 def enviar_codigo_recuperacion(correo, codigo):
@@ -90,6 +116,33 @@ def enviar_codigo_recuperacion(correo, codigo):
         servidor.send_message(mensaje)
 
 
+def enviar_codigo_registro(correo, codigo):
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_port = int(os.getenv("SMTP_PORT", "587"))
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    remitente = os.getenv("SMTP_FROM", smtp_user or "no-reply@buscahuellas.local")
+
+    if not smtp_host:
+        print(f"Codigo de registro para {correo}: {codigo}")
+        return
+
+    mensaje = EmailMessage()
+    mensaje["Subject"] = "Codigo de registro - Busca Huellas"
+    mensaje["From"] = remitente
+    mensaje["To"] = correo
+    mensaje.set_content(
+        f"Tu codigo de registro de Busca Huellas es: {codigo}\n\n"
+        "Este codigo vence en 15 minutos."
+    )
+
+    with smtplib.SMTP(smtp_host, smtp_port) as servidor:
+        servidor.starttls()
+        if smtp_user and smtp_password:
+            servidor.login(smtp_user, smtp_password)
+        servidor.send_message(mensaje)
+
+
 def mostrar_inicio_sesion():
     estadisticas = obtener_estadisticas_inicio()
     if request.method == "POST":
@@ -109,6 +162,7 @@ def mostrar_inicio_sesion():
         session["usuario_id"] = usuario["id_usuario"]
         session["usuario_nombre"] = usuario["nombre_completo"]
         session["rol_id"] = usuario["id_rol"]
+        session["correo_verificado"] = True
         flash("Inicio de sesión exitoso.", "success")
         return redirect(url_for("inicio.inicio"))
 
@@ -160,6 +214,7 @@ def _iniciar_sesion_oauth(perfil):
     session["usuario_nombre"] = usuario["nombre_completo"]
     session["rol_id"] = usuario["id_rol"]
     session["rol_nombre"] = usuario.get("nombre_rol")
+    session["correo_verificado"] = False
     flash("Inicio de sesion exitoso.", "success")
     return redirect(url_for("inicio.inicio"))
 
@@ -244,9 +299,54 @@ def recibir_login_social(provider):
 
 def mostrar_registro_usuario():
     if request.method == "POST":
+        accion = request.form.get("accion") or "enviar_codigo"
+
+        if accion == "verificar_codigo":
+            codigo = clean_text(request.form.get("codigo"), 6)
+            registro = session.get("registro_pendiente") or {}
+            datos = registro.get("datos") or {}
+            codigo_valido = (
+                registro.get("codigo") == codigo
+                and registro.get("expira", 0) >= int(time.time())
+            )
+
+            if not codigo_valido:
+                flash("El codigo de registro no es valido o ya vencio.", "error")
+                return render_template(
+                    "modulo_usuario/registro_usuario.html",
+                    codigo_enviado=True,
+                    correo=datos.get("correo"),
+                ), 400
+
+            if obtener_usuario_por_correo(datos.get("correo")):
+                session.pop("registro_pendiente", None)
+                flash("Ya existe una cuenta registrada con ese correo.", "error")
+                return render_template("modulo_usuario/registro_usuario.html"), 409
+
+            try:
+                crear_usuario(
+                    datos["nombre"],
+                    datos["telefono"],
+                    datos["correo"],
+                    datos["contrasena_hash"],
+                    id_rol=datos["id_rol"],
+                )
+            except IntegrityError as exc:
+                session.pop("registro_pendiente", None)
+                if getattr(exc, "errno", None) == 1062:
+                    flash("Ya existe una cuenta registrada con ese correo.", "error")
+                    return render_template("modulo_usuario/registro_usuario.html"), 409
+                flash("No se pudo crear la cuenta. Revisa los datos e intenta de nuevo.", "error")
+                return render_template("modulo_usuario/registro_usuario.html"), 400
+
+            session.pop("registro_pendiente", None)
+            flash("Cuenta creada y correo verificado. Ahora puedes iniciar sesión.", "success")
+            return redirect(url_for("usuario.inicio_sesion"))
+
         nombre = clean_text(request.form.get("name"), 100)
         telefono = clean_text(request.form.get("phone"), 20)
         correo = clean_text(request.form.get("email"), 100).lower()
+        fecha_nacimiento = clean_text(request.form.get("dob"), 20)
         contrasena = request.form.get("password") or ""
         confirmar = request.form.get("confirm_password") or ""
         rol_solicitado = clean_text(request.form.get("role"), 20).lower() or "usuario"
@@ -260,6 +360,8 @@ def mostrar_registro_usuario():
             errores.append("El teléfono no tiene un formato válido.")
         if not is_valid_email(correo):
             errores.append("El correo no tiene un formato válido.")
+        if not _es_mayor_de_edad(fecha_nacimiento):
+            errores.append("Debes ser mayor de 18 años para registrarte.")
         if len(contrasena) < 8:
             errores.append("La contraseña debe tener mínimo 8 caracteres.")
         if contrasena != confirmar:
@@ -281,18 +383,25 @@ def mostrar_registro_usuario():
                 flash(error, "error")
             return render_template("modulo_usuario/registro_usuario.html"), 400
 
-        try:
-            contrasena_hash = generate_password_hash(contrasena)
-            crear_usuario(nombre, telefono, correo, contrasena_hash, id_rol=id_rol)
-        except IntegrityError as exc:
-            if getattr(exc, "errno", None) == 1062:
-                flash("Ya existe una cuenta registrada con ese correo.", "error")
-                return render_template("modulo_usuario/registro_usuario.html"), 409
-            flash("No se pudo crear la cuenta. Revisa los datos e intenta de nuevo.", "error")
-            return render_template("modulo_usuario/registro_usuario.html"), 400
-
-        flash("Cuenta creada correctamente. Ahora puedes iniciar sesión.", "success")
-        return redirect(url_for("usuario.inicio_sesion"))
+        codigo = f"{secrets.randbelow(1000000):06d}"
+        session["registro_pendiente"] = {
+            "codigo": codigo,
+            "expira": int(time.time()) + 900,
+            "datos": {
+                "nombre": nombre,
+                "telefono": telefono,
+                "correo": correo,
+                "contrasena_hash": generate_password_hash(contrasena),
+                "id_rol": id_rol,
+            },
+        }
+        enviar_codigo_registro(correo, codigo)
+        flash("Te enviamos un código de 6 dígitos al correo para terminar el registro.", "success")
+        return render_template(
+            "modulo_usuario/registro_usuario.html",
+            codigo_enviado=True,
+            correo=correo,
+        )
 
     return render_template("modulo_usuario/registro_usuario.html")
 
@@ -397,6 +506,13 @@ def mostrar_editar_perfil():
             return render_template("modulo_usuario/editar_perfil.html", usuario=usuario), 409
 
         session["usuario_nombre"] = nombre
+        if foto_perfil:
+            crear_alerta(
+                current_user_id(),
+                None,
+                "perfil_actualizado",
+                "Se ha actualizado tu foto de perfil correctamente.",
+            )
         flash("Perfil actualizado correctamente.", "success")
         return redirect(url_for("usuario.perfil_usuario"))
 
@@ -404,7 +520,76 @@ def mostrar_editar_perfil():
 
 
 def mostrar_lista_alertas():
-    return render_template("modulo_alerta/lista_alertas.html")
+    alertas = listar_alertas_usuario(current_user_id())
+    return render_template("modulo_alerta/lista_alertas.html", alertas=alertas)
+
+
+def listar_alertas_json():
+    return jsonify(listar_alertas_usuario(current_user_id()))
+
+
+PALABRAS_BLOQUEADAS_CHAT = {
+    "idiota",
+    "imbecil",
+    "estupido",
+    "maldito",
+    "mierda",
+    "puta",
+    "puto",
+    "gonorrea",
+    "marica",
+    "pendejo",
+}
+
+
+def _normalizar_mensaje_chat(texto):
+    texto = unicodedata.normalize("NFD", texto.lower())
+    return "".join(caracter for caracter in texto if unicodedata.category(caracter) != "Mn")
+
+
+def _mensaje_tiene_palabras_bloqueadas(texto):
+    normalizado = _normalizar_mensaje_chat(texto)
+    return any(palabra in normalizado.split() for palabra in PALABRAS_BLOQUEADAS_CHAT)
+
+
+def mostrar_chat_seguro():
+    if not session.get("correo_verificado"):
+        flash("Debes tener tu correo verificado con código para usar el chat seguro.", "error")
+        return redirect(url_for("inicio.inicio"))
+
+    chats = listar_chats_alerta(current_user_id(), is_admin())
+    return render_template("modulo_mensaje/chat_seguro.html", chats=chats)
+
+
+def mostrar_chat_alerta(id_alerta):
+    if not session.get("correo_verificado"):
+        flash("Debes tener tu correo verificado con código para usar el chat seguro.", "error")
+        return redirect(url_for("inicio.inicio"))
+
+    chat = obtener_chat_alerta(id_alerta, current_user_id(), is_admin())
+    if not chat:
+        flash("Este chat solo se activa cuando la alerta esta confirmada.", "error")
+        return redirect(url_for("mensaje.chat_seguro"))
+
+    if request.method == "POST":
+        mensaje = clean_text(request.form.get("mensaje"), 700)
+        receptor = chat["id_dueno"] if current_user_id() != chat["id_dueno"] else chat["id_usuario_alerta"]
+        if len(mensaje) < 2:
+            flash("Escribe un mensaje antes de enviarlo.", "error")
+        elif _mensaje_tiene_palabras_bloqueadas(mensaje):
+            flash("Tu mensaje contiene palabras fuertes o indebidas. Reescribelo con respeto.", "error")
+        elif not receptor:
+            flash("No hay un usuario receptor para este chat.", "error")
+        else:
+            crear_mensaje_alerta(id_alerta, current_user_id(), receptor, mensaje)
+            return redirect(url_for("mensaje.chat_alerta", id_alerta=id_alerta))
+
+    mensajes = listar_mensajes_alerta(id_alerta)
+    return render_template(
+        "modulo_mensaje/chat_avistamiento.html",
+        chat=chat,
+        mensajes=mensajes,
+    )
 
 
 def mostrar_lista_articulos():
@@ -509,6 +694,26 @@ def mostrar_registro_mascota():
             current_user_id(), nombre, raza, edad, color, pelaje, tamano, descripcion, estado
         )
         crear_fotos_mascota(id_mascota, fotos)
+        if estado == "perdida":
+            crear_alerta(
+                current_user_id(),
+                id_mascota,
+                "mascota_perdida",
+                f"Tu reporte de {nombre} quedo activo y la comunidad podra verlo.",
+            )
+            crear_alerta(
+                current_user_id(),
+                id_mascota,
+                "mascota_cercana",
+                f"Se genero una alerta de mascota cercana para {nombre}.",
+            )
+        elif estado == "encontrada":
+            crear_alerta(
+                current_user_id(),
+                id_mascota,
+                "mascota_encontrada",
+                f"Se registro a {nombre} como mascota encontrada. Puedes iniciar chat desde esta alerta.",
+            )
         flash("Mascota registrada correctamente.", "success")
         return redirect(url_for("mascota.info_mascota", id_mascota=id_mascota))
 
@@ -540,6 +745,12 @@ def mostrar_capturar_foto():
             return render_template("modulo_reconocimiento/capturar_foto.html"), 400
 
         flash("Foto y ubicación registradas. Búsqueda iniciada.", "success")
+        crear_alerta(
+            current_user_id(),
+            None,
+            "hallazgo_reportado",
+            f"Se reporto un hallazgo con foto y ubicacion en tiempo real: {latitud}, {longitud}.",
+        )
         return render_template(
             "modulo_reconocimiento/capturar_foto.html",
             foto_guardada=foto_url,

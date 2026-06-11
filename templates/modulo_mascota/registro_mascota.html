@@ -358,6 +358,36 @@
             text-transform: uppercase;
         }
 
+        .photo-preview {
+            position: relative;
+            aspect-ratio: 1/1;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            background: var(--surface-container-low);
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: var(--radius-full);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            color: white;
+            background: rgba(26, 28, 26, 0.72);
+        }
+
         /* Submit Button */
         .submit-btn {
             background-color: var(--primary);
@@ -635,21 +665,11 @@
                         <span class="material-symbols-outlined fill">add_a_photo</span>
                         <h2>Fotos Recientes (Mínimo 2)</h2>
                     </div>
-                    <div class="photo-upload-grid">
-                        <label class="photo-slot" for="foto-1">
+                    <div class="photo-upload-grid" id="photo-preview-grid">
+                        <label class="photo-slot" for="foto-mascota">
                             <span class="material-symbols-outlined">add_photo_alternate</span>
-                            <small>Subir</small>
-                            <input id="foto-1" name="fotos_mascota" type="file" accept="image/*" hidden required>
-                        </label>
-                        <label class="photo-slot" for="foto-2">
-                            <span class="material-symbols-outlined">add_photo_alternate</span>
-                            <small>Subir</small>
-                            <input id="foto-2" name="fotos_mascota" type="file" accept="image/*" hidden required>
-                        </label>
-                        <label class="photo-slot" for="foto-3">
-                            <span class="material-symbols-outlined">add_photo_alternate</span>
-                            <small>Subir</small>
-                            <input id="foto-3" name="fotos_mascota" type="file" accept="image/*" hidden>
+                            <small>Subir varias</small>
+                            <input id="foto-mascota" name="fotos_mascota" type="file" accept="image/*" hidden multiple required>
                         </label>
                     </div>
                 </section>
@@ -678,26 +698,46 @@
             });
         });
 
-        document.querySelectorAll('.photo-slot input[type="file"]').forEach(input => {
-            input.addEventListener('change', () => {
-                const slot = input.closest('.photo-slot');
-                const file = input.files[0];
-                if (!file) return;
+        const photoInput = document.getElementById('foto-mascota');
+        const photoGrid = document.getElementById('photo-preview-grid');
+        const uploadSlot = photoGrid.querySelector('.photo-slot');
+        const selectedFiles = new DataTransfer();
 
+        function syncPhotoInput() {
+            photoInput.files = selectedFiles.files;
+            photoInput.required = selectedFiles.files.length < 2;
+        }
+
+        function renderPhotos() {
+            photoGrid.querySelectorAll('.photo-preview').forEach(preview => preview.remove());
+            Array.from(selectedFiles.files).forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = event => {
-                    slot.style.backgroundImage = `url(${event.target.result})`;
-                    slot.style.backgroundSize = 'cover';
-                    slot.style.backgroundPosition = 'center';
-                    slot.style.borderStyle = 'solid';
-                    slot.querySelector('span').style.display = 'none';
-                    slot.querySelector('small').textContent = 'Lista';
-                    slot.querySelector('small').style.background = 'rgba(255,255,255,.9)';
-                    slot.querySelector('small').style.padding = '.3rem .6rem';
-                    slot.querySelector('small').style.borderRadius = '999px';
+                    const preview = document.createElement('div');
+                    preview.className = 'photo-preview';
+                    preview.innerHTML = `
+                        <img src="${event.target.result}" alt="Foto seleccionada ${index + 1}">
+                        <button class="remove-photo" type="button" aria-label="Eliminar foto">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    `;
+                    preview.querySelector('.remove-photo').addEventListener('click', () => {
+                        const nextFiles = Array.from(selectedFiles.files).filter((_, itemIndex) => itemIndex !== index);
+                        selectedFiles.items.clear();
+                        nextFiles.forEach(item => selectedFiles.items.add(item));
+                        syncPhotoInput();
+                        renderPhotos();
+                    });
+                    photoGrid.insertBefore(preview, uploadSlot);
                 };
                 reader.readAsDataURL(file);
             });
+        }
+
+        photoInput.addEventListener('change', () => {
+            Array.from(photoInput.files).forEach(file => selectedFiles.items.add(file));
+            syncPhotoInput();
+            renderPhotos();
         });
     </script>
 </body>
