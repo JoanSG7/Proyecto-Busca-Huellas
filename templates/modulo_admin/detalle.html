@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle admin - Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#fdf9f1; --surface:#fff; --soft:#f1ede5; --primary:#0f5238; --danger:#ba1a1a; --line:#d8ded7; --muted:#56615a; --font:'Plus Jakarta Sans',sans-serif; }
+        * { box-sizing:border-box; }
+        body { margin:0; background:var(--bg); font-family:var(--font); color:#1c1c17; }
+        main { width:min(100%,860px); margin:0 auto; padding:2rem 1rem 7rem; }
+        h1 { color:var(--primary); margin:1rem 0; }
+        form,.info { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:1rem; display:grid; gap:1rem; }
+        .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
+        label { display:block; color:var(--muted); text-transform:uppercase; font-size:.72rem; font-weight:800; margin-bottom:.3rem; }
+        input,select,textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:.75rem; font:inherit; }
+        textarea { min-height:140px; }
+        .actions { display:flex; gap:.6rem; flex-wrap:wrap; }
+        .btn { border:0; border-radius:8px; padding:.8rem 1rem; font-weight:800; text-decoration:none; cursor:pointer; }
+        .primary { background:var(--primary); color:#fff; }
+        .secondary { background:var(--soft); color:var(--primary); }
+        .danger { background:#ffe7e7; color:var(--danger); }
+        .flash { font-weight:800; color:var(--primary); }
+    </style>
+</head>
+<body>
+    {% include 'includes/_header-up.html' %}
+    <main>
+        <a class="btn secondary" href="{{ url_for('admin.panel', seccion=seccion) }}">Volver a {{ config.titulo }}</a>
+        <h1>{{ config.titulo }} · {% if modo == 'editar' %}Editar{% else %}Ver{% endif %}</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}<p class="flash">{{ message }}</p>{% endfor %}{% endif %}
+        {% endwith %}
+        <form id="detail-form" method="POST" action="{{ url_for('admin.guardar', seccion=seccion, item_id=item_id) }}">
+            {% if seccion == 'usuarios' %}
+            <div class="grid">
+                <div><label>ID</label><input value="{{ item.id_usuario }}" disabled></div>
+                <div><label>Nombre</label><input name="nombre_completo" value="{{ item.nombre_completo or '' }}"></div>
+                <div><label>TelÃ©fono</label><input name="telefono" value="{{ item.telefono or '' }}"></div>
+                <div><label>Correo</label><input name="correo" value="{{ item.correo or '' }}"></div>
+                <div><label>Rol</label><select name="id_rol"><option value="1" {% if item.id_rol == 1 %}selected{% endif %}>Usuario</option><option value="2" {% if item.id_rol == 2 %}selected{% endif %}>Administrador</option></select></div>
+                <div><label>Cantidad de mascotas</label><input value="{{ item.total_mascotas }}" disabled></div>
+            </div>
+            {% elif seccion == 'mascotas' %}
+            <div class="grid">
+                <div><label>ID</label><input value="{{ item.id_mascota }}" disabled></div>
+                <div><label>ID usuario dueÃ±o</label><input name="id_usuario" value="{{ item.id_usuario or '' }}"></div>
+                <div><label>DueÃ±o</label><input value="{{ item.nombre_usuario or '' }}" disabled></div>
+                <div><label>Nombre</label><input name="nombre_mascota" value="{{ item.nombre_mascota or '' }}"></div>
+                <div><label>Raza</label><input name="raza" value="{{ item.raza or '' }}"></div>
+                <div><label>Edad</label><input name="edad" value="{{ item.edad or '' }}"></div>
+                <div><label>Color</label><input name="color" value="{{ item.color or '' }}"></div>
+                <div><label>Pelaje</label><input name="pelaje" value="{{ item.pelaje or '' }}"></div>
+                <div><label>TamaÃ±o</label><input name="tamano" value="{{ item.tamano or '' }}"></div>
+                <div><label>Estado</label><input name="estado" value="{{ item.estado or '' }}"></div>
+            </div>
+            <div><label>DescripciÃ³n</label><textarea name="descripcion">{{ item.descripcion or '' }}</textarea></div>
+            {% elif seccion == 'alertas' %}
+            <div class="grid">
+                <div><label>ID</label><input value="{{ item.id_alerta }}" disabled></div>
+                <div><label>ID usuario</label><input name="id_usuario" value="{{ item.id_usuario or '' }}"></div>
+                <div><label>Usuario</label><input value="{{ item.nombre_usuario or '' }}" disabled></div>
+                <div><label>ID mascota</label><input name="id_mascota" value="{{ item.id_mascota or '' }}"></div>
+                <div><label>Mascota</label><input value="{{ item.nombre_mascota or '' }}" disabled></div>
+                <div><label>Estado alerta</label><input name="estado_alerta" value="{{ item.estado_alerta or '' }}"></div>
+                <div><label>ConfirmaciÃ³n</label><input name="confirmacion" value="{{ item.confirmacion or '' }}"></div>
+                <div><label>Fecha</label><input value="{{ item.fecha_alerta or '' }}" disabled></div>
+            </div>
+            {% elif seccion == 'avistamientos' %}
+            <div class="grid">
+                <div><label>ID</label><input value="{{ item.id_avistamiento }}" disabled></div>
+                <div><label>ID mascota</label><input name="id_mascota" value="{{ item.id_mascota or '' }}"></div>
+                <div><label>Mascota</label><input value="{{ item.nombre_mascota or '' }}" disabled></div>
+                <div><label>DueÃ±o</label><input value="{{ item.nombre_dueno or '' }}" disabled></div>
+                <div><label>UbicaciÃ³n</label><input name="ubicacion" value="{{ item.ubicacion or '' }}"></div>
+                <div><label>URL imagen</label><input name="url_imagen" value="{{ item.url_imagen or '' }}"></div>
+                <div><label>Fecha</label><input name="fecha_avistamiento" value="{{ item.fecha_avistamiento or '' }}"></div>
+            </div>
+            <div><label>DescripciÃ³n avistamiento</label><textarea name="descripcion_avistamiento">{{ item.descripcion_avistamiento or '' }}</textarea></div>
+            {% else %}
+            <div class="grid">
+                <div><label>ID</label><input value="{{ item.id_informe }}" disabled></div>
+                <div><label>Admin</label><input value="{{ item.nombre_usuario or '' }}" disabled></div>
+                <div><label>Tipo</label><input name="tipo_informe" value="{{ item.tipo_informe or '' }}"></div>
+                <div><label>Fecha</label><input value="{{ item.fecha_generacion or '' }}" disabled></div>
+            </div>
+            <div><label>DescripciÃ³n</label><textarea name="descripcion">{{ item.descripcion or '' }}</textarea></div>
+            {% endif %}
+            <div class="actions" id="detail-actions">
+                <button class="btn primary" name="accion" value="guardar">Guardar cambios</button>
+                <button class="btn danger" name="accion" value="eliminar">Eliminar</button>
+            </div>
+        </form>
+        {% if modo != 'editar' %}
+        <div class="actions" style="margin-top:1rem;">
+            <a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item_id, modo='editar') }}">Editar</a>
+            <form method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item_id) }}" style="padding:0; border:0; background:transparent;">
+                <button class="btn danger" type="submit">Eliminar</button>
+            </form>
+        </div>
+        <script>
+            document.querySelectorAll('#detail-form input, #detail-form select, #detail-form textarea').forEach(element => {
+                element.disabled = true;
+            });
+            document.getElementById('detail-actions').style.display = 'none';
+        </script>
+        {% endif %}
+    </main>
+</body>
+</html>

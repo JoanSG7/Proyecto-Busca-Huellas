@@ -7,7 +7,7 @@ def crear_alerta(id_usuario, id_mascota, tipo, mensaje):
         VALUES (%s, %s, %s, %s, CURDATE())
     """
     with db_cursor(commit=True) as cursor:
-        cursor.execute((sql), (id_usuario, id_mascota, tipo, mensaje))
+        cursor.execute(sql, (id_usuario, id_mascota, tipo, "no"))
         return cursor.lastrowid
 
 

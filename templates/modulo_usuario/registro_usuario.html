@@ -515,7 +515,11 @@
             }
         }
 
-        roleSelect.addEventListener('change', toggleAdminCode);
+        if (registrationForm) {
+            const roleSelect = document.getElementById('role');
+            const dobInput = document.getElementById('dob');
+
+            roleSelect.addEventListener('change', toggleAdminCode);
         toggleAdminCode();
 
         dobInput.max = getAdultLimitDate();
@@ -526,7 +530,8 @@
                 alert('Debes ser mayor de 18 años para registrarte.');
                 dobInput.focus();
             }
-        });
+            });
+        }
     </script>
 </body>
 

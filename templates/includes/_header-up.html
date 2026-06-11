@@ -7,6 +7,9 @@
             <a class="{% if request.endpoint == 'inicio.inicio' %}active{% endif %}" href="{{ url_for('inicio.inicio') }}">Inicio</a>
             <a class="{% if request.endpoint == 'articulo.lista_articulos' %}active{% endif %}" href="{{ url_for('articulo.lista_articulos') }}">Artículos</a>
             <a class="{% if request.endpoint == 'alerta.alertas' %}active{% endif %}" href="{{ url_for('alerta.alertas') }}">Alertas</a>
+            {% if session.get('rol_id') == 2 %}
+            <a class="{% if request.endpoint and request.endpoint.startswith('admin.') %}active{% endif %}" href="{{ url_for('admin.panel') }}">Admin</a>
+            {% endif %}
         </nav>
         <div class="header-actions">
             <a class="icon-btn" href="{{ url_for('usuario.perfil_usuario') }}" aria-label="Perfil">

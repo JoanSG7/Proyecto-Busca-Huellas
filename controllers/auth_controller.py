@@ -3,6 +3,7 @@ import json
 import secrets
 import smtplib
 import time
+import unicodedata
 from datetime import date, datetime
 from email.message import EmailMessage
 from urllib.error import URLError
@@ -30,6 +31,12 @@ from models.alerta_model import crear_alerta, listar_alertas_usuario
 from models.articulo_model import actualizar_articulo, crear_articulo, eliminar_articulo, listar_articulos, obtener_articulo
 from models.inicio_model import obtener_estadisticas_inicio
 from models.mascota_model import crear_fotos_mascota, crear_mascota, listar_fotos_mascota, listar_mascotas_por_usuario, obtener_mascota
+from models.mensaje_model import (
+    crear_mensaje_alerta,
+    listar_chats_alerta,
+    listar_mensajes_alerta,
+    obtener_chat_alerta,
+)
 from models.usuario_model import (
     actualizar_contrasena_usuario,
     actualizar_usuario,
@@ -521,32 +528,68 @@ def listar_alertas_json():
     return jsonify(listar_alertas_usuario(current_user_id()))
 
 
+PALABRAS_BLOQUEADAS_CHAT = {
+    "idiota",
+    "imbecil",
+    "estupido",
+    "maldito",
+    "mierda",
+    "puta",
+    "puto",
+    "gonorrea",
+    "marica",
+    "pendejo",
+}
+
+
+def _normalizar_mensaje_chat(texto):
+    texto = unicodedata.normalize("NFD", texto.lower())
+    return "".join(caracter for caracter in texto if unicodedata.category(caracter) != "Mn")
+
+
+def _mensaje_tiene_palabras_bloqueadas(texto):
+    normalizado = _normalizar_mensaje_chat(texto)
+    return any(palabra in normalizado.split() for palabra in PALABRAS_BLOQUEADAS_CHAT)
+
+
 def mostrar_chat_seguro():
     if not session.get("correo_verificado"):
         flash("Debes tener tu correo verificado con código para usar el chat seguro.", "error")
         return redirect(url_for("inicio.inicio"))
 
-    mensajes = [
-        {
-            "autor": "Soporte Busca Huellas",
-            "texto": "Hola, este chat seguro ayuda a coordinar hallazgos y entregas con usuarios verificados.",
-            "tipo": "recibido",
-            "hora": "Ahora",
-        },
-        {
-            "autor": session.get("usuario_nombre", "Tu"),
-            "texto": "Necesito coordinar un reporte de mascota encontrada.",
-            "tipo": "enviado",
-            "hora": "Ahora",
-        },
-        {
-            "autor": "Soporte Busca Huellas",
-            "texto": "Perfecto. Comparte solo datos necesarios y confirma siempre la ubicación por la app.",
-            "tipo": "recibido",
-            "hora": "Ahora",
-        },
-    ]
-    return render_template("modulo_mensaje/chat_seguro.html", mensajes=mensajes)
+    chats = listar_chats_alerta(current_user_id(), is_admin())
+    return render_template("modulo_mensaje/chat_seguro.html", chats=chats)
+
+
+def mostrar_chat_alerta(id_alerta):
+    if not session.get("correo_verificado"):
+        flash("Debes tener tu correo verificado con código para usar el chat seguro.", "error")
+        return redirect(url_for("inicio.inicio"))
+
+    chat = obtener_chat_alerta(id_alerta, current_user_id(), is_admin())
+    if not chat:
+        flash("Este chat solo se activa cuando la alerta esta confirmada.", "error")
+        return redirect(url_for("mensaje.chat_seguro"))
+
+    if request.method == "POST":
+        mensaje = clean_text(request.form.get("mensaje"), 700)
+        receptor = chat["id_dueno"] if current_user_id() != chat["id_dueno"] else chat["id_usuario_alerta"]
+        if len(mensaje) < 2:
+            flash("Escribe un mensaje antes de enviarlo.", "error")
+        elif _mensaje_tiene_palabras_bloqueadas(mensaje):
+            flash("Tu mensaje contiene palabras fuertes o indebidas. Reescribelo con respeto.", "error")
+        elif not receptor:
+            flash("No hay un usuario receptor para este chat.", "error")
+        else:
+            crear_mensaje_alerta(id_alerta, current_user_id(), receptor, mensaje)
+            return redirect(url_for("mensaje.chat_alerta", id_alerta=id_alerta))
+
+    mensajes = listar_mensajes_alerta(id_alerta)
+    return render_template(
+        "modulo_mensaje/chat_avistamiento.html",
+        chat=chat,
+        mensajes=mensajes,
+    )
 
 
 def mostrar_lista_articulos():

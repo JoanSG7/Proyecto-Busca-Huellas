@@ -1,11 +1,15 @@
 import os
-
 from flask import Flask, redirect, url_for
+from dotenv import load_dotenv
+
 
 # Importamos el Blueprint que creamos en tu carpeta de rutas
 from routes.inicio_routes import inicio_bp
 from routes.usuario_routes import usuario_bp
 from routes.alerta_routes import alerta_bp
+from routes.admin_routes import admin_bp
+
+load_dotenv()
 
 # from routes.ia_routes import ia_bp
 # from routes.informe_routes import informe_bp
@@ -27,6 +31,7 @@ app.register_blueprint(inicio_bp)
 app.register_blueprint(usuario_bp, url_prefix="/autenticacion")
 app.register_blueprint(articulo_bp, url_prefix="/articulos")
 app.register_blueprint(alerta_bp, url_prefix="/alertas")
+app.register_blueprint(admin_bp, url_prefix="/admin")
 # app.register_blueprint(ia_bp, url_prefix='/ia')
 # app.register_blueprint(informe_bp, url_prefix='/informe')
 app.register_blueprint(mascota_bp, url_prefix="/mascota")
