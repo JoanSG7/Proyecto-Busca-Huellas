@@ -121,11 +121,6 @@ def enviar_codigo_registro(correo, codigo):
     smtp_port = int(os.getenv("SMTP_PORT", "587"))
     smtp_user = os.getenv("SMTP_USER")
     smtp_password = os.getenv("SMTP_PASSWORD")
-
-    print("SMTP_HOST:", smtp_host)
-    print("SMTP_USER:", smtp_user)
-    print("SMTP_PASSWORD:", smtp_password)
-    
     remitente = os.getenv("SMTP_FROM", smtp_user or "no-reply@buscahuellas.local")
 
     if not smtp_host:
