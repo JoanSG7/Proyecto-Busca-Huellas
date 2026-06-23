@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ articulo.titulo }} - Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; background: #fdf9f1; color: #1c1c17; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.7; }
+        main { max-width: 900px; margin: 0 auto; padding: 6rem 1.5rem 3rem; }
+        h1 { font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1.1; color: #0f5238; margin-bottom: .75rem; }
+        .meta { color: #79573a; font-weight: 800; margin-bottom: 2rem; }
+        .hero { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 1.5rem; background: #ece8e0; margin-bottom: 2rem; }
+        article { background: white; border-radius: 1.5rem; padding: 2rem; white-space: pre-line; }
+        .related { max-width: 1100px; margin: 2rem auto 5rem; padding: 0 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+        .card { background: #f1ede5; color: inherit; text-decoration: none; border-radius: 1rem; padding: 1rem; }
+        .back { display: inline-block; margin-top: 2rem; color: #2d6a4f; font-weight: 800; }
+        form.edit { background: white; border-radius: 1.5rem; padding: 1.25rem; display: grid; gap: .8rem; margin-top: 1.5rem; }
+        input, textarea { border: 0; border-radius: 1rem; background: #ece8e0; padding: .9rem 1rem; font: inherit; }
+        button { border: 0; border-radius: 999px; padding: .9rem 1.2rem; font-weight: 800; background: #2d6a4f; color: white; cursor: pointer; }
+        .danger { background: #ba1a1a; }
+    </style>
+</head>
+<body>
+    {% include 'includes/_header-up.html' %}
+    <main>
+        <h1>{{ articulo.titulo or 'Artículo sin título' }}</h1>
+        <div class="meta">
+            {{ articulo.autor or 'Busca Huellas' }}
+            {% if articulo.fecha_publicacion %} · {{ articulo.fecha_publicacion }}{% endif %}
+        </div>
+        <img class="hero" alt="{{ articulo.titulo }}" src="{{ articulo.url_imagen or 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=1200&q=80' }}">
+        <article>{{ articulo.contenido or 'Este artículo aún no tiene contenido.' }}</article>
+        {% if session.get('rol_id') == 2 %}
+        <form class="edit" action="{{ url_for('articulo.editar', id_articulo=articulo.id_articulo) }}" method="POST" enctype="multipart/form-data">
+            <input name="titulo" maxlength="255" value="{{ articulo.titulo or '' }}" required>
+            <textarea name="contenido" rows="5" required>{{ articulo.contenido or '' }}</textarea>
+            <label for="imagen_articulo" style="font-weight: 800; color: #404943;">Cambiar imagen del artículo</label>
+            <input id="imagen_articulo" name="imagen_articulo" type="file" accept="image/*">
+            <button type="submit">Guardar artículo</button>
+        </form>
+        <form action="{{ url_for('articulo.eliminar', id_articulo=articulo.id_articulo) }}" method="POST" style="margin-top: 1rem;">
+            <button class="danger" type="submit">Eliminar artículo</button>
+        </form>
+        {% endif %}
+        <a class="back" href="{{ url_for('articulo.lista_articulos') }}">Volver a artículos</a>
+    </main>
+    {% if relacionados %}
+    <section class="related">
+        <h2>Artículos relacionados</h2>
+        <div class="grid">
+            {% for item in relacionados %}
+            <a class="card" href="{{ url_for('articulo.articulo_completo', id_articulo=item.id_articulo) }}">
+                <strong>{{ item.titulo or 'Artículo sin título' }}</strong>
+                <p>{{ (item.contenido or '')[:100] }}{% if item.contenido and item.contenido|length > 100 %}...{% endif %}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</body>
+</html>

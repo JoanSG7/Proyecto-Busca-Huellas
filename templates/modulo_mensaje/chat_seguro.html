@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chats de avistamientos - Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#fdf9f1; --surface:#fff; --soft:#f1ede5; --primary:#0f5238; --secondary:#79573a; --text:#1c1c17; --muted:#56615a; --line:#d8ded7; --radius:8px; --font:'Plus Jakarta Sans',sans-serif; }
+        * { box-sizing: border-box; }
+        body { margin:0; background:var(--bg); color:var(--text); font-family:var(--font); }
+        main { width:min(100%, 980px); margin:0 auto; padding:2rem 1rem 7rem; }
+        h1 { margin:1rem 0 .35rem; color:var(--primary); font-size:clamp(2rem,5vw,3rem); }
+        .subtitle { margin:0 0 1.25rem; color:var(--muted); font-weight:700; }
+        .flash { font-weight:800; color:#ba1a1a; }
+        .chat-list { display:grid; gap:.85rem; }
+        .chat-card { display:grid; grid-template-columns:1fr auto; gap:1rem; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:1rem; text-decoration:none; color:inherit; }
+        .chat-card:hover { border-color:var(--primary); }
+        .chat-title { font-weight:800; color:var(--primary); margin-bottom:.25rem; }
+        .meta { color:var(--muted); font-size:.9rem; font-weight:700; }
+        .badge { background:#ffdcc1; color:#2d1601; border-radius:999px; padding:.45rem .75rem; font-weight:800; white-space:nowrap; }
+        .empty { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:1.25rem; color:var(--muted); font-weight:700; }
+    </style>
+</head>
+<body>
+    {% include 'includes/_header-up.html' %}
+    <main>
+        <h1>Chats de alertas confirmadas</h1>
+        <p class="subtitle">Solo aparecen cuando una alerta fue confirmada y hay una mascota relacionada.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <p class="flash">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <section class="chat-list">
+            {% for chat in chats %}
+            <a class="chat-card" href="{{ url_for('mensaje.chat_alerta', id_alerta=chat.id_alerta) }}">
+                <div>
+                    <div class="chat-title">{{ chat.nombre_mascota }} · Alerta #{{ chat.id_alerta }}</div>
+                    <div class="meta">Reportó: {{ chat.nombre_alerta_usuario or 'Usuario' }} · Dueño/a: {{ chat.nombre_dueno or 'Usuario' }}</div>
+                    <div class="meta">{{ chat.estado_alerta or 'Sin estado' }} · {{ chat.fecha_alerta or '' }}</div>
+                </div>
+                <span class="badge">Chat seguro</span>
+            </a>
+            {% else %}
+            <div class="empty">Aun no tienes chats activos. Se abriran cuando una alerta se confirme.</div>
+            {% endfor %}
+        </section>
+    </main>
+</body>
+</html>
