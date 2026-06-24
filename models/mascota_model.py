@@ -1,14 +1,33 @@
 from config.database import db_cursor
 
 
-def crear_mascota(id_usuario, nombre_mascota, raza, edad, color, pelaje, tamano, descripcion, estado):
-    sql = """
-        INSERT INTO mascota
-            (id_usuario, nombre_mascota, raza, edad, color, pelaje, `tamaño`, descripcion, estado)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """
+def _columna_ubicacion_mascota(cursor):
+    cursor.execute("SHOW COLUMNS FROM mascota")
+    columnas = {columna["Field"] for columna in cursor.fetchall()}
+    if "ubicacion" in columnas:
+        return "ubicacion"
+    if "ubicación" in columnas:
+        return "ubicación"
+    return None
+
+
+def crear_mascota(id_usuario, nombre_mascota, raza, edad, color, pelaje, tamano, descripcion, estado, ubicacion=None):
     with db_cursor(commit=True) as cursor:
-        cursor.execute(sql, (id_usuario, nombre_mascota, raza, edad, color, pelaje, tamano, descripcion, estado))
+        columna_ubicacion = _columna_ubicacion_mascota(cursor)
+        columnas = ["id_usuario", "nombre_mascota", "raza", "edad", "color", "pelaje", "`tamaño`", "descripcion", "estado"]
+        valores = [id_usuario, nombre_mascota, raza, edad, color, pelaje, tamano, descripcion, estado]
+
+        if columna_ubicacion:
+            columnas.insert(-1, f"`{columna_ubicacion}`")
+            valores.insert(-1, ubicacion)
+
+        placeholders = ", ".join(["%s"] * len(valores))
+        sql = f"""
+            INSERT INTO mascota
+                ({", ".join(columnas)})
+            VALUES ({placeholders})
+        """
+        cursor.execute(sql, valores)
         return cursor.lastrowid
 
 

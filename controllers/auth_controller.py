@@ -19,7 +19,6 @@ from controllers.security import (
     ADMIN_ROLE_ID,
     USER_ROLE_ID,
     VALID_PET_SIZES,
-    VALID_PET_STATES,
     clean_text,
     current_user_id,
     is_valid_email,
@@ -720,21 +719,22 @@ def mostrar_registro_mascota():
         pelaje = clean_text(request.form.get("pelaje"), 50) or None
         tamano = clean_text(request.form.get("tamano"), 50).lower()
         descripcion = clean_text(request.form.get("descripcion"), 1000) or None
-        estado = clean_text(request.form.get("estado"), 50).lower() or "perdida"
+        ubicacion = clean_text(request.form.get("ubicacion"), 150) or None
+        estado = "perdida"
 
         try:
             edad = int(edad_raw) if edad_raw else None
         except ValueError:
             edad = -1
 
-        if len(nombre) < 2 or edad is not None and edad < 0:
-            flash("El nombre de la mascota y la edad deben ser válidos.", "error")
+        if len(nombre) < 2 or edad is not None and (edad < 0 or edad > 30):
+            flash("El nombre de la mascota y la edad deben ser válidos. La edad máxima es 30 años.", "error")
             return render_template("modulo_mascota/registro_mascota.html"), 400
         if tamano not in VALID_PET_SIZES:
             flash("Selecciona un tamaño válido.", "error")
             return render_template("modulo_mascota/registro_mascota.html"), 400
-        if estado not in VALID_PET_STATES:
-            flash("Selecciona un estado válido.", "error")
+        if not ubicacion:
+            flash("Selecciona y confirma en el mapa el último lugar donde se vio la mascota.", "error")
             return render_template("modulo_mascota/registro_mascota.html"), 400
 
         fotos = [
@@ -748,7 +748,7 @@ def mostrar_registro_mascota():
             return render_template("modulo_mascota/registro_mascota.html"), 400
 
         id_mascota = crear_mascota(
-            current_user_id(), nombre, raza, edad, color, pelaje, tamano, descripcion, estado
+            current_user_id(), nombre, raza, edad, color, pelaje, tamano, descripcion, estado, ubicacion
         )
         crear_fotos_mascota(id_mascota, fotos)
         if estado == "perdida":

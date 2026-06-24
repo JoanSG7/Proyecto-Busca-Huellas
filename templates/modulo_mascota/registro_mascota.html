@@ -11,6 +11,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
     <style>
         :root {
             --primary: #2d6a4f;
@@ -218,6 +219,7 @@
         }
 
         input,
+        select,
         textarea {
             background-color: var(--surface-container-low);
             border: 2px solid transparent;
@@ -236,6 +238,7 @@
         }
 
         input:focus,
+        select:focus,
         textarea:focus {
             outline: none;
             background-color: var(--surface);
@@ -277,45 +280,99 @@
         /* Map Styling */
         .map-container {
             width: 100%;
-            height: 260px;
+            height: 320px;
             background-color: var(--secondary-container);
             border-radius: 2rem;
             overflow: hidden;
             position: relative;
-            cursor: pointer;
             border: 8px solid var(--surface-container-low);
         }
 
-        .map-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: saturate(0.8) contrast(0.9);
+        .map-container .leaflet-control-attribution {
+            font-size: 0.65rem;
         }
 
-        .map-marker {
+        .map-hint {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #d63031;
-            font-size: 3rem;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
-        }
-
-        .map-badge {
-            position: absolute;
-            bottom: 1rem;
+            top: 1rem;
             left: 50%;
             transform: translateX(-50%);
+            z-index: 500;
             background: rgba(255, 255, 255, 0.95);
-            padding: 0.6rem 1.25rem;
-            border-radius: var(--radius-full);
-            font-size: 0.75rem;
-            font-weight: 700;
             color: var(--primary);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: var(--radius-full);
+            padding: 0.55rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+            pointer-events: none;
             white-space: nowrap;
+        }
+
+        .map-search {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .map-search input {
+            flex: 1;
+        }
+
+        .map-tools {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .map-action {
+            border: none;
+            border-radius: var(--radius-full);
+            padding: 0.8rem 1.1rem;
+            background: var(--surface-container-low);
+            color: var(--primary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: inherit;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .map-action:hover {
+            background: var(--surface-container-high);
+        }
+
+        .map-status {
+            margin-top: 0.75rem;
+            color: var(--on-surface-variant);
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .map-selected {
+            margin-top: 0.75rem;
+            background: var(--surface-container-low);
+            color: var(--on-surface);
+            border-radius: 1rem;
+            padding: 0.9rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        @media (max-width: 640px) {
+            .map-search {
+                flex-direction: column;
+            }
+
+            .map-action {
+                justify-content: center;
+                width: 100%;
+            }
         }
 
         /* Photos */
@@ -570,6 +627,7 @@
             font-variation-settings: 'FILL' 1;
         }
     </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/paw_background.css') }}">
 </head>
 
 <body>
@@ -614,7 +672,7 @@
                         </div>
                         <div class="input-group">
                             <label>Edad exacta (años)</label>
-                            <input name="edad" min="0" placeholder="Ej: 3" type="number" />
+                            <input id="edad" name="edad" min="0" max="30" placeholder="Ej: 3" type="number" />
                         </div>
                         <div class="input-group">
                             <label>Tamaño</label>
@@ -633,14 +691,6 @@
                             <label>Pelaje</label>
                             <input name="pelaje" placeholder="Ej: Corto, largo, rizado" type="text" />
                         </div>
-                        <div class="input-group">
-                            <label>Estado</label>
-                            <select name="estado" style="background-color: var(--surface-container-low); border: 2px solid transparent; padding: 1.1rem 1.5rem; border-radius: var(--radius-full); font-family: inherit; font-size: 0.95rem;">
-                                <option value="perdida">Perdida</option>
-                                <option value="encontrada">Encontrada</option>
-                                <option value="en proceso">En proceso</option>
-                            </select>
-                        </div>
                     </div>
                     <div class="input-group" style="margin-top: 2rem;">
                         <label>Características distintivas</label>
@@ -651,14 +701,33 @@
                 <section>
                     <div class="section-header">
                         <span class="material-symbols-outlined fill">location_on</span>
-                        <h2>Ubicación Exacta</h2>
+                        <h2>Último lugar donde se vio</h2>
                     </div>
-                    <div class="map-container">
-                        <img alt="Mapa de búsqueda" class="map-img"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPLz3q7Q0n1POP3IB0EwzTYjbPFVRALfXY2-q9bYaFFRZw2tqodHLPGNiGhn-VseHhXmJ0chP-C4ggqMhu7Awk0TgXEU9utglvO1cDdWDi4W7o0C2x59B9Tmm-5gAH7dOQYz_DsyXiVviF5zoNtYqgJGUxWDfOoxPt4kJf9b22Ve688h0kodCTso-ak8EN-1EHsMGarMB4hrl8Vyxk5tWSrLp7njxVc5s5lc3DhZtkYbIJw2JeFjfAE-wbnia9HBrNhtS1faezu1Vs" />
-                        <span class="material-symbols-outlined map-marker fill">location_on</span>
-                        <div class="map-badge">Toca el mapa para precisar el lugar</div>
+                    <div class="map-search">
+                        <input id="buscar-lugar" type="search" placeholder="Buscar dirección, barrio o punto de referencia">
+                        <button class="map-action" id="buscar-lugar-btn" type="button">
+                            <span class="material-symbols-outlined">search</span>
+                            Buscar
+                        </button>
                     </div>
+                    <div class="map-container" id="mapa-ubicacion" aria-label="Mapa para seleccionar el último lugar donde se vio la mascota">
+                        <div class="map-hint">Mueve el mapa y haz clic para elegir</div>
+                    </div>
+                    <div class="map-tools">
+                        <button class="map-action" id="usar-ubicacion" type="button">
+                            <span class="material-symbols-outlined">my_location</span>
+                            Estoy en ese lugar
+                        </button>
+                        <button class="map-action" id="confirmar-lugar" type="button">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            Confirmar lugar
+                        </button>
+                    </div>
+                    <p class="map-status" id="ubicacion-status">Busca el lugar donde se vio por última vez y confirma la selección.</p>
+                    <div class="map-selected" id="lugar-seleccionado">Lugar seleccionado: ninguno</div>
+                    <input id="ubicacion" name="ubicacion" type="hidden" required>
+                    <input id="latitud" name="latitud" type="hidden">
+                    <input id="longitud" name="longitud" type="hidden">
                 </section>
                 <section>
                     <div class="section-header">
@@ -687,6 +756,7 @@
             </nav>
         </div>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
     <script>
         // Size toggle logic
         const toggleButtons = document.querySelectorAll('#size-toggle .toggle-btn');
@@ -738,6 +808,150 @@
             Array.from(photoInput.files).forEach(file => selectedFiles.items.add(file));
             syncPhotoInput();
             renderPhotos();
+        });
+
+        const edadInput = document.getElementById('edad');
+        edadInput.addEventListener('input', () => {
+            if (Number(edadInput.value) > 30) {
+                edadInput.value = 30;
+            }
+        });
+
+        const ubicacionInput = document.getElementById('ubicacion');
+        const latitudInput = document.getElementById('latitud');
+        const longitudInput = document.getElementById('longitud');
+        const ubicacionStatus = document.getElementById('ubicacion-status');
+        const selectedPlaceText = document.getElementById('lugar-seleccionado');
+        const placeSearchInput = document.getElementById('buscar-lugar');
+        const placeSearchButton = document.getElementById('buscar-lugar-btn');
+        const confirmPlaceButton = document.getElementById('confirmar-lugar');
+        const defaultLocation = [4.711, -74.0721];
+        const map = L.map('mapa-ubicacion', {
+            zoomControl: true,
+            scrollWheelZoom: true
+        }).setView(defaultLocation, 13);
+        let marker = null;
+        let pendingLocation = null;
+
+        const tileLayers = [
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 20,
+                attribution: '&copy; OpenStreetMap &copy; CARTO'
+            }),
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            })
+        ];
+
+        tileLayers[0].addTo(map);
+        tileLayers[0].on('tileerror', () => {
+            if (!map.hasLayer(tileLayers[1])) {
+                map.removeLayer(tileLayers[0]);
+                tileLayers[1].addTo(map);
+            }
+        });
+
+        function setSelectedLocation(lat, lng, placeName = '') {
+            const latFixed = Number(lat).toFixed(6);
+            const lngFixed = Number(lng).toFixed(6);
+            const label = placeName ? `${placeName} (${latFixed}, ${lngFixed})` : `${latFixed}, ${lngFixed}`;
+
+            pendingLocation = {
+                label: label.slice(0, 150),
+                lat: latFixed,
+                lng: lngFixed
+            };
+            ubicacionInput.value = '';
+            latitudInput.value = '';
+            longitudInput.value = '';
+            ubicacionStatus.textContent = 'Lugar elegido. Presiona Confirmar lugar para guardarlo.';
+            selectedPlaceText.textContent = `Lugar por confirmar: ${pendingLocation.label}`;
+
+            if (!marker) {
+                marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+                marker.on('dragend', event => {
+                    const position = event.target.getLatLng();
+                    setSelectedLocation(position.lat, position.lng);
+                });
+            } else {
+                marker.setLatLng([lat, lng]);
+            }
+
+            marker.bindPopup('Último lugar donde se vio').openPopup();
+        }
+
+        confirmPlaceButton.addEventListener('click', () => {
+            if (!pendingLocation) {
+                ubicacionStatus.textContent = 'Primero elige un punto en el mapa o busca una dirección.';
+                return;
+            }
+
+            ubicacionInput.value = pendingLocation.label;
+            latitudInput.value = pendingLocation.lat;
+            longitudInput.value = pendingLocation.lng;
+            ubicacionStatus.textContent = 'Último lugar visto confirmado.';
+            selectedPlaceText.textContent = `Lugar seleccionado: ${ubicacionInput.value}`;
+        });
+
+        async function searchPlace() {
+            const query = placeSearchInput.value.trim();
+            if (!query) {
+                ubicacionStatus.textContent = 'Escribe una dirección, barrio o punto de referencia para buscar.';
+                return;
+            }
+
+            ubicacionStatus.textContent = 'Buscando lugar...';
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+                const places = await response.json();
+                if (!places.length) {
+                    ubicacionStatus.textContent = 'No encontré ese lugar. Mueve el mapa con la mano y haz clic para elegir.';
+                    return;
+                }
+
+                const place = places[0];
+                const lat = Number(place.lat);
+                const lng = Number(place.lon);
+                map.setView([lat, lng], 17);
+                setSelectedLocation(lat, lng, place.display_name);
+            } catch (error) {
+                ubicacionStatus.textContent = 'No se pudo buscar el lugar. Mueve el mapa con la mano y haz clic para elegir.';
+            }
+        }
+
+        placeSearchButton.addEventListener('click', searchPlace);
+        placeSearchInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                searchPlace();
+            }
+        });
+
+        map.on('click', event => {
+            setSelectedLocation(event.latlng.lat, event.latlng.lng);
+        });
+
+        document.getElementById('usar-ubicacion').addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                ubicacionStatus.textContent = 'Este navegador no permite obtener la ubicación actual.';
+                return;
+            }
+
+            ubicacionStatus.textContent = 'Solicitando ubicación actual...';
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const latFixed = position.coords.latitude.toFixed(6);
+                    const lngFixed = position.coords.longitude.toFixed(6);
+                    map.setView([latFixed, lngFixed], 17);
+                    setSelectedLocation(latFixed, lngFixed);
+                },
+                () => {
+                    ubicacionStatus.textContent = 'No se pudo obtener la ubicación actual. Busca el lugar por dirección o referencia.';
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
         });
     </script>
 </body>
