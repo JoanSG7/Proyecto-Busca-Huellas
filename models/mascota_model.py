@@ -47,10 +47,12 @@ def listar_mascotas_con_fotos():
             m.`tamaño` AS tamano,
             m.descripcion,
             m.estado,
+            u.nombre_completo AS nombre_dueno,
             fm.id_foto,
             fm.url_imagen
         FROM mascota m
         INNER JOIN foto_mascota fm ON fm.id_mascota = m.id_mascota
+        LEFT JOIN usuario u ON u.id_usuario = m.id_usuario
         WHERE fm.url_imagen IS NOT NULL AND fm.url_imagen <> ''
         ORDER BY m.id_mascota DESC, fm.id_foto ASC
     """
