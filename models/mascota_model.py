@@ -34,6 +34,31 @@ def listar_fotos_mascota(id_mascota):
         return cursor.fetchall()
 
 
+def listar_mascotas_con_fotos():
+    sql = """
+        SELECT
+            m.id_mascota,
+            m.id_usuario,
+            m.nombre_mascota,
+            m.raza,
+            m.edad,
+            m.color,
+            m.pelaje,
+            m.`tamaño` AS tamano,
+            m.descripcion,
+            m.estado,
+            fm.id_foto,
+            fm.url_imagen
+        FROM mascota m
+        INNER JOIN foto_mascota fm ON fm.id_mascota = m.id_mascota
+        WHERE fm.url_imagen IS NOT NULL AND fm.url_imagen <> ''
+        ORDER BY m.id_mascota DESC, fm.id_foto ASC
+    """
+    with db_cursor() as cursor:
+        cursor.execute(sql)
+        return cursor.fetchall()
+
+
 def listar_mascotas_por_usuario(id_usuario):
     sql = """
         SELECT id_mascota, nombre_mascota, raza, edad, color, pelaje, `tamaño` AS tamano,

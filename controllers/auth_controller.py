@@ -26,11 +26,12 @@ from controllers.security import (
     is_valid_phone,
     is_admin,
 )
+from controllers.reconocimiento_service import buscar_mascotas_similares, ruta_local_desde_url
 from controllers.upload_utils import guardar_imagen, guardar_imagen_base64
 from models.alerta_model import crear_alerta, listar_alertas_usuario
 from models.articulo_model import actualizar_articulo, crear_articulo, eliminar_articulo, listar_articulos, obtener_articulo
 from models.inicio_model import obtener_estadisticas_inicio
-from models.mascota_model import crear_fotos_mascota, crear_mascota, listar_fotos_mascota, listar_mascotas_por_usuario, obtener_mascota
+from models.mascota_model import crear_fotos_mascota, crear_mascota, listar_fotos_mascota, listar_mascotas_con_fotos, listar_mascotas_por_usuario, obtener_mascota
 from models.mensaje_model import (
     crear_mensaje_alerta,
     listar_chats_alerta,
@@ -790,6 +791,7 @@ def mostrar_capturar_foto():
         foto_capturada = request.form.get("foto_capturada")
         latitud = clean_text(request.form.get("latitud"), 40)
         longitud = clean_text(request.form.get("longitud"), 40)
+        ubicacion_texto = clean_text(request.form.get("ubicacion_texto"), 255)
 
         if not foto_capturada or not latitud or not longitud:
             flash("Debes tomar una foto y registrar la ubicación antes de buscar.", "error")
@@ -800,17 +802,26 @@ def mostrar_capturar_foto():
             flash("No se pudo guardar la foto tomada. Intenta de nuevo.", "error")
             return render_template("modulo_reconocimiento/capturar_foto.html"), 400
 
-        flash("Foto y ubicación registradas. Búsqueda iniciada.", "success")
-        crear_alerta(
-            current_user_id(),
-            None,
-            "hallazgo_reportado",
-            f"Se reporto un hallazgo con foto y ubicacion en tiempo real: {latitud}, {longitud}.",
-        )
+        ruta_foto_usuario = ruta_local_desde_url(foto_url)
+        if not ruta_foto_usuario:
+            flash("No se pudo preparar la foto para el reconocimiento.", "error")
+            return render_template("modulo_reconocimiento/capturar_foto.html"), 400
+
+        mascotas_con_fotos = listar_mascotas_con_fotos()
+        try:
+            resultados = buscar_mascotas_similares(ruta_foto_usuario, mascotas_con_fotos, limite=10)
+        except Exception:
+            flash("No se pudo completar la comparacion de imagenes. Intenta de nuevo.", "error")
+            return render_template("modulo_reconocimiento/capturar_foto.html"), 500
+
         return render_template(
-            "modulo_reconocimiento/capturar_foto.html",
+            "modulo_reconocimiento/resultados.html",
+            id_usuario=current_user_id(),
+            nombre_usuario=session.get("usuario_nombre") or "Usuario",
             foto_guardada=foto_url,
-            ubicacion=f"{latitud}, {longitud}",
+            ubicacion=ubicacion_texto or "Ubicacion detectada",
+            ubicacion_coordenadas=f"{latitud}, {longitud}",
+            resultados=resultados,
         )
 
     return render_template("modulo_reconocimiento/capturar_foto.html")

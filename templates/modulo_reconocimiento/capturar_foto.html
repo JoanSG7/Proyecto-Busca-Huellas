@@ -202,6 +202,7 @@
             <input id="foto_capturada" name="foto_capturada" type="hidden">
             <input id="latitud" name="latitud" type="hidden">
             <input id="longitud" name="longitud" type="hidden">
+            <input id="ubicacion_texto" name="ubicacion_texto" type="hidden">
 
             <div class="camera-container">
                 <video id="camera" autoplay playsinline></video>
@@ -258,12 +259,14 @@
         const photoInput = document.getElementById('foto_capturada');
         const latInput = document.getElementById('latitud');
         const lngInput = document.getElementById('longitud');
+        const locationTextInput = document.getElementById('ubicacion_texto');
         const cameraStatus = document.getElementById('camera-status');
         const locationStatus = document.getElementById('location-status');
         const form = document.getElementById('search-form');
 
         let stream = null;
         let locationWatchId = null;
+        let lastReverseGeocode = '';
 
         function updateSearchState() {
             searchBtn.disabled = !(photoInput.value && latInput.value && lngInput.value);
@@ -285,6 +288,35 @@
             }
         }
 
+        function buildReadableLocation(address) {
+            const neighborhood = address.neighbourhood || address.suburb || address.quarter || address.hamlet || address.village;
+            const city = address.city || address.town || address.municipality || address.county;
+            const parts = [neighborhood, city].filter(Boolean);
+            return [...new Set(parts)].join(', ');
+        }
+
+        async function updateReadableLocation(latitude, longitude) {
+            const coordKey = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+            if (coordKey === lastReverseGeocode) return;
+            lastReverseGeocode = coordKey;
+
+            locationStatus.textContent = 'Ubicación detectada, buscando barrio...';
+
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
+                const response = await fetch(url, { headers: { Accept: 'application/json' } });
+                if (!response.ok) throw new Error('No se pudo consultar la dirección');
+
+                const data = await response.json();
+                const readableLocation = buildReadableLocation(data.address || {}) || data.display_name || '';
+                locationTextInput.value = readableLocation;
+                locationStatus.textContent = readableLocation || 'Ubicación detectada';
+            } catch (error) {
+                locationTextInput.value = '';
+                locationStatus.textContent = 'Ubicación detectada';
+            }
+        }
+
         function requestLocation() {
             if (!navigator.geolocation) {
                 locationStatus.textContent = 'Este dispositivo no permite obtener ubicación.';
@@ -296,7 +328,7 @@
                     const { latitude, longitude } = position.coords;
                     latInput.value = latitude.toFixed(7);
                     lngInput.value = longitude.toFixed(7);
-                    locationStatus.textContent = `${latInput.value}, ${lngInput.value} (en tiempo real)`;
+                    updateReadableLocation(latitude, longitude);
                     updateSearchState();
                 },
                 () => {

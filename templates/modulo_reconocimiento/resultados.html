@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados de reconocimiento - Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f5238;
+            --primary-container: #2d6a4f;
+            --background: #fdf9f1;
+            --surface: #ffffff;
+            --surface-soft: #f1ede5;
+            --text: #1c1c17;
+            --muted: #404943;
+            --accent: #ffd1ac;
+            --line: #d8d2c8;
+            --radius-full: 9999px;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--background);
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        main {
+            width: min(1120px, 100%);
+            margin: 0 auto;
+            padding: 6rem 1.25rem 4rem;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: clamp(2rem, 6vw, 3.75rem);
+            font-weight: 800;
+        }
+
+        .subtitle {
+            margin: .5rem 0 0;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: var(--radius-full);
+            padding: .9rem 1.2rem;
+            font: inherit;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .45rem;
+            cursor: pointer;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-soft { background: var(--accent); color: #604223; }
+
+        .top-actions {
+            display: flex;
+            gap: .75rem;
+            flex-wrap: wrap;
+        }
+
+        .search-summary {
+            display: grid;
+            grid-template-columns: minmax(170px, 240px) 1fr;
+            gap: 1.25rem;
+            align-items: stretch;
+            background: var(--surface-soft);
+            border-radius: .5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .capture {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: .5rem;
+            background: #ddd6cb;
+        }
+
+        .summary-data {
+            display: grid;
+            gap: .75rem;
+            align-content: center;
+        }
+
+        .summary-label {
+            display: block;
+            color: var(--muted);
+            font-size: .75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .summary-value {
+            display: block;
+            font-weight: 800;
+            word-break: break-word;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .pet-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: .5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pet-photo {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            background: var(--surface-soft);
+        }
+
+        .pet-body {
+            padding: 1rem;
+            display: grid;
+            gap: .85rem;
+            flex: 1;
+        }
+
+        .match-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .match-badge {
+            background: #b1f0ce;
+            color: var(--primary);
+            border-radius: var(--radius-full);
+            padding: .35rem .75rem;
+            font-size: .8rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            color: var(--text);
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .65rem;
+        }
+
+        .detail {
+            min-width: 0;
+            background: var(--surface-soft);
+            border-radius: .5rem;
+            padding: .75rem;
+        }
+
+        .detail strong {
+            display: block;
+            color: var(--muted);
+            font-size: .7rem;
+            text-transform: uppercase;
+        }
+
+        .detail span {
+            display: block;
+            margin-top: .2rem;
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .description {
+            color: var(--muted);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .empty {
+            background: var(--surface);
+            border-radius: .5rem;
+            padding: 2rem;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        @media (max-width: 700px) {
+            main { padding-top: 2rem; }
+            .search-summary { grid-template-columns: 1fr; }
+            .details { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="topbar">
+            <div>
+                <h1>Coincidencias</h1>
+                <p class="subtitle">Las 10 mascotas con mayor similitud aparecen ordenadas de mayor a menor.</p>
+            </div>
+            <div class="top-actions">
+                <button class="btn btn-soft" type="button" onclick="history.back();">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Atras
+                </button>
+                <a class="btn btn-soft" href="{{ url_for('reconocimiento.capturar_foto') }}">
+                    <span class="material-symbols-outlined">photo_camera</span>
+                    Nueva busqueda
+                </a>
+            </div>
+        </div>
+
+        <section class="search-summary">
+            <img class="capture" src="{{ foto_guardada }}" alt="Foto capturada para la busqueda">
+            <div class="summary-data">
+                <div>
+                    <span class="summary-label">Usuario que reporta</span>
+                    <span class="summary-value">{{ nombre_usuario }}</span>
+                </div>
+                <div>
+                    <span class="summary-label">Ubicacion del hallazgo</span>
+                    <span class="summary-value">{{ ubicacion }}</span>
+                    <input type="hidden" name="ubicacion_coordenadas" value="{{ ubicacion_coordenadas }}">
+                </div>
+            </div>
+        </section>
+
+        {% if resultados %}
+        <section class="results">
+            {% for mascota in resultados %}
+            <article class="pet-card">
+                <img class="pet-photo" src="{{ mascota.url_imagen }}" alt="Foto de {{ mascota.nombre_mascota }}">
+                <div class="pet-body">
+                    <div class="match-row">
+                        <h2>{{ mascota.nombre_mascota }}</h2>
+                        <span class="match-badge">{{ "%.2f"|format(mascota.porcentaje) }}%</span>
+                    </div>
+                    <p class="description">{{ mascota.conclusion }}</p>
+                    <div class="details">
+                        <div class="detail"><strong>Color</strong><span>{{ mascota.color or 'No registrado' }}</span></div>
+                        <div class="detail"><strong>Raza</strong><span>{{ mascota.raza or 'No registrada' }}</span></div>
+                        <div class="detail"><strong>Pelaje</strong><span>{{ mascota.pelaje or 'No registrado' }}</span></div>
+                        <div class="detail"><strong>Tamano</strong><span>{{ mascota.tamano or 'No registrado' }}</span></div>
+                        <div class="detail"><strong>Edad</strong><span>{{ mascota.edad if mascota.edad is not none else 'No registrada' }}</span></div>
+                        <div class="detail"><strong>Estado</strong><span>{{ mascota.estado or 'No registrado' }}</span></div>
+                    </div>
+                    <p class="description">{{ mascota.descripcion or 'Sin descripcion adicional.' }}</p>
+                    <button class="btn btn-primary" type="button">
+                        <span class="material-symbols-outlined">notifications_active</span>
+                        Enviar alerta
+                    </button>
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+        {% else %}
+        <div class="empty">
+            No hay fotos de mascotas disponibles para comparar. Registra mascotas con fotos e intenta de nuevo.
+        </div>
+        {% endif %}
+    </main>
+</body>
+</html>
