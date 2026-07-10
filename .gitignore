@@ -1,4 +1,7 @@
+.venv/
+env/
+.vscode/
+.agents/
 __pycache__/
 *.pyc
 .env
-.vscode/
