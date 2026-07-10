@@ -519,7 +519,7 @@
             window.addEventListener("popstate", () => {
                 if (leavingByBack) return;
 
-                const wantsToLeave = confirm("Seguro quieres salir de la pagina");
+                const wantsToLeave = confirm("¿Seguro quieres salir de la página?");
                 if (wantsToLeave) {
                     leavingByBack = true;
                     logoutAndRedirect();

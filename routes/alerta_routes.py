@@ -1,6 +1,6 @@
 from flask import Blueprint
 # Importamos las funciones del controlador
-from controllers.auth_controller import listar_alertas_json, mostrar_lista_alertas
+from controllers.auth_controller import crear_alerta_coincidencia_desde_resultado, listar_alertas_json, mostrar_lista_alertas
 from controllers.security import login_required
 
 alerta_bp = Blueprint('alerta', __name__)
@@ -16,3 +16,9 @@ def alertas():
 @login_required
 def api_alertas():
     return listar_alertas_json()
+
+
+@alerta_bp.route('/coincidencia', methods=['POST'])
+@login_required
+def crear_coincidencia():
+    return crear_alerta_coincidencia_desde_resultado()

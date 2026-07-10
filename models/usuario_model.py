@@ -1,6 +1,29 @@
 from config.database import db_cursor
 
 
+def _tiene_columna_verificacion(cursor):
+    cursor.execute("SHOW COLUMNS FROM usuario")
+    return any(columna["Field"] == "correo_verificado" for columna in cursor.fetchall())
+
+
+def marcar_correo_verificado(id_usuario):
+    with db_cursor(commit=True) as cursor:
+        if not _tiene_columna_verificacion(cursor):
+            return True
+        cursor.execute("UPDATE usuario SET correo_verificado = TRUE WHERE id_usuario = %s", (id_usuario,))
+        return cursor.rowcount > 0
+
+
+def correo_usuario_verificado(id_usuario):
+    """Las bases antiguas se consideran verificadas para conservar acceso hasta migrarlas."""
+    with db_cursor() as cursor:
+        if not _tiene_columna_verificacion(cursor):
+            return True
+        cursor.execute("SELECT correo_verificado FROM usuario WHERE id_usuario = %s", (id_usuario,))
+        usuario = cursor.fetchone()
+        return bool(usuario and usuario["correo_verificado"])
+
+
 def asegurar_roles_basicos():
     sql = """
         INSERT INTO rol (id_rol, nombre_rol)

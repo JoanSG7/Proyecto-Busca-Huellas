@@ -272,10 +272,23 @@
                         <div class="detail"><strong>Estado</strong><span>{{ mascota.estado or 'No registrado' }}</span></div>
                     </div>
                     <p class="description">{{ mascota.descripcion or 'Sin descripcion adicional.' }}</p>
-                    <button class="btn btn-primary" type="button">
-                        <span class="material-symbols-outlined">notifications_active</span>
-                        Enviar alerta
-                    </button>
+                    <div class="top-actions">
+                        <form action="{{ url_for('alerta.crear_coincidencia') }}" method="POST">
+                            <input type="hidden" name="id_mascota" value="{{ mascota.id_mascota }}">
+                            <button class="btn btn-primary" type="submit">
+                                <span class="material-symbols-outlined">notifications_active</span>
+                                Enviar alerta
+                            </button>
+                        </form>
+                        <form action="{{ url_for('alerta.crear_coincidencia') }}" method="POST">
+                            <input type="hidden" name="id_mascota" value="{{ mascota.id_mascota }}">
+                            <input type="hidden" name="accion" value="chat">
+                            <button class="btn btn-soft" type="submit">
+                                <span class="material-symbols-outlined">chat</span>
+                                Mensaje
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </article>
             {% endfor %}

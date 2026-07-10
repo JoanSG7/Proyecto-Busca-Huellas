@@ -21,14 +21,14 @@ def listar_chats_alerta(id_usuario, es_admin=False):
         LEFT JOIN usuario alerta_usuario ON alerta_usuario.id_usuario = a.id_usuario
         LEFT JOIN mensaje ms ON ms.id_alerta = a.id_alerta
         WHERE a.confirmacion = 'si'
-          AND (%s = TRUE OR a.id_usuario = %s OR m.id_usuario = %s
-               OR ms.usuario_emisor = %s OR ms.usuario_receptor = %s)
+          AND a.estado_alerta = 'coincidencia_encontrada'
+          AND (a.id_usuario = %s OR m.id_usuario = %s)
         GROUP BY a.id_alerta, a.id_usuario, a.id_mascota, a.estado_alerta, a.confirmacion,
                  a.fecha_alerta, m.nombre_mascota, m.id_usuario, dueno.nombre_completo,
                  alerta_usuario.nombre_completo
         ORDER BY COALESCE(MAX(ms.fecha_envio), a.fecha_alerta) DESC
     """
-    params = (es_admin, id_usuario, id_usuario, id_usuario, id_usuario)
+    params = (id_usuario, id_usuario)
     with db_cursor() as cursor:
         cursor.execute(sql, params)
         return cursor.fetchall()
@@ -53,11 +53,12 @@ def obtener_chat_alerta(id_alerta, id_usuario, es_admin=False):
         LEFT JOIN usuario alerta_usuario ON alerta_usuario.id_usuario = a.id_usuario
         WHERE a.id_alerta = %s
           AND a.confirmacion = 'si'
-          AND (%s = TRUE OR a.id_usuario = %s OR m.id_usuario = %s)
+          AND a.estado_alerta = 'coincidencia_encontrada'
+          AND (a.id_usuario = %s OR m.id_usuario = %s)
         LIMIT 1
     """
     with db_cursor() as cursor:
-        cursor.execute(sql, (id_alerta, es_admin, id_usuario, id_usuario))
+        cursor.execute(sql, (id_alerta, id_usuario, id_usuario))
         return cursor.fetchone()
 
 

@@ -33,7 +33,8 @@ CREATE TABLE `alerta` (
   `id_mascota` int(11) DEFAULT NULL,
   `estado_alerta` varchar(50) DEFAULT NULL,
   `confirmacion` varchar(50) DEFAULT NULL,
-  `fecha_alerta` date DEFAULT NULL
+  `mensaje` text DEFAULT NULL,
+  `fecha_alerta` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -172,7 +173,8 @@ CREATE TABLE `usuario` (
   `telefono` varchar(20) DEFAULT NULL,
   `correo` varchar(100) NOT NULL,
   `contraseña` varchar(255) NOT NULL,
-  `foto_perfil` varchar(255) DEFAULT NULL
+  `foto_perfil` varchar(255) DEFAULT NULL,
+  `correo_verificado` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

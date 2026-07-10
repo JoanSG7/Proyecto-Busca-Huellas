@@ -290,10 +290,10 @@
         }
 
         function buildReadableLocation(address) {
-            const neighborhood = address.neighbourhood || address.suburb || address.quarter || address.hamlet || address.village;
-            const city = address.city || address.town || address.municipality || address.county;
-            const parts = [neighborhood, city].filter(Boolean);
-            return [...new Set(parts)].join(', ');
+            const road = address.road || address.pedestrian || address.footway || address.cycleway;
+            const number = address.house_number;
+            if (road) return `${road}${number ? ` #${number}` : ''}`;
+            return address.neighbourhood || address.suburb || address.city_district || address.city || address.town || '';
         }
 
         async function updateReadableLocation(latitude, longitude) {

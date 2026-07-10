@@ -31,7 +31,6 @@
         .page-subtitle { color: var(--text-muted); font-size: 1.1rem; }
         .notifications-container { display: flex; flex-direction: column; gap: 16px; }
         .notification-item { background-color: var(--white); padding: 24px; border-radius: 2rem; display: flex; gap: 20px; align-items: flex-start; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-sm); }
-        .notification-item[data-chat-enabled="true"] { cursor: pointer; }
         .notification-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .notif-icon-box, .notif-photo { width: 56px; height: 56px; min-width: 56px; border-radius: 1.25rem; background-color: var(--bg-cream); }
         .notif-icon-box { display: flex; align-items: center; justify-content: center; color: var(--primary-green); }
@@ -44,19 +43,6 @@
         .notif-badge, .chat-action { display: inline-flex; align-items: center; border-radius: 1rem; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
         .notif-badge { padding: 4px 12px; background-color: var(--accent-green); color: var(--primary-green); }
         .chat-action { margin-left: 10px; border: none; padding: 6px 12px; color: white; background: var(--primary-green); cursor: pointer; }
-        .chat-panel { position: fixed; right: 24px; bottom: 24px; width: min(380px, calc(100vw - 32px)); height: min(620px, calc(100vh - 48px)); background: var(--white); border-radius: 28px; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18); overflow: hidden; display: none; flex-direction: column; z-index: 2000; }
-        .chat-panel.open { display: flex; }
-        .chat-header { background: var(--primary-green); color: white; padding: 16px; display: flex; align-items: center; gap: 12px; }
-        .chat-header img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: rgba(255, 255, 255, 0.22); }
-        .chat-title { flex: 1; font-weight: 800; }
-        .chat-close { border: none; background: transparent; color: white; cursor: pointer; }
-        .chat-messages { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; background: var(--surface-cream); }
-        .chat-bubble { max-width: 82%; padding: 10px 13px; border-radius: 18px; font-size: 0.92rem; line-height: 1.4; background: white; }
-        .chat-bubble.mine { align-self: flex-end; background: var(--primary-green); color: white; border-bottom-right-radius: 6px; }
-        .chat-bubble.theirs { align-self: flex-start; border-bottom-left-radius: 6px; }
-        .chat-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(0, 0, 0, 0.06); }
-        .chat-form input { flex: 1; border: none; background: var(--bg-cream); border-radius: var(--radius-full); padding: 12px 14px; font: inherit; }
-        .chat-form button { width: 44px; height: 44px; border: none; border-radius: 50%; background: var(--primary-green); color: white; cursor: pointer; }
 
         @media (max-width: 768px) {
             main { padding-top: 100px; }
@@ -79,23 +65,32 @@
         <div class="notifications-container" id="notifications-container">
             {% for alerta in alertas %}
             {% set tipo = alerta.tipo or 'notificacion' %}
-            <div class="notification-item" data-alert-id="{{ alerta.id_alerta }}" data-chat-enabled="{{ 'true' if tipo == 'mascota_encontrada' else 'false' }}" data-pet-name="{{ alerta.nombre_mascota or 'Mascota encontrada' }}" data-pet-photo="{{ alerta.url_imagen or '' }}">
+            <div class="notification-item">
                 {% if alerta.url_imagen %}
                 <img class="notif-photo" src="{{ alerta.url_imagen }}" alt="{{ alerta.nombre_mascota or 'Mascota' }}">
                 {% else %}
                 <div class="notif-icon-box">
-                    <span class="material-symbols-rounded">{% if tipo == 'perfil_actualizado' %}account_circle{% elif tipo == 'mascota_encontrada' %}forum{% elif tipo == 'mascota_cercana' %}near_me{% else %}pets{% endif %}</span>
+                    <span class="material-symbols-rounded">{% if tipo == 'perfil_actualizado' %}account_circle{% elif tipo == 'mensaje_recibido' %}forum{% elif tipo == 'coincidencia_encontrada' %}notifications_active{% else %}pets{% endif %}</span>
                 </div>
                 {% endif %}
                 <div class="notif-content">
                     <div class="notif-header">
-                        <span class="notif-title">{% if tipo == 'perfil_actualizado' %}Foto de perfil actualizada{% elif tipo == 'mascota_encontrada' %}Mascota encontrada{% elif tipo == 'mascota_cercana' %}Mascota cercana{% elif tipo == 'mascota_perdida' %}Reporte activo{% else %}Nueva notificacion{% endif %}</span>
-                        <span class="notif-time">{{ alerta.fecha_alerta }}</span>
+                        <span class="notif-title">Nueva notificación</span>
+                        <span class="notif-time">{{ alerta.fecha_alerta.strftime('%d/%m/%Y %H:%M') if alerta.fecha_alerta else '' }}</span>
                     </div>
-                    <p class="notif-message">{{ alerta.mensaje or 'Tienes una nueva actualizacion en Busca Huellas.' }}</p>
+                    <p class="notif-message">
+                        {% if alerta.mensaje %}{{ alerta.mensaje }}
+                        {% elif tipo == 'mascota_registrada' %}Última mascota registrada: {{ alerta.nombre_mascota or 'Mascota sin nombre' }}.
+                        {% elif tipo == 'perfil_actualizado' %}Foto de perfil actualizada correctamente.
+                        {% elif tipo == 'contrasena_actualizada' %}Nueva contraseña actualizada correctamente.
+                        {% elif tipo == 'mensaje_recibido' %}Nuevo mensaje recibido en uno de tus chats.
+                        {% elif tipo == 'coincidencia_encontrada' %}Nueva coincidencia encontrada para {{ alerta.nombre_mascota or 'tu mascota' }}.
+                        {% else %}Tienes una nueva actualización en Busca Huellas.
+                        {% endif %}
+                    </p>
                     <span class="notif-badge">Nuevo</span>
-                    {% if tipo == 'mascota_encontrada' %}
-                    <button class="chat-action" type="button">Abrir chat</button>
+                    {% if tipo == 'coincidencia_encontrada' %}
+                    <a class="chat-action" href="{{ url_for('mensaje.chat_alerta', id_alerta=alerta.id_alerta) }}">Abrir chat</a>
                     {% endif %}
                 </div>
             </div>
@@ -111,89 +106,5 @@
         </div>
     </main>
 
-    <aside class="chat-panel" id="chat-panel" aria-live="polite">
-        <div class="chat-header">
-            <img id="chat-photo" alt="">
-            <div class="chat-title" id="chat-title">Chat</div>
-            <button class="chat-close" id="chat-close" type="button" aria-label="Cerrar chat">
-                <span class="material-symbols-rounded">close</span>
-            </button>
-        </div>
-        <div class="chat-messages" id="chat-messages"></div>
-        <form class="chat-form" id="chat-form">
-            <input id="chat-input" type="text" placeholder="Escribe un mensaje" autocomplete="off">
-            <button type="submit" aria-label="Enviar"><span class="material-symbols-rounded">send</span></button>
-        </form>
-    </aside>
-
-    <script>
-        const chatPanel = document.getElementById('chat-panel');
-        const chatTitle = document.getElementById('chat-title');
-        const chatPhoto = document.getElementById('chat-photo');
-        const chatMessages = document.getElementById('chat-messages');
-        const chatForm = document.getElementById('chat-form');
-        const chatInput = document.getElementById('chat-input');
-        let activeChatKey = null;
-
-        function defaultMessages(petName) {
-            return [
-                { from: 'theirs', text: `Hola, creo que encontre a ${petName}.` },
-                { from: 'mine', text: 'Gracias por avisar. Puedes contarme donde esta?' }
-            ];
-        }
-
-        function renderChat(messages) {
-            chatMessages.innerHTML = '';
-            messages.forEach(message => {
-                const bubble = document.createElement('div');
-                bubble.className = `chat-bubble ${message.from}`;
-                bubble.textContent = message.text;
-                chatMessages.appendChild(bubble);
-            });
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function openChat(item) {
-            const alertId = item.dataset.alertId;
-            const petName = item.dataset.petName || 'Mascota encontrada';
-            activeChatKey = `busca-huellas-chat-${alertId}`;
-            chatTitle.textContent = petName;
-            chatPhoto.src = item.dataset.petPhoto || 'https://ui-avatars.com/api/?name=Mascota&background=2d6a4f&color=fff';
-            chatPhoto.alt = petName;
-
-            const saved = localStorage.getItem(activeChatKey);
-            const messages = saved ? JSON.parse(saved) : defaultMessages(petName);
-            localStorage.setItem(activeChatKey, JSON.stringify(messages));
-            renderChat(messages);
-            chatPanel.classList.add('open');
-            chatInput.focus();
-        }
-
-        document.querySelectorAll('.chat-action').forEach(button => {
-            button.addEventListener('click', event => {
-                event.stopPropagation();
-                openChat(button.closest('.notification-item'));
-            });
-        });
-
-        document.querySelectorAll('.notification-item[data-chat-enabled="true"]').forEach(item => {
-            item.addEventListener('click', () => openChat(item));
-        });
-
-        document.getElementById('chat-close').addEventListener('click', () => {
-            chatPanel.classList.remove('open');
-        });
-
-        chatForm.addEventListener('submit', event => {
-            event.preventDefault();
-            const text = chatInput.value.trim();
-            if (!text || !activeChatKey) return;
-            const messages = JSON.parse(localStorage.getItem(activeChatKey) || '[]');
-            messages.push({ from: 'mine', text });
-            localStorage.setItem(activeChatKey, JSON.stringify(messages));
-            chatInput.value = '';
-            renderChat(messages);
-        });
-    </script>
 </body>
 </html>
