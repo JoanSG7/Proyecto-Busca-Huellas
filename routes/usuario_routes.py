@@ -2,8 +2,11 @@ from flask import Blueprint
 # Importamos las funciones del controlador
 from controllers.auth_controller import (
     cerrar_sesion,
+    eliminar_mi_cuenta,
     iniciar_login_social,
     mostrar_editar_perfil,
+    mostrar_configuracion_usuario,
+    guardar_configuracion_usuario,
     mostrar_inicio_sesion,
     mostrar_perfil_usuario,
     mostrar_recuperar_contrasena,
@@ -44,6 +47,21 @@ def perfil_usuario():
 @login_required
 def editar_perfil():
     return mostrar_editar_perfil()
+
+@usuario_bp.route('/configuracion')
+@login_required
+def configuracion_usuario():
+    return mostrar_configuracion_usuario()
+
+@usuario_bp.route('/configuracion', methods=['POST'])
+@login_required
+def guardar_configuracion():
+    return guardar_configuracion_usuario()
+
+@usuario_bp.route('/eliminar-cuenta', methods=['POST'])
+@login_required
+def eliminar_cuenta():
+    return eliminar_mi_cuenta()
 
 @usuario_bp.route('/cerrar-sesion', methods=['POST'])
 @login_required

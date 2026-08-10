@@ -1,0 +1,72 @@
+/* Variables compartidas: sobrescriben los colores declarados en cada módulo. */
+html.tema-oscuro {
+    --background: #161916; --bg: #161916; --bg-site: #161916; --bg-cream: #161916; --bg-creme: #161916;
+    --surface: #242a25; --bg-card: #242a25; --white: #242a25;
+    --surface-container: #242a25; --surface-container-low: #202620; --surface-container-high: #303831; --surface-container-highest: #374238; --surface-soft: #202620;
+    --on-surface: #edf4ed; --text: #edf4ed; --text-main: #edf4ed; --text-dark: #edf4ed;
+    --on-surface-variant: #c4d0c5; --text-muted: #c4d0c5; --muted: #c4d0c5;
+    --primary: #8ed9a3; --primary-dark: #63bd7c; --primary-green: #8ed9a3; --primary-container: #307045;
+    --primary-light: #b9f4c7; --primary-fixed: #b9f4c7; --accent-green: #315d3e;
+    --secondary: #efc28f; --secondary-container: #60472d; --accent: #60472d;
+    --outline: #92a194; --outline-variant: #526258; --line: #526258; --on-primary: #102116;
+}
+
+html.tema-oscuro body { background: #161916 !important; color: #edf4ed !important; }
+html.tema-oscuro header { background: rgba(22, 25, 22, .94) !important; border-color: #354238 !important; }
+html.tema-oscuro .nav-bar { background: rgba(30, 35, 30, .96) !important; }
+html.tema-oscuro .profile, html.tema-oscuro .hero, html.tema-oscuro .pet-card, html.tema-oscuro .panel,
+html.tema-oscuro .item, html.tema-oscuro .description, html.tema-oscuro form, html.tema-oscuro .card,
+html.tema-oscuro .notification-item, html.tema-oscuro .filters, html.tema-oscuro .builder,
+html.tema-oscuro .preview, html.tema-oscuro .metrics, html.tema-oscuro .table-wrap, html.tema-oscuro .chat,
+html.tema-oscuro .composer, html.tema-oscuro .message, html.tema-oscuro .result-card { background: #242a25 !important; color: #edf4ed !important; border-color: #526258 !important; }
+html.tema-oscuro h1, html.tema-oscuro h2, html.tema-oscuro h3, html.tema-oscuro .logo,
+html.tema-oscuro .page-title, html.tema-oscuro .section-title { color: #a8dfb7 !important; }
+html.tema-oscuro .muted, html.tema-oscuro .intro, html.tema-oscuro label, html.tema-oscuro .subtitle,
+html.tema-oscuro .page-subtitle, html.tema-oscuro .notif-message, html.tema-oscuro .notif-time { color: #c4d0c5 !important; }
+html.tema-oscuro input:not([type="checkbox"]):not([type="radio"]), html.tema-oscuro textarea, html.tema-oscuro select {
+    background: #1d231e !important; color: #edf4ed !important; border-color: #526258 !important;
+}
+html.tema-oscuro input::placeholder, html.tema-oscuro textarea::placeholder { color: #afbbb0 !important; }
+html.tema-oscuro .btn-soft, html.tema-oscuro .btn.secondary, html.tema-oscuro .secondary, html.tema-oscuro .tab,
+html.tema-oscuro .btn-secondary, html.tema-oscuro .btn.back, html.tema-oscuro .cancel { background: #334238 !important; color: #e2f0e3 !important; }
+html.tema-oscuro .btn-primary, html.tema-oscuro .btn.primary, html.tema-oscuro .primary, html.tema-oscuro .save,
+html.tema-oscuro .chat-action, html.tema-oscuro .camera-btn { background: #63bd7c !important; color: #102116 !important; }
+html.tema-oscuro .btn-primary *, html.tema-oscuro .btn.primary *, html.tema-oscuro .primary *,
+html.tema-oscuro .save *, html.tema-oscuro .chat-action *, html.tema-oscuro .camera-btn * { color: #102116 !important; }
+html.tema-oscuro .btn.danger, html.tema-oscuro .danger:not(.panel), html.tema-oscuro .delete { background: #8e2522 !important; color: #fff !important; }
+html.tema-oscuro .danger h2, html.tema-oscuro .danger p { color: #ffb4ab !important; }
+html.tema-oscuro th { background: #303831 !important; color: #d7e5d8 !important; }
+html.tema-oscuro td, html.tema-oscuro .notif-title, html.tema-oscuro .value { color: #edf4ed !important; }
+html.tema-oscuro .badge.found, html.tema-oscuro .notif-badge { background: #315d3e !important; color: #c3f8cf !important; }
+html.tema-oscuro .hero { background: #161916 !important; }
+
+html.tema-sepia {
+    --background: #f4ead8; --bg: #f4ead8; --bg-site: #f4ead8; --bg-cream: #f4ead8; --bg-creme: #f4ead8;
+    --surface: #fff8ea; --bg-card: #fff8ea; --white: #fff8ea; --surface-container: #f6e7cf; --surface-container-low: #f8eddc; --surface-container-high: #ead8bb; --surface-container-highest: #e2cdaa; --surface-soft: #f6e7cf;
+    --on-surface: #3e2c20; --text: #3e2c20; --text-main: #3e2c20; --text-dark: #3e2c20; --on-surface-variant: #665143; --text-muted: #665143; --muted: #665143;
+    --primary: #704214; --primary-dark: #52300f; --primary-green: #704214; --primary-container: #9a6435; --secondary: #805e3f; --secondary-container: #efd1ac; --accent: #efd1ac; --outline: #8d7664; --outline-variant: #d4bfa6; --line: #d4bfa6;
+}
+
+html.tema-sepia body { background: #f4ead8 !important; color: #3e2c20 !important; }
+html.tema-sepia header, html.tema-sepia .nav-bar { background: rgba(244, 234, 216, .95) !important; }
+html.tema-sepia .profile, html.tema-sepia .hero, html.tema-sepia .pet-card, html.tema-sepia .panel,
+html.tema-sepia .item, html.tema-sepia .description, html.tema-sepia form, html.tema-sepia .card,
+html.tema-sepia .notification-item, html.tema-sepia .filters, html.tema-sepia .builder,
+html.tema-sepia .preview, html.tema-sepia .metrics, html.tema-sepia .table-wrap { background: #fff8ea !important; color: #3e2c20 !important; border-color: #d4bfa6 !important; }
+html.tema-sepia h1, html.tema-sepia h2, html.tema-sepia h3, html.tema-sepia .logo, html.tema-sepia .page-title,
+html.tema-sepia .section-title { color: #704214 !important; }
+html.tema-sepia .muted, html.tema-sepia .intro, html.tema-sepia label, html.tema-sepia .subtitle,
+html.tema-sepia .page-subtitle, html.tema-sepia .notif-message, html.tema-sepia .notif-time { color: #665143 !important; }
+html.tema-sepia input:not([type="checkbox"]):not([type="radio"]), html.tema-sepia textarea, html.tema-sepia select { background: #fffdf7 !important; color: #3e2c20 !important; border-color: #c7aa89 !important; }
+html.tema-sepia .btn-soft, html.tema-sepia .btn.secondary, html.tema-sepia .secondary, html.tema-sepia .tab,
+html.tema-sepia .btn-secondary, html.tema-sepia .btn.back, html.tema-sepia .cancel { background: #efd1ac !important; color: #543414 !important; }
+html.tema-sepia .btn-primary, html.tema-sepia .btn.primary, html.tema-sepia .primary, html.tema-sepia .save,
+html.tema-sepia .chat-action, html.tema-sepia .camera-btn { background: #704214 !important; color: #fff !important; }
+html.tema-sepia .btn-primary *, html.tema-sepia .btn.primary *, html.tema-sepia .primary *,
+html.tema-sepia .save *, html.tema-sepia .chat-action *, html.tema-sepia .camera-btn * { color: #fff !important; }
+html.tema-sepia .btn.danger, html.tema-sepia .danger:not(.panel), html.tema-sepia .delete { background: #a9342c !important; color: #fff !important; }
+html.tema-sepia th { background: #f1dfc4 !important; color: #543414 !important; }
+html.tema-sepia td, html.tema-sepia .notif-title, html.tema-sepia .value { color: #3e2c20 !important; }
+html.tema-sepia .hero { background: #f4ead8 !important; }
+
+html.movimiento-reducido *, html.movimiento-reducido *::before, html.movimiento-reducido *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }

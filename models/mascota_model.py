@@ -21,7 +21,8 @@ def crear_mascota(id_usuario, nombre_mascota, raza, edad, color, pelaje, tamano,
             columnas.insert(-1, f"`{columna_ubicacion}`")
             valores.insert(-1, ubicacion)
 
-        placeholders = ", ".join(["%s"] * len(valores))
+        columnas.append("fecha_registro")
+        placeholders = ", ".join(["%s"] * len(valores) + ["CURDATE()"])
         sql = f"""
             INSERT INTO mascota
                 ({", ".join(columnas)})
@@ -83,7 +84,7 @@ def listar_mascotas_con_fotos():
 def listar_mascotas_por_usuario(id_usuario):
     sql = """
         SELECT id_mascota, nombre_mascota, raza, edad, color, pelaje, `tamaño` AS tamano,
-               descripcion, estado
+               descripcion, estado, fecha_registro
         FROM mascota
         WHERE id_usuario = %s
         ORDER BY id_mascota DESC
@@ -97,7 +98,7 @@ def obtener_mascota(id_mascota):
     sql = """
         SELECT m.id_mascota, m.id_usuario, m.nombre_mascota, m.raza, m.edad, m.color,
                m.pelaje, m.`tamaño` AS tamano, m.descripcion, m.estado,
-               u.nombre_completo, u.telefono, u.correo
+               m.fecha_registro, u.nombre_completo, u.telefono, u.correo
         FROM mascota m
         LEFT JOIN usuario u ON u.id_usuario = m.id_usuario
         WHERE m.id_mascota = %s

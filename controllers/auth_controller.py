@@ -40,9 +40,12 @@ from models.mensaje_model import (
 from models.usuario_model import (
     actualizar_contrasena_usuario,
     actualizar_usuario,
+    actualizar_preferencias_usuario,
     crear_usuario,
+    eliminar_cuenta_usuario,
     obtener_usuario_por_correo,
     obtener_usuario_por_id,
+    obtener_preferencias_usuario,
     obtener_usuario_por_google_id,
     obtener_usuario_por_facebook_id,
     actualizar_google_id,
@@ -560,6 +563,34 @@ def mostrar_perfil_usuario():
     usuario = obtener_usuario_por_id(current_user_id())
     mascotas = listar_mascotas_por_usuario(current_user_id())
     return render_template("modulo_usuario/perfil_usuario.html", usuario=usuario, mascotas=mascotas)
+
+
+def mostrar_configuracion_usuario():
+    preferencias = obtener_preferencias_usuario(current_user_id())
+    return render_template("modulo_usuario/configuracion.html", preferencias=preferencias)
+
+
+def guardar_configuracion_usuario():
+    tema = clean_text(request.form.get("tema"), 20)
+    reducir_movimiento = request.form.get("reducir_movimiento") == "on"
+    if tema not in {"claro", "oscuro", "sepia"}:
+        flash("Selecciona un tema válido.", "error")
+    elif actualizar_preferencias_usuario(current_user_id(), tema, reducir_movimiento):
+        flash("Preferencias guardadas para tu cuenta.", "success")
+    else:
+        flash("Primero ejecuta la migración JSON de preferencias en la base de datos.", "error")
+    return redirect(url_for("usuario.configuracion_usuario"))
+
+
+def eliminar_mi_cuenta():
+    id_usuario = current_user_id()
+    if not eliminar_cuenta_usuario(id_usuario):
+        flash("No fue posible eliminar la cuenta.", "error")
+        return redirect(url_for("usuario.configuracion_usuario"))
+
+    session.clear()
+    flash("Tu cuenta y los registros asociados fueron eliminados.", "success")
+    return redirect(url_for("usuario.inicio_sesion"))
 
 
 def mostrar_editar_perfil():

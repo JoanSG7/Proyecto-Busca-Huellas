@@ -46,10 +46,14 @@
                 <p class="muted"><span class="material-symbols-outlined">mail</span> {{ usuario.correo }}</p>
                 <p class="muted"><span class="material-symbols-outlined">call</span> {{ usuario.telefono or 'Sin teléfono registrado' }}</p>
                 <p class="muted"><span class="material-symbols-outlined">verified_user</span> {{ usuario.nombre_rol or 'Usuario' }}</p>
+                {% if usuario.fecha_registro %}<p class="muted"><span class="material-symbols-outlined">calendar_month</span> Miembro desde {{ usuario.fecha_registro.strftime('%d/%m/%Y') }}</p>{% endif %}
             </div>
             <div class="actions">
                 <a class="btn btn-primary" href="{{ url_for('usuario.editar_perfil') }}">
                     <span class="material-symbols-outlined">edit</span> Editar
+                </a>
+                <a class="btn btn-soft" href="{{ url_for('usuario.configuracion_usuario') }}">
+                    <span class="material-symbols-outlined">settings</span> Configuración
                 </a>
                 <form action="{{ url_for('usuario.logout') }}" method="POST">
                     <button class="btn btn-soft" type="submit">
@@ -68,6 +72,7 @@
                     <h3>{{ mascota.nombre_mascota }}</h3>
                     <p class="muted">{{ mascota.raza or 'Sin raza' }}{% if mascota.tamano %} - {{ mascota.tamano }}{% endif %}</p>
                     <p class="muted">{{ mascota.descripcion or 'Sin descripción registrada.' }}</p>
+                    {% if mascota.fecha_registro %}<p class="muted">Reportada el {{ mascota.fecha_registro.strftime('%d/%m/%Y') }}</p>{% endif %}
                 </div>
             </a>
             {% endfor %}

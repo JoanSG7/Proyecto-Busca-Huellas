@@ -22,6 +22,7 @@ def obtener_estadisticas_inicio():
             SELECT COUNT(*) AS total
             FROM mascota
             WHERE LOWER(estado) = 'perdida'
+              AND fecha_registro = CURDATE()
         """,
     }
 

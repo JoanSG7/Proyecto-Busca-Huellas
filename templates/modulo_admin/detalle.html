@@ -40,6 +40,7 @@
                 <div><label>Nombre</label><input name="nombre_completo" value="{{ item.nombre_completo or '' }}"></div>
                 <div><label>TelÃ©fono</label><input name="telefono" value="{{ item.telefono or '' }}"></div>
                 <div><label>Correo</label><input name="correo" value="{{ item.correo or '' }}"></div>
+                <div><label>Fecha de registro</label><input value="{{ item.fecha_registro or '' }}" disabled></div>
                 <div><label>Rol</label><select name="id_rol"><option value="1" {% if item.id_rol == 1 %}selected{% endif %}>Usuario</option><option value="2" {% if item.id_rol == 2 %}selected{% endif %}>Administrador</option></select></div>
                 <div><label>Cantidad de mascotas</label><input value="{{ item.total_mascotas }}" disabled></div>
             </div>
@@ -55,6 +56,7 @@
                 <div><label>Pelaje</label><input name="pelaje" value="{{ item.pelaje or '' }}"></div>
                 <div><label>TamaÃ±o</label><input name="tamano" value="{{ item.tamano or '' }}"></div>
                 <div><label>Estado</label><input name="estado" value="{{ item.estado or '' }}"></div>
+                <div><label>Fecha de reporte</label><input value="{{ item.fecha_registro or '' }}" disabled></div>
             </div>
             <div><label>DescripciÃ³n</label><textarea name="descripcion">{{ item.descripcion or '' }}</textarea></div>
             {% elif seccion == 'alertas' %}

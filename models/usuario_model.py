@@ -1,9 +1,49 @@
+import json
+
 from config.database import db_cursor
 
 
 def _tiene_columna_verificacion(cursor):
     cursor.execute("SHOW COLUMNS FROM usuario")
     return any(columna["Field"] == "correo_verificado" for columna in cursor.fetchall())
+
+
+def _tiene_columna_preferencias(cursor):
+    cursor.execute("SHOW COLUMNS FROM usuario")
+    columnas = {columna["Field"] for columna in cursor.fetchall()}
+    return "preferencias" in columnas
+
+
+def obtener_preferencias_usuario(id_usuario):
+    preferencias_originales = {"tema": "claro", "reducir_movimiento": False}
+    with db_cursor() as cursor:
+        if not _tiene_columna_preferencias(cursor):
+            return preferencias_originales
+        cursor.execute("SELECT preferencias FROM usuario WHERE id_usuario = %s", (id_usuario,))
+        fila = cursor.fetchone() or {}
+        preferencias = fila.get("preferencias")
+        if isinstance(preferencias, str):
+            try:
+                preferencias = json.loads(preferencias)
+            except json.JSONDecodeError:
+                preferencias = {}
+        if not isinstance(preferencias, dict):
+            preferencias = {}
+        return {
+            "tema": preferencias.get("tema") if preferencias.get("tema") in {"claro", "oscuro", "sepia"} else "claro",
+            "reducir_movimiento": bool(preferencias.get("reducir_movimiento", False)),
+        }
+
+
+def actualizar_preferencias_usuario(id_usuario, tema_preferido, reducir_movimiento):
+    with db_cursor(commit=True) as cursor:
+        if not _tiene_columna_preferencias(cursor):
+            return False
+        cursor.execute(
+            "UPDATE usuario SET preferencias = %s WHERE id_usuario = %s",
+            (json.dumps({"tema": tema_preferido, "reducir_movimiento": reducir_movimiento}), id_usuario),
+        )
+        return True
 
 
 def marcar_correo_verificado(id_usuario):
@@ -37,8 +77,8 @@ def asegurar_roles_basicos():
 def crear_usuario(nombre_completo, telefono, correo, contrasena_hash, id_rol=1, foto_perfil=None):
     asegurar_roles_basicos()
     sql = """
-        INSERT INTO usuario (id_rol, nombre_completo, telefono, correo, `contraseña`, foto_perfil)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO usuario (id_rol, nombre_completo, telefono, correo, `contraseña`, foto_perfil, fecha_registro)
+        VALUES (%s, %s, %s, %s, %s, %s, CURDATE())
     """
     with db_cursor(commit=True) as cursor:
         cursor.execute(sql, (id_rol, nombre_completo, telefono, correo, contrasena_hash, foto_perfil))
@@ -49,7 +89,7 @@ def obtener_usuario_por_correo(correo):
     sql = """
        SELECT u.id_usuario, u.id_rol, u.nombre_completo, u.telefono, u.correo,
         u.`contraseña`, u.foto_perfil,
-        u.google_id, u.facebook_id,
+        u.google_id, u.facebook_id, u.fecha_registro,
         r.nombre_rol
         FROM usuario u
         LEFT JOIN rol r ON r.id_rol = u.id_rol
@@ -65,7 +105,7 @@ def obtener_usuario_por_id(id_usuario):
     sql = """
         SELECT u.id_usuario, u.id_rol, u.nombre_completo, u.telefono, u.correo,
         u.foto_perfil,
-        u.google_id, u.facebook_id,
+        u.google_id, u.facebook_id, u.fecha_registro,
         r.nombre_rol
         FROM usuario u
         LEFT JOIN rol r ON r.id_rol = u.id_rol
@@ -143,3 +183,45 @@ def actualizar_facebook_id(id_usuario, facebook_id):
     """
     with db_cursor(commit=True) as cursor:
         cursor.execute(sql, (facebook_id, id_usuario))
+
+
+def eliminar_cuenta_usuario(id_usuario):
+    """Elimina la cuenta y todos los registros que dependen de ella."""
+    with db_cursor(commit=True) as cursor:
+        cursor.execute("SELECT id_mascota FROM mascota WHERE id_usuario = %s", (id_usuario,))
+        mascotas = [fila["id_mascota"] for fila in cursor.fetchall()]
+
+        condiciones_alerta = ["id_usuario = %s"]
+        parametros_alerta = [id_usuario]
+        if mascotas:
+            marcadores = ", ".join(["%s"] * len(mascotas))
+            condiciones_alerta.append(f"id_mascota IN ({marcadores})")
+            parametros_alerta.extend(mascotas)
+
+        where_alerta = " OR ".join(condiciones_alerta)
+        cursor.execute(f"SELECT id_alerta FROM alerta WHERE {where_alerta}", tuple(parametros_alerta))
+        alertas = [fila["id_alerta"] for fila in cursor.fetchall()]
+
+        condiciones_mensaje = ["usuario_emisor = %s", "usuario_receptor = %s"]
+        parametros_mensaje = [id_usuario, id_usuario]
+        if alertas:
+            marcadores = ", ".join(["%s"] * len(alertas))
+            condiciones_mensaje.append(f"id_alerta IN ({marcadores})")
+            parametros_mensaje.extend(alertas)
+        cursor.execute(
+            f"DELETE FROM mensaje WHERE {' OR '.join(condiciones_mensaje)}",
+            tuple(parametros_mensaje),
+        )
+
+        cursor.execute(f"DELETE FROM alerta WHERE {where_alerta}", tuple(parametros_alerta))
+        cursor.execute("DELETE FROM articulo WHERE id_usuario = %s", (id_usuario,))
+        cursor.execute("DELETE FROM informe WHERE id_usuario = %s", (id_usuario,))
+
+        if mascotas:
+            marcadores = ", ".join(["%s"] * len(mascotas))
+            cursor.execute(f"DELETE FROM foto_mascota WHERE id_mascota IN ({marcadores})", tuple(mascotas))
+            cursor.execute(f"DELETE FROM avistamiento WHERE id_mascota IN ({marcadores})", tuple(mascotas))
+            cursor.execute(f"DELETE FROM mascota WHERE id_mascota IN ({marcadores})", tuple(mascotas))
+
+        cursor.execute("DELETE FROM usuario WHERE id_usuario = %s", (id_usuario,))
+        return cursor.rowcount > 0

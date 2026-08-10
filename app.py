@@ -20,7 +20,7 @@ from routes.mensaje_routes import mensaje_bp
 from routes.reconocimiento_routes import reconocimiento_bp
 # from routes.validacion_routes import validacion_bp
 from controllers.security import current_user_id
-from models.usuario_model import obtener_usuario_por_id
+from models.usuario_model import obtener_preferencias_usuario, obtener_usuario_por_id
 
 # 1. Inicializamos la aplicación
 app = Flask(__name__)
@@ -46,8 +46,11 @@ app.register_blueprint(reconocimiento_bp, url_prefix="/reconocimiento")
 def inject_usuario_actual():
     usuario_id = current_user_id()
     if not usuario_id:
-        return {"usuario_actual": None}
-    return {"usuario_actual": obtener_usuario_por_id(usuario_id)}
+        return {"usuario_actual": None, "preferencias_actual": None}
+    return {
+        "usuario_actual": obtener_usuario_por_id(usuario_id),
+        "preferencias_actual": obtener_preferencias_usuario(usuario_id),
+    }
 
 
 @app.after_request

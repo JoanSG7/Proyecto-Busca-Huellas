@@ -23,7 +23,7 @@ def listar_usuarios_admin(q="", rol=""):
         params.append(rol)
     sql = """
         SELECT u.id_usuario, u.id_rol, u.nombre_completo, u.telefono, u.correo,
-               u.foto_perfil, r.nombre_rol,
+               u.foto_perfil, u.fecha_registro, r.nombre_rol,
                COUNT(m.id_mascota) AS total_mascotas
         FROM usuario u
         LEFT JOIN rol r ON r.id_rol = u.id_rol
@@ -32,7 +32,7 @@ def listar_usuarios_admin(q="", rol=""):
     if where:
         sql += " WHERE " + " AND ".join(where)
     sql += """
-        GROUP BY u.id_usuario, u.id_rol, u.nombre_completo, u.telefono, u.correo, u.foto_perfil, r.nombre_rol
+        GROUP BY u.id_usuario, u.id_rol, u.nombre_completo, u.telefono, u.correo, u.foto_perfil, u.fecha_registro, r.nombre_rol
         ORDER BY u.id_usuario DESC
     """
     with db_cursor() as cursor:
@@ -43,13 +43,13 @@ def listar_usuarios_admin(q="", rol=""):
 def obtener_usuario_admin(id_usuario):
     sql = """
         SELECT u.id_usuario, u.id_rol, u.nombre_completo, u.telefono, u.correo,
-               u.foto_perfil, r.nombre_rol,
+               u.foto_perfil, u.fecha_registro, r.nombre_rol,
                COUNT(m.id_mascota) AS total_mascotas
         FROM usuario u
         LEFT JOIN rol r ON r.id_rol = u.id_rol
         LEFT JOIN mascota m ON m.id_usuario = u.id_usuario
         WHERE u.id_usuario = %s
-        GROUP BY u.id_usuario, u.id_rol, u.nombre_completo, u.telefono, u.correo, u.foto_perfil, r.nombre_rol
+        GROUP BY u.id_usuario, u.id_rol, u.nombre_completo, u.telefono, u.correo, u.foto_perfil, u.fecha_registro, r.nombre_rol
         LIMIT 1
     """
     with db_cursor() as cursor:
@@ -86,7 +86,7 @@ def listar_mascotas_admin(q="", estado=""):
     sql = """
         SELECT m.id_mascota, m.id_usuario, m.nombre_mascota, m.raza, m.edad,
                m.color, m.pelaje, m.`tamaño` AS tamano, m.descripcion, m.estado,
-               u.nombre_completo AS nombre_usuario
+               m.fecha_registro, u.nombre_completo AS nombre_usuario
         FROM mascota m
         LEFT JOIN usuario u ON u.id_usuario = m.id_usuario
     """
@@ -102,7 +102,7 @@ def obtener_mascota_admin(id_mascota):
     sql = """
         SELECT m.id_mascota, m.id_usuario, m.nombre_mascota, m.raza, m.edad,
                m.color, m.pelaje, m.`tamaño` AS tamano, m.descripcion, m.estado,
-               u.nombre_completo AS nombre_usuario, u.correo AS correo_usuario
+               m.fecha_registro, u.nombre_completo AS nombre_usuario, u.correo AS correo_usuario
         FROM mascota m
         LEFT JOIN usuario u ON u.id_usuario = m.id_usuario
         WHERE m.id_mascota = %s
@@ -332,13 +332,16 @@ def generar_datos_informe(tipo, fecha_inicio=None, fecha_fin=None, limite=5):
     params = []
     if tipo == "mascotas_por_fecha":
         sql = """
-            SELECT m.id_mascota, m.nombre_mascota, m.estado, m.raza, u.nombre_completo AS usuario
+            SELECT m.id_mascota, m.nombre_mascota, m.estado, m.raza, m.fecha_registro,
+                   u.nombre_completo AS usuario
             FROM mascota m
             LEFT JOIN usuario u ON u.id_usuario = m.id_usuario
-            ORDER BY m.id_mascota DESC
+            WHERE (%s IS NULL OR m.fecha_registro >= %s)
+              AND (%s IS NULL OR m.fecha_registro <= %s)
+            ORDER BY m.fecha_registro DESC, m.id_mascota DESC
             LIMIT %s
         """
-        params.append(limite)
+        params.extend([fecha_inicio or None, fecha_inicio or None, fecha_fin or None, fecha_fin or None, limite])
     elif tipo == "alertas_por_fecha":
         sql = """
             SELECT a.id_alerta, a.estado_alerta, a.confirmacion, a.fecha_alerta,
@@ -366,12 +369,14 @@ def generar_datos_informe(tipo, fecha_inicio=None, fecha_fin=None, limite=5):
         params.append(limite)
     else:
         sql = """
-            SELECT id_usuario, nombre_completo, correo, telefono
+            SELECT id_usuario, nombre_completo, correo, telefono, fecha_registro
             FROM usuario
-            ORDER BY id_usuario DESC
+            WHERE (%s IS NULL OR fecha_registro >= %s)
+              AND (%s IS NULL OR fecha_registro <= %s)
+            ORDER BY fecha_registro DESC, id_usuario DESC
             LIMIT %s
         """
-        params.append(limite)
+        params.extend([fecha_inicio or None, fecha_inicio or None, fecha_fin or None, fecha_fin or None, limite])
     with db_cursor() as cursor:
         cursor.execute(sql, tuple(params))
         return cursor.fetchall()
