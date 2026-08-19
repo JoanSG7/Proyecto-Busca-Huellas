@@ -538,9 +538,10 @@
     <footer>
         <div class="footer-logo">Busca Huellas</div>
         <div class="footer-links">
-            <a href="#">Privacidad</a>
-            <a href="#">Términos</a>
-            <a href="#">Contacto</a>
+            <a href="{{ url_for('usuario.politica_privacidad') }}">Privacidad</a>
+            <a href="{{ url_for('usuario.terminos_condiciones') }}">Términos</a>
+            <a href="{{ url_for('usuario.acuerdo_uso') }}">Acuerdo de uso</a>
+            <a href="{{ url_for('usuario.contacto') }}">Contacto</a>
         </div>
     </footer>
 </body>

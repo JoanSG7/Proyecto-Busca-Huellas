@@ -14,6 +14,7 @@ from controllers.auth_controller import (
     recibir_login_social,
 )
 from controllers.security import login_required
+from controllers.legal_controller import mostrar_contacto, mostrar_documento_legal
 
 usuario_bp = Blueprint('usuario', __name__)
 
@@ -37,6 +38,26 @@ def oauth_login(provider):
 @usuario_bp.route('/login/<provider>/callback')
 def oauth_callback(provider):
     return recibir_login_social(provider)
+
+
+@usuario_bp.route('/privacidad')
+def politica_privacidad():
+    return mostrar_documento_legal('privacidad')
+
+
+@usuario_bp.route('/terminos')
+def terminos_condiciones():
+    return mostrar_documento_legal('terminos')
+
+
+@usuario_bp.route('/acuerdo-de-uso')
+def acuerdo_uso():
+    return mostrar_documento_legal('acuerdo')
+
+
+@usuario_bp.route('/contacto')
+def contacto():
+    return mostrar_contacto()
 
 @usuario_bp.route('/perfil')
 @login_required

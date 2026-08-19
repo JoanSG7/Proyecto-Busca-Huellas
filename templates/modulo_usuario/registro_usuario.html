@@ -472,8 +472,7 @@
                         <div class="checkbox-container">
                             <input id="terms" name="terms" required="" type="checkbox" />
                             <label class="checkbox-label" for="terms">
-                                Acepto los <a href="#">Términos de Servicio</a> y la <a href="#">Política de
-                                    Privacidad</a> de Busca Huellas
+                                Acepto los <a href="{{ url_for('usuario.terminos_condiciones') }}">Términos de Servicio</a>, la <a href="{{ url_for('usuario.politica_privacidad') }}">Política de Privacidad</a> y el <a href="{{ url_for('usuario.acuerdo_uso') }}">Acuerdo de uso</a> de Busca Huellas
                             </label>
                         </div>
                         <button class="btn-submit" type="submit">Crear mi perfil</button>
@@ -490,9 +489,10 @@
     <footer>
         <div class="footer-logo">Busca Huellas</div>
         <div class="footer-links">
-            <a href="#">Privacidad</a>
-            <a href="#">Términos</a>
-            <a href="#">Contacto</a>
+            <a href="{{ url_for('usuario.politica_privacidad') }}">Privacidad</a>
+            <a href="{{ url_for('usuario.terminos_condiciones') }}">Términos</a>
+            <a href="{{ url_for('usuario.acuerdo_uso') }}">Acuerdo de uso</a>
+            <a href="{{ url_for('usuario.contacto') }}">Contacto</a>
         </div>
     </footer>
     <script>
