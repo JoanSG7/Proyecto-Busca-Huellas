@@ -3,6 +3,7 @@ from flask import Blueprint
 from controllers.admin_controller import (
     exportar_informe_admin,
     eliminar_item_admin,
+    reactivar_item_admin,
     generar_informe_admin,
     guardar_detalle_admin,
     mostrar_admin,
@@ -37,6 +38,12 @@ def guardar(seccion, item_id):
 @admin_required
 def eliminar(seccion, item_id):
     return eliminar_item_admin(seccion, item_id)
+
+
+@admin_bp.route("/<seccion>/<int:item_id>/reactivar", methods=["POST"])
+@admin_required
+def reactivar(seccion, item_id):
+    return reactivar_item_admin(seccion, item_id)
 
 
 @admin_bp.route("/informes/generar", methods=["POST"])

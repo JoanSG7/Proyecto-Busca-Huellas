@@ -45,6 +45,10 @@
             <a class="tab {% if key == seccion %}active{% endif %}" href="{{ url_for('admin.panel', seccion=key) }}">{{ item.titulo }}</a>
             {% endfor %}
         </nav>
+        <div class="actions" style="margin-bottom:1rem;">
+            <a class="btn {% if not eliminados %}primary{% else %}secondary{% endif %}" href="{{ url_for('admin.panel', seccion=seccion) }}">Registros activos</a>
+            <a class="btn {% if eliminados %}primary{% else %}secondary{% endif %}" href="{{ url_for('admin.panel', seccion=seccion, vista='eliminados') }}">Eliminados</a>
+        </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}{% for category, message in messages %}<p class="flash">{{ message }}</p>{% endfor %}{% endif %}
@@ -58,11 +62,11 @@
         </section>
         <form class="builder" method="POST" action="{{ url_for('admin.generar_informe') }}">
             <div class="filters" style="border:0; padding:0; margin:0;">
-                <div class="field"><label>TÃ­tulo</label><input name="titulo" placeholder="Informe mensual de mascotas"></div>
+                <div class="field"><label>Título</label><input name="titulo" placeholder="Informe mensual de mascotas"></div>
                 <div class="field"><label>Tipo</label><select name="tipo_informe"><option value="mascotas_por_fecha">Mascotas creadas</option><option value="alertas_por_fecha">Alertas por fecha</option><option value="top_usuarios_avistamientos">Top usuarios con avistamientos confirmados</option><option value="usuarios_recientes">Usuarios recientes</option></select></div>
                 <div><label>Desde</label><input type="date" name="fecha_inicio"></div>
                 <div><label>Hasta</label><input type="date" name="fecha_fin"></div>
-                <div><label>LÃ­mite</label><input type="number" name="limite" value="10" min="1" max="100"></div>
+                <div><label>Límite</label><input type="number" name="limite" value="10" min="1" max="100"></div>
             </div>
             <div class="actions" style="margin-top:1rem;"><button class="btn primary" name="accion" value="preview">Vista previa</button><button class="btn secondary" name="accion" value="guardar">Guardar informe</button></div>
         </form>
@@ -77,7 +81,8 @@
         {% endif %}
 
         <form class="filters" method="GET" action="{{ url_for('admin.panel', seccion=seccion) }}">
-            <div class="field"><label>Buscar texto</label><input name="q" value="{{ q }}" placeholder="Nombre, correo, mascota, ubicaciÃ³n..."></div>
+            {% if eliminados %}<input type="hidden" name="vista" value="eliminados">{% endif %}
+            <div class="field"><label>Buscar texto</label><input name="q" value="{{ q }}" placeholder="Nombre, correo, mascota, ubicación..."></div>
             <div class="field"><label>Filtro</label><select name="{{ filtro_nombre }}">{% for value, text in config.filtro[1] %}<option value="{{ value }}" {% if value == filtro %}selected{% endif %}>{{ text }}</option>{% endfor %}</select></div>
             <button class="btn primary" type="submit">Buscar</button>
         </form>
@@ -86,16 +91,19 @@
             <table>
                 {% if seccion == 'usuarios' %}
                 <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Registro</th><th>Rol</th><th>Mascotas</th><th>Acciones</th></tr></thead>
-                <tbody>{% for item in items %}<tr><td>{{ item.id_usuario }}</td><td>{{ item.nombre_completo }}</td><td>{{ item.correo }}</td><td>{{ item.fecha_registro or '-' }}</td><td>{{ item.nombre_rol }}</td><td>{{ item.total_mascotas }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_usuario, modo='ver') }}">Ver</a><a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_usuario, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_usuario) }}"><button class="btn danger" type="submit">Eliminar</button></form></div></td></tr>{% endfor %}</tbody>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_usuario }}</td><td>{{ item.nombre_completo }}</td><td>{{ item.correo }}</td><td>{{ item.fecha_registro or '-' }}</td><td>{{ item.nombre_rol }}</td><td>{{ item.total_mascotas }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_usuario, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_usuario, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_usuario) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
+                {% elif seccion == 'articulos' %}
+                <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_articulo }}</td><td>{{ item.titulo }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_publicacion or '-' }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_articulo, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_articulo, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_articulo) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% else %}<form class="restore-form" method="POST" action="{{ url_for('admin.reactivar', seccion=seccion, item_id=item.id_articulo) }}"><button class="btn primary" type="submit">Reactivar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
                 {% elif seccion == 'mascotas' %}
                 <thead><tr><th>ID</th><th>Nombre</th><th>Dueño</th><th>Fecha de reporte</th><th>Estado</th><th>Raza</th><th>Acciones</th></tr></thead>
-                <tbody>{% for item in items %}<tr><td>{{ item.id_mascota }}</td><td>{{ item.nombre_mascota }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_registro or '-' }}</td><td>{{ item.estado }}</td><td>{{ item.raza }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_mascota, modo='ver') }}">Ver</a><a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_mascota, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_mascota) }}"><button class="btn danger" type="submit">Eliminar</button></form></div></td></tr>{% endfor %}</tbody>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_mascota }}</td><td>{{ item.nombre_mascota }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_registro or '-' }}</td><td>{{ item.estado }}</td><td>{{ item.raza }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_mascota, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_mascota, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_mascota) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
                 {% elif seccion == 'alertas' %}
                 <thead><tr><th>ID</th><th>Usuario</th><th>Mascota</th><th>Estado</th><th>Confirmación</th><th>Acciones</th></tr></thead>
-                <tbody>{% for item in items %}<tr><td>{{ item.id_alerta }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.nombre_mascota }}</td><td>{{ item.estado_alerta }}</td><td>{{ item.confirmacion }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_alerta, modo='ver') }}">Ver</a><a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_alerta, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_alerta) }}"><button class="btn danger" type="submit">Eliminar</button></form></div></td></tr>{% endfor %}</tbody>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_alerta }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.nombre_mascota }}</td><td>{{ item.estado_alerta }}</td><td>{{ item.confirmacion }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_alerta, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_alerta, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_alerta) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
                 {% elif seccion == 'avistamientos' %}
                 <thead><tr><th>ID</th><th>Mascota</th><th>Dueño</th><th>Ubicación</th><th>Fecha</th><th>Acciones</th></tr></thead>
-                <tbody>{% for item in items %}<tr><td>{{ item.id_avistamiento }}</td><td>{{ item.nombre_mascota or 'Sin confirmar' }}</td><td>{{ item.nombre_dueno }}</td><td>{{ item.ubicacion }}</td><td>{{ item.fecha_avistamiento }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_avistamiento, modo='ver') }}">Ver</a><a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_avistamiento, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_avistamiento) }}"><button class="btn danger" type="submit">Eliminar</button></form></div></td></tr>{% endfor %}</tbody>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_avistamiento }}</td><td>{{ item.nombre_mascota or 'Sin confirmar' }}</td><td>{{ item.nombre_dueno }}</td><td>{{ item.ubicacion }}</td><td>{{ item.fecha_avistamiento }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_avistamiento, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_avistamiento, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_avistamiento) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
                 {% else %}
                 <thead><tr><th>ID</th><th>Tipo</th><th>Admin</th><th>Fecha</th><th>Acciones</th></tr></thead>
                 <tbody>{% for item in items %}<tr><td>{{ item.id_informe }}</td><td>{{ item.tipo_informe }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_generacion }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_informe, modo='ver') }}">Ver</a><a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_informe, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_informe) }}"><button class="btn danger" type="submit">Eliminar</button></form></div></td></tr>{% endfor %}</tbody>
@@ -103,5 +111,17 @@
             </table>
         </div>
     </main>
+    <script>
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!confirm('¿Seguro que desea eliminar? Esta acción no se puede revertir.')) event.preventDefault();
+            });
+        });
+        document.querySelectorAll('.restore-form').forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!confirm('¿Seguro que desea reactivar el artículo?')) event.preventDefault();
+            });
+        });
+    </script>
 </body>
 </html>

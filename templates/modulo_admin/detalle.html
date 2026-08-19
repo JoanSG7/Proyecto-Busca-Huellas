@@ -38,27 +38,36 @@
             <div class="grid">
                 <div><label>ID</label><input value="{{ item.id_usuario }}" disabled></div>
                 <div><label>Nombre</label><input name="nombre_completo" value="{{ item.nombre_completo or '' }}"></div>
-                <div><label>TelÃ©fono</label><input name="telefono" value="{{ item.telefono or '' }}"></div>
+                <div><label>Teléfono</label><input name="telefono" value="{{ item.telefono or '' }}"></div>
                 <div><label>Correo</label><input name="correo" value="{{ item.correo or '' }}"></div>
                 <div><label>Fecha de registro</label><input value="{{ item.fecha_registro or '' }}" disabled></div>
                 <div><label>Rol</label><select name="id_rol"><option value="1" {% if item.id_rol == 1 %}selected{% endif %}>Usuario</option><option value="2" {% if item.id_rol == 2 %}selected{% endif %}>Administrador</option></select></div>
                 <div><label>Cantidad de mascotas</label><input value="{{ item.total_mascotas }}" disabled></div>
             </div>
+            {% elif seccion == 'articulos' %}
+            <div class="grid">
+                <div><label>ID</label><input value="{{ item.id_articulo }}" disabled></div>
+                <div><label>Autor</label><input value="{{ item.nombre_usuario or '' }}" disabled></div>
+                <div><label>Fecha</label><input value="{{ item.fecha_publicacion or '' }}" disabled></div>
+                <div><label>Título</label><input name="titulo" value="{{ item.titulo or '' }}"></div>
+                <div><label>URL imagen</label><input name="url_imagen" value="{{ item.url_imagen or '' }}"></div>
+            </div>
+            <div><label>Contenido</label><textarea name="contenido">{{ item.contenido or '' }}</textarea></div>
             {% elif seccion == 'mascotas' %}
             <div class="grid">
                 <div><label>ID</label><input value="{{ item.id_mascota }}" disabled></div>
-                <div><label>ID usuario dueÃ±o</label><input name="id_usuario" value="{{ item.id_usuario or '' }}"></div>
-                <div><label>DueÃ±o</label><input value="{{ item.nombre_usuario or '' }}" disabled></div>
+                <div><label>ID usuario dueño</label><input name="id_usuario" value="{{ item.id_usuario or '' }}"></div>
+                <div><label>Dueño</label><input value="{{ item.nombre_usuario or '' }}" disabled></div>
                 <div><label>Nombre</label><input name="nombre_mascota" value="{{ item.nombre_mascota or '' }}"></div>
                 <div><label>Raza</label><input name="raza" value="{{ item.raza or '' }}"></div>
                 <div><label>Edad</label><input name="edad" value="{{ item.edad or '' }}"></div>
                 <div><label>Color</label><input name="color" value="{{ item.color or '' }}"></div>
                 <div><label>Pelaje</label><input name="pelaje" value="{{ item.pelaje or '' }}"></div>
-                <div><label>TamaÃ±o</label><input name="tamano" value="{{ item.tamano or '' }}"></div>
+                <div><label>Tamaño</label><input name="tamano" value="{{ item.tamano or '' }}"></div>
                 <div><label>Estado</label><input name="estado" value="{{ item.estado or '' }}"></div>
                 <div><label>Fecha de reporte</label><input value="{{ item.fecha_registro or '' }}" disabled></div>
             </div>
-            <div><label>DescripciÃ³n</label><textarea name="descripcion">{{ item.descripcion or '' }}</textarea></div>
+            <div><label>Descripción</label><textarea name="descripcion">{{ item.descripcion or '' }}</textarea></div>
             {% elif seccion == 'alertas' %}
             <div class="grid">
                 <div><label>ID</label><input value="{{ item.id_alerta }}" disabled></div>
@@ -67,7 +76,7 @@
                 <div><label>ID mascota</label><input name="id_mascota" value="{{ item.id_mascota or '' }}"></div>
                 <div><label>Mascota</label><input value="{{ item.nombre_mascota or '' }}" disabled></div>
                 <div><label>Estado alerta</label><input name="estado_alerta" value="{{ item.estado_alerta or '' }}"></div>
-                <div><label>ConfirmaciÃ³n</label><input name="confirmacion" value="{{ item.confirmacion or '' }}"></div>
+                <div><label>Confirmación</label><input name="confirmacion" value="{{ item.confirmacion or '' }}"></div>
                 <div><label>Fecha</label><input value="{{ item.fecha_alerta or '' }}" disabled></div>
             </div>
             {% elif seccion == 'avistamientos' %}
@@ -75,12 +84,12 @@
                 <div><label>ID</label><input value="{{ item.id_avistamiento }}" disabled></div>
                 <div><label>ID mascota</label><input name="id_mascota" value="{{ item.id_mascota or '' }}"></div>
                 <div><label>Mascota</label><input value="{{ item.nombre_mascota or '' }}" disabled></div>
-                <div><label>DueÃ±o</label><input value="{{ item.nombre_dueno or '' }}" disabled></div>
-                <div><label>UbicaciÃ³n</label><input name="ubicacion" value="{{ item.ubicacion or '' }}"></div>
+                <div><label>Dueño</label><input value="{{ item.nombre_dueno or '' }}" disabled></div>
+                <div><label>Ubicación</label><input name="ubicacion" value="{{ item.ubicacion or '' }}"></div>
                 <div><label>URL imagen</label><input name="url_imagen" value="{{ item.url_imagen or '' }}"></div>
                 <div><label>Fecha</label><input name="fecha_avistamiento" value="{{ item.fecha_avistamiento or '' }}"></div>
             </div>
-            <div><label>DescripciÃ³n avistamiento</label><textarea name="descripcion_avistamiento">{{ item.descripcion_avistamiento or '' }}</textarea></div>
+            <div><label>Descripción avistamiento</label><textarea name="descripcion_avistamiento">{{ item.descripcion_avistamiento or '' }}</textarea></div>
             {% else %}
             <div class="grid">
                 <div><label>ID</label><input value="{{ item.id_informe }}" disabled></div>
@@ -88,14 +97,14 @@
                 <div><label>Tipo</label><input name="tipo_informe" value="{{ item.tipo_informe or '' }}"></div>
                 <div><label>Fecha</label><input value="{{ item.fecha_generacion or '' }}" disabled></div>
             </div>
-            <div><label>DescripciÃ³n</label><textarea name="descripcion">{{ item.descripcion or '' }}</textarea></div>
+            <div><label>Descripción</label><textarea name="descripcion">{{ item.descripcion or '' }}</textarea></div>
             {% endif %}
             <div class="actions" id="detail-actions">
                 <button class="btn primary" name="accion" value="guardar">Guardar cambios</button>
                 <button class="btn danger" name="accion" value="eliminar">Eliminar</button>
             </div>
         </form>
-        {% if modo != 'editar' %}
+        {% if modo != 'editar' and not eliminado %}
         <div class="actions" style="margin-top:1rem;">
             <a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item_id, modo='editar') }}">Editar</a>
             <form method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item_id) }}" style="padding:0; border:0; background:transparent;">
@@ -110,5 +119,19 @@
         </script>
         {% endif %}
     </main>
+    <script>
+        const detailForm = document.getElementById('detail-form');
+        if (detailForm) {
+            detailForm.addEventListener('submit', event => {
+                const accion = event.submitter && event.submitter.value === 'eliminar' ? 'eliminar' : 'guardar los cambios';
+                if (!confirm(`¿Seguro que desea ${accion}? Esta acción no se puede revertir.`)) event.preventDefault();
+            });
+        }
+        document.querySelectorAll('form[action$="/eliminar"]').forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!confirm('¿Seguro que desea eliminar? Esta acción no se puede revertir.')) event.preventDefault();
+            });
+        });
+    </script>
 </body>
 </html>

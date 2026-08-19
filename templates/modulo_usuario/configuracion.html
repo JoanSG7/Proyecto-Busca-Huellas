@@ -46,9 +46,9 @@
 
         <section class="panel danger">
             <h2>Zona de peligro</h2>
-            <p>Esta acción elimina permanentemente tu cuenta, tus mascotas, alertas, mensajes, avistamientos, artículos e informes asociados.</p>
-            <form method="POST" action="{{ url_for('usuario.eliminar_cuenta') }}" onsubmit="return confirm('¿Seguro que deseas eliminar la cuenta? Esta acción no se puede deshacer.');">
-                <button class="btn delete" type="submit"><span class="material-symbols-outlined">delete_forever</span> Eliminar cuenta</button>
+            <p>Esta acción desactiva tu cuenta y los registros asociados. Dejarán de mostrarse, pero se conservarán para administración.</p>
+            <form method="POST" action="{{ url_for('usuario.eliminar_cuenta') }}" onsubmit="return confirm('¿Seguro que deseas desactivar la cuenta? Dejará de estar disponible.');">
+                <button class="btn delete" type="submit"><span class="material-symbols-outlined">delete_forever</span> Desactivar cuenta</button>
             </form>
         </section>
     </main>

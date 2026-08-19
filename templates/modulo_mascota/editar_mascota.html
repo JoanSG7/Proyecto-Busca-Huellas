@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar mascota - Busca Huellas</title>
+    <style>
+        body { margin:0; font-family:Arial,sans-serif; background:#fdf9f1; color:#1c1c17; }
+        main { max-width:760px; margin:0 auto; padding:6rem 1.5rem; }
+        h1 { color:#0f5238; }
+        form { background:#fff; border-radius:16px; padding:1.5rem; display:grid; gap:1rem; }
+        .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+        label { display:block; margin-bottom:.35rem; font-weight:bold; color:#404943; }
+        input, select, textarea { width:100%; box-sizing:border-box; border:1px solid #c9d0c8; border-radius:8px; padding:.75rem; font:inherit; }
+        textarea { min-height:130px; }
+        .actions { display:flex; gap:.75rem; flex-wrap:wrap; }
+        .btn { border:0; border-radius:999px; padding:.85rem 1.2rem; font-weight:bold; text-decoration:none; cursor:pointer; background:#2d6a4f; color:#fff; }
+        .btn-soft { background:#f1ede5; color:#0f5238; }
+        .flash { color:#ba1a1a; font-weight:bold; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/paw_background.css') }}">
+</head>
+<body>
+    {% include 'includes/_header-up.html' %}
+    <main>
+        <h1>Editar {{ mascota.nombre_mascota }}</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}<p class="flash">{{ message }}</p>{% endfor %}
+        {% endwith %}
+        <form method="POST">
+            <div class="grid">
+                <div><label>Nombre</label><input name="nombre_mascota" required value="{{ mascota.nombre_mascota or '' }}"></div>
+                <div><label>Raza</label><input name="raza" value="{{ mascota.raza or '' }}"></div>
+                <div><label>Edad</label><input type="number" min="0" max="30" name="edad" required value="{{ mascota.edad if mascota.edad is not none else '' }}"></div>
+                <div><label>Color</label><input name="color" value="{{ mascota.color or '' }}"></div>
+                <div><label>Pelaje</label><input name="pelaje" value="{{ mascota.pelaje or '' }}"></div>
+                <div><label>Tamaño</label><select name="tamano" required>{% for opcion in ['pequeño', 'mediano', 'grande'] %}<option value="{{ opcion }}" {% if mascota.tamano == opcion %}selected{% endif %}>{{ opcion|title }}</option>{% endfor %}</select></div>
+                <div><label>Estado</label><select name="estado">{% for opcion in ['perdida', 'encontrada', 'en proceso'] %}<option value="{{ opcion }}" {% if mascota.estado == opcion %}selected{% endif %}>{{ opcion|title }}</option>{% endfor %}</select></div>
+            </div>
+            <div><label>Descripción</label><textarea name="descripcion">{{ mascota.descripcion or '' }}</textarea></div>
+            <div class="actions">
+                <button class="btn" type="submit">Guardar cambios</button>
+                <a class="btn btn-soft" href="{{ url_for('mascota.info_mascota', id_mascota=mascota.id_mascota) }}">Cancelar</a>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

@@ -22,6 +22,8 @@
         .actions { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
         .btn { border-radius: 999px; padding: 1rem 1.35rem; text-decoration: none; font-weight: 800; background: #2d6a4f; color: white; }
         .btn-soft { background: #ffd1ac; color: #7a583b; }
+        .btn-danger { border: 0; background: #ba1a1a; color: white; cursor: pointer; }
+        .actions form { margin: 0; }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/paw_background.css') }}">
 </head>
@@ -54,6 +56,12 @@
             <div class="actions">
                 <a class="btn" href="{{ url_for('usuario.perfil_usuario') }}">Volver al perfil</a>
                 <a class="btn btn-soft" href="{{ url_for('mascota.registro_mascota') }}">Registrar otra mascota</a>
+                {% if es_dueno %}
+                <a class="btn" href="{{ url_for('mascota.editar', id_mascota=mascota.id_mascota) }}">Editar mascota</a>
+                <form method="POST" action="{{ url_for('mascota.eliminar', id_mascota=mascota.id_mascota) }}" onsubmit="return confirm('¿Seguro que deseas eliminar esta mascota? Dejará de mostrarse en tu perfil.');">
+                    <button class="btn btn-danger" type="submit">Eliminar mascota</button>
+                </form>
+                {% endif %}
             </div>
         </section>
     </main>

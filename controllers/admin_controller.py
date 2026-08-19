@@ -5,23 +5,28 @@ from flask import flash, make_response, redirect, render_template, request, sess
 from controllers.security import clean_text, is_valid_email, is_valid_phone
 from models.admin_model import (
     actualizar_alerta_admin,
+    actualizar_articulo_admin,
     actualizar_avistamiento_admin,
     actualizar_informe_admin,
     actualizar_mascota_admin,
     actualizar_usuario_admin,
     crear_informe_admin,
     eliminar_alerta_admin,
+    eliminar_articulo_admin,
     eliminar_avistamiento_admin,
     eliminar_informe_admin,
     eliminar_mascota_admin,
     eliminar_usuario_admin,
+    reactivar_articulo_admin,
     generar_datos_informe,
     listar_alertas_admin,
+    listar_articulos_admin,
     listar_avistamientos_admin,
     listar_informes_admin,
     listar_mascotas_admin,
     listar_usuarios_admin,
     obtener_alerta_admin,
+    obtener_articulo_admin,
     obtener_avistamiento_admin,
     obtener_informe_admin,
     obtener_mascota_admin,
@@ -32,6 +37,7 @@ from models.admin_model import (
 
 ADMIN_SECTIONS = {
     "usuarios": {"titulo": "Usuarios", "filtro": ("rol", [("", "Todos"), ("1", "Usuarios"), ("2", "Administradores")])},
+    "articulos": {"titulo": "Artículos", "filtro": ("filtro", [("", "Todos")])},
     "mascotas": {"titulo": "Mascotas", "filtro": ("estado", [("", "Todos"), ("perdida", "Perdida"), ("encontrada", "Encontrada"), ("en proceso", "En proceso")])},
     "alertas": {"titulo": "Alertas", "filtro": ("estado", [("", "Todos"), ("pendiente", "Pendiente"), ("enviada", "Enviada"), ("vista", "Vista")])},
     "avistamientos": {"titulo": "Avistamientos", "filtro": ("estado", [("", "Todos"), ("confirmados", "Confirmados"), ("sin_confirmar", "Sin confirmar")])},
@@ -39,21 +45,24 @@ ADMIN_SECTIONS = {
 }
 
 
-def _list_items(seccion, q, filtro):
+def _list_items(seccion, q, filtro, eliminados=False):
     if seccion == "usuarios":
-        return listar_usuarios_admin(q, filtro)
+        return listar_usuarios_admin(q, filtro, eliminados)
+    if seccion == "articulos":
+        return listar_articulos_admin(q, filtro, eliminados)
     if seccion == "mascotas":
-        return listar_mascotas_admin(q, filtro)
+        return listar_mascotas_admin(q, filtro, eliminados)
     if seccion == "alertas":
-        return listar_alertas_admin(q, filtro)
+        return listar_alertas_admin(q, filtro, eliminados)
     if seccion == "avistamientos":
-        return listar_avistamientos_admin(q, filtro)
-    return listar_informes_admin(q, filtro)
+        return listar_avistamientos_admin(q, filtro, eliminados)
+    return listar_informes_admin(q, filtro, eliminados)
 
 
 def _get_item(seccion, item_id):
     getters = {
         "usuarios": obtener_usuario_admin,
+        "articulos": obtener_articulo_admin,
         "mascotas": obtener_mascota_admin,
         "alertas": obtener_alerta_admin,
         "avistamientos": obtener_avistamiento_admin,
@@ -68,6 +77,7 @@ def mostrar_admin(seccion="usuarios"):
     filtro_nombre = ADMIN_SECTIONS[seccion]["filtro"][0]
     q = clean_text(request.args.get("q"), 100)
     filtro = clean_text(request.args.get(filtro_nombre), 80)
+    eliminados = request.args.get("vista") == "eliminados"
     preview = session.pop("informe_preview", None) if seccion == "informes" else None
     return render_template(
         "modulo_admin/panel.html",
@@ -77,9 +87,10 @@ def mostrar_admin(seccion="usuarios"):
         filtro_nombre=filtro_nombre,
         q=q,
         filtro=filtro,
-        items=_list_items(seccion, q, filtro),
+        items=_list_items(seccion, q, filtro, eliminados),
         resumen=obtener_resumen_admin(),
         preview=preview,
+        eliminados=eliminados,
     )
 
 
@@ -90,13 +101,23 @@ def mostrar_detalle_admin(seccion, item_id):
     if not item:
         flash("No se encontro el registro solicitado.", "error")
         return redirect(url_for("admin.panel", seccion=seccion))
+    campo_estado = {
+        "usuarios": "estado_usuario",
+        "articulos": "estado_articulo",
+        "mascotas": "estado_mascota",
+        "alertas": "estado_alerta_registro",
+        "avistamientos": "estado_avistamiento",
+        "informes": "estado_informe",
+    }[seccion]
+    eliminado = not bool(item.get(campo_estado, 1))
     return render_template(
         "modulo_admin/detalle.html",
         seccion=seccion,
         config=ADMIN_SECTIONS[seccion],
         item=item,
         item_id=item_id,
-        modo=clean_text(request.args.get("modo"), 20) or "ver",
+        modo="ver" if eliminado else (clean_text(request.args.get("modo"), 20) or "ver"),
+        eliminado=eliminado,
     )
 
 
@@ -106,6 +127,16 @@ def eliminar_item_admin(seccion, item_id):
     _delete_item(seccion, item_id)
     flash("Registro eliminado.", "success")
     return redirect(url_for("admin.panel", seccion=seccion))
+
+
+def reactivar_item_admin(seccion, item_id):
+    if seccion != "articulos":
+        return redirect(url_for("admin.panel", seccion="articulos"))
+    if reactivar_articulo_admin(item_id):
+        flash("Artículo reactivado.", "success")
+    else:
+        flash("No fue posible reactivar el artículo.", "error")
+    return redirect(url_for("admin.panel", seccion="articulos", vista="eliminados"))
 
 
 def guardar_detalle_admin(seccion, item_id):
@@ -143,6 +174,14 @@ def guardar_detalle_admin(seccion, item_id):
             clean_text(request.form.get("estado"), 50),
         )
         flash("Mascota actualizada.", "success")
+    elif seccion == "articulos":
+        actualizar_articulo_admin(
+            item_id,
+            clean_text(request.form.get("titulo"), 255),
+            clean_text(request.form.get("contenido"), 10000),
+            clean_text(request.form.get("url_imagen"), 255),
+        )
+        flash("Artículo actualizado.", "success")
     elif seccion == "alertas":
         actualizar_alerta_admin(
             item_id,
@@ -175,6 +214,7 @@ def guardar_detalle_admin(seccion, item_id):
 def _delete_item(seccion, item_id):
     deletes = {
         "usuarios": eliminar_usuario_admin,
+        "articulos": eliminar_articulo_admin,
         "mascotas": eliminar_mascota_admin,
         "alertas": eliminar_alerta_admin,
         "avistamientos": eliminar_avistamiento_admin,

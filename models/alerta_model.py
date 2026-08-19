@@ -31,6 +31,7 @@ def crear_alerta_coincidencia(id_reportante, id_mascota, nombre_mascota):
         SELECT id_alerta
         FROM alerta
         WHERE id_usuario = %s AND id_mascota = %s AND estado_alerta = 'coincidencia_encontrada'
+          AND estado_alerta_registro = 1
         ORDER BY id_alerta DESC
         LIMIT 1
     """
@@ -75,7 +76,9 @@ def listar_alertas_usuario(id_usuario):
             FROM alerta a
             LEFT JOIN mascota m ON m.id_mascota = a.id_mascota
             LEFT JOIN usuario u ON u.id_usuario = a.id_usuario
-            WHERE a.id_usuario = %s OR m.id_usuario = %s OR a.id_usuario IS NULL
+            WHERE a.estado_alerta_registro = 1
+              AND m.estado_mascota = 1
+              AND (a.id_usuario = %s OR m.id_usuario = %s OR a.id_usuario IS NULL)
             ORDER BY a.id_alerta DESC
         """
         cursor.execute(sql, (id_usuario, id_usuario))

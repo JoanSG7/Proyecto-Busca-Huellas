@@ -1,4 +1,5 @@
 from config.database import db_cursor
+from models.eliminacion_model import desactivar_articulo
 
 
 def listar_articulos():
@@ -7,6 +8,7 @@ def listar_articulos():
                a.fecha_publicacion, u.nombre_completo AS autor
         FROM articulo a
         LEFT JOIN usuario u ON u.id_usuario = a.id_usuario
+        WHERE a.estado_articulo = 1
         ORDER BY a.fecha_publicacion DESC, a.id_articulo DESC
     """
     with db_cursor() as cursor:
@@ -20,7 +22,7 @@ def obtener_articulo(id_articulo):
                a.fecha_publicacion, u.nombre_completo AS autor
         FROM articulo a
         LEFT JOIN usuario u ON u.id_usuario = a.id_usuario
-        WHERE a.id_articulo = %s
+        WHERE a.id_articulo = %s AND a.estado_articulo = 1
         LIMIT 1
     """
     with db_cursor() as cursor:
@@ -50,7 +52,4 @@ def actualizar_articulo(id_articulo, titulo, contenido, url_imagen=None):
 
 
 def eliminar_articulo(id_articulo):
-    sql = "DELETE FROM articulo WHERE id_articulo = %s"
-    with db_cursor(commit=True) as cursor:
-        cursor.execute(sql, (id_articulo,))
-        return cursor.rowcount
+    return desactivar_articulo(id_articulo)

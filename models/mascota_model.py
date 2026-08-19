@@ -1,4 +1,5 @@
 from config.database import db_cursor
+from models.eliminacion_model import desactivar_mascota
 
 
 def _columna_ubicacion_mascota(cursor):
@@ -74,6 +75,8 @@ def listar_mascotas_con_fotos():
         INNER JOIN foto_mascota fm ON fm.id_mascota = m.id_mascota
         LEFT JOIN usuario u ON u.id_usuario = m.id_usuario
         WHERE fm.url_imagen IS NOT NULL AND fm.url_imagen <> ''
+          AND m.estado_mascota = 1
+          AND (u.estado_usuario = 1 OR u.id_usuario IS NULL)
         ORDER BY m.id_mascota DESC, fm.id_foto ASC
     """
     with db_cursor() as cursor:
@@ -86,7 +89,7 @@ def listar_mascotas_por_usuario(id_usuario):
         SELECT id_mascota, nombre_mascota, raza, edad, color, pelaje, `tamaño` AS tamano,
                descripcion, estado, fecha_registro
         FROM mascota
-        WHERE id_usuario = %s
+        WHERE id_usuario = %s AND estado_mascota = 1
         ORDER BY id_mascota DESC
     """
     with db_cursor() as cursor:
@@ -101,7 +104,7 @@ def obtener_mascota(id_mascota):
                m.fecha_registro, u.nombre_completo, u.telefono, u.correo
         FROM mascota m
         LEFT JOIN usuario u ON u.id_usuario = m.id_usuario
-        WHERE m.id_mascota = %s
+        WHERE m.id_mascota = %s AND m.estado_mascota = 1
         LIMIT 1
     """
     with db_cursor() as cursor:
@@ -123,7 +126,11 @@ def actualizar_mascota(id_mascota, id_usuario, nombre_mascota, raza, edad, color
 
 
 def eliminar_mascota(id_mascota, id_usuario):
-    sql = "DELETE FROM mascota WHERE id_mascota = %s AND id_usuario = %s"
-    with db_cursor(commit=True) as cursor:
-        cursor.execute(sql, (id_mascota, id_usuario))
-        return cursor.rowcount
+    with db_cursor() as cursor:
+        cursor.execute(
+            "SELECT id_mascota FROM mascota WHERE id_mascota = %s AND id_usuario = %s AND estado_mascota = 1",
+            (id_mascota, id_usuario),
+        )
+        if not cursor.fetchone():
+            return 0
+    return desactivar_mascota(id_mascota)

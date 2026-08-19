@@ -30,7 +30,7 @@ from controllers.upload_utils import guardar_imagen, guardar_imagen_base64
 from models.alerta_model import crear_alerta, crear_alerta_coincidencia, listar_alertas_usuario
 from models.articulo_model import actualizar_articulo, crear_articulo, eliminar_articulo, listar_articulos, obtener_articulo
 from models.inicio_model import obtener_estadisticas_inicio
-from models.mascota_model import crear_fotos_mascota, crear_mascota, listar_fotos_mascota, listar_mascotas_con_fotos, listar_mascotas_por_usuario, obtener_mascota
+from models.mascota_model import actualizar_mascota, crear_fotos_mascota, crear_mascota, eliminar_mascota, listar_fotos_mascota, listar_mascotas_con_fotos, listar_mascotas_por_usuario, obtener_mascota
 from models.mensaje_model import (
     crear_mensaje_alerta,
     listar_chats_alerta,
@@ -52,6 +52,7 @@ from models.usuario_model import (
     actualizar_facebook_id,
     correo_usuario_verificado,
     marcar_correo_verificado,
+    reactivar_usuario,
 )
 
 
@@ -164,7 +165,7 @@ def mostrar_inicio_sesion():
             return render_template("modulo_usuario/inicio_sesion.html", estadisticas=estadisticas), 400
 
         usuario = obtener_usuario_por_correo(correo)
-        if not usuario or not check_password_hash(usuario["contraseña"], contrasena):
+        if not usuario or not usuario.get("estado_usuario", 1) or not check_password_hash(usuario["contraseña"], contrasena):
             flash("Correo o contraseña incorrectos.", "error")
             return render_template("modulo_usuario/inicio_sesion.html", estadisticas=estadisticas), 401
 
@@ -230,6 +231,17 @@ def _iniciar_sesion_oauth(perfil):
 
     if not usuario:
      usuario = obtener_usuario_por_correo(correo)
+
+    if usuario and not usuario.get("estado_usuario", 1):
+        reactivar_usuario(
+            usuario["id_usuario"],
+            nombre=nombre,
+            correo=correo,
+            foto_perfil=foto_perfil,
+            google_id=social_id if provider == "google" else None,
+            facebook_id=social_id if provider == "facebook" else None,
+        )
+        usuario = obtener_usuario_por_correo(correo)
 
     if usuario:
       if provider == "google" and not usuario.get("google_id"):
@@ -375,20 +387,34 @@ def mostrar_registro_usuario():
                     correo=datos.get("correo"),
                 ), 400
 
-            if obtener_usuario_por_correo(datos.get("correo")):
+            usuario_existente = obtener_usuario_por_correo(datos.get("correo"))
+            if usuario_existente and usuario_existente.get("estado_usuario", 1):
                 session.pop("registro_pendiente", None)
                 flash("Ya existe una cuenta registrada con ese correo.", "error")
                 return render_template("modulo_usuario/registro_usuario.html"), 409
 
             try:
-                crear_usuario(
-                    datos["nombre"],
-                    datos["telefono"],
-                    datos["correo"],
-                    datos["contrasena_hash"],
-                    id_rol=datos["id_rol"],
-                    foto_perfil=datos.get("foto_perfil"),
-                )
+                if usuario_existente:
+                    reactivar_usuario(
+                        usuario_existente["id_usuario"],
+                        nombre=datos["nombre"],
+                        telefono=datos["telefono"],
+                        correo=datos["correo"],
+                        contrasena_hash=datos["contrasena_hash"],
+                        id_rol=datos["id_rol"],
+                        foto_perfil=datos.get("foto_perfil"),
+                        google_id=datos.get("google_id"),
+                        facebook_id=datos.get("facebook_id"),
+                    )
+                else:
+                    crear_usuario(
+                        datos["nombre"],
+                        datos["telefono"],
+                        datos["correo"],
+                        datos["contrasena_hash"],
+                        id_rol=datos["id_rol"],
+                        foto_perfil=datos.get("foto_perfil"),
+                    )
             except IntegrityError as exc:
                 session.pop("registro_pendiente", None)
                 if getattr(exc, "errno", None) == 1062:
@@ -440,7 +466,8 @@ def mostrar_registro_usuario():
                 id_rol = ADMIN_ROLE_ID
         if request.form.get("terms") != "on":
             errores.append("Debes aceptar los términos para crear la cuenta.")
-        if obtener_usuario_por_correo(correo):
+        usuario_existente = obtener_usuario_por_correo(correo)
+        if usuario_existente and usuario_existente.get("estado_usuario", 1):
             errores.append("Ya existe una cuenta registrada con ese correo.")
 
         if errores:
@@ -589,7 +616,7 @@ def eliminar_mi_cuenta():
         return redirect(url_for("usuario.configuracion_usuario"))
 
     session.clear()
-    flash("Tu cuenta y los registros asociados fueron eliminados.", "success")
+    flash("Tu cuenta y los registros asociados fueron desactivados.", "success")
     return redirect(url_for("usuario.inicio_sesion"))
 
 
@@ -852,7 +879,52 @@ def mostrar_info_mascota(id_mascota):
         flash("La mascota solicitada no existe.", "error")
         return redirect(url_for("usuario.perfil_usuario"))
     fotos = listar_fotos_mascota(id_mascota)
-    return render_template("modulo_mascota/info_mascota.html", mascota=mascota, fotos=fotos)
+    return render_template(
+        "modulo_mascota/info_mascota.html",
+        mascota=mascota,
+        fotos=fotos,
+        es_dueno=mascota.get("id_usuario") == current_user_id(),
+    )
+
+
+def editar_mi_mascota(id_mascota):
+    mascota = obtener_mascota(id_mascota)
+    if not mascota or mascota.get("id_usuario") != current_user_id():
+        flash("No puedes editar esta mascota.", "error")
+        return redirect(url_for("usuario.perfil_usuario"))
+
+    if request.method == "POST":
+        nombre = clean_text(request.form.get("nombre_mascota"), 100)
+        raza = clean_text(request.form.get("raza"), 100) or None
+        color = clean_text(request.form.get("color"), 50) or None
+        pelaje = clean_text(request.form.get("pelaje"), 50) or None
+        tamano = clean_text(request.form.get("tamano"), 50).lower()
+        descripcion = clean_text(request.form.get("descripcion"), 1000) or None
+        estado = clean_text(request.form.get("estado"), 50).lower() or "perdida"
+        try:
+            edad = int(clean_text(request.form.get("edad"), 3))
+        except ValueError:
+            edad = -1
+
+        if len(nombre) < 2 or edad < 0 or edad > 30 or tamano not in VALID_PET_SIZES:
+            flash("Revisa el nombre, edad y tamaño de la mascota.", "error")
+            return render_template("modulo_mascota/editar_mascota.html", mascota=mascota), 400
+
+        actualizar_mascota(
+            id_mascota, current_user_id(), nombre, raza, edad, color, pelaje, tamano, descripcion, estado
+        )
+        flash("Datos de la mascota actualizados.", "success")
+        return redirect(url_for("mascota.info_mascota", id_mascota=id_mascota))
+
+    return render_template("modulo_mascota/editar_mascota.html", mascota=mascota)
+
+
+def eliminar_mi_mascota(id_mascota):
+    if eliminar_mascota(id_mascota, current_user_id()):
+        flash("La mascota fue desactivada.", "success")
+    else:
+        flash("No fue posible eliminar esa mascota.", "error")
+    return redirect(url_for("usuario.perfil_usuario"))
 
 
 def mostrar_capturar_foto():

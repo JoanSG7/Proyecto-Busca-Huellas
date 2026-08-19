@@ -1,5 +1,7 @@
 import json
 
+from models.eliminacion_model import desactivar_usuario
+
 from config.database import db_cursor
 
 
@@ -85,9 +87,32 @@ def crear_usuario(nombre_completo, telefono, correo, contrasena_hash, id_rol=1, 
         return cursor.lastrowid
 
 
+def reactivar_usuario(id_usuario, nombre=None, telefono=None, correo=None, contrasena_hash=None, id_rol=None, foto_perfil=None, google_id=None, facebook_id=None):
+    """Reactiva una cuenta conservada por eliminación lógica."""
+    sql = """
+        UPDATE usuario
+        SET estado_usuario = 1,
+            nombre_completo = COALESCE(%s, nombre_completo),
+            telefono = COALESCE(%s, telefono),
+            correo = COALESCE(%s, correo),
+            `contraseña` = COALESCE(%s, `contraseña`),
+            id_rol = COALESCE(%s, id_rol),
+            foto_perfil = COALESCE(%s, foto_perfil),
+            google_id = COALESCE(%s, google_id),
+            facebook_id = COALESCE(%s, facebook_id)
+        WHERE id_usuario = %s AND estado_usuario = 0
+    """
+    with db_cursor(commit=True) as cursor:
+        cursor.execute(
+            sql,
+            (nombre, telefono, correo, contrasena_hash, id_rol, foto_perfil, google_id, facebook_id, id_usuario),
+        )
+        return cursor.rowcount
+
+
 def obtener_usuario_por_correo(correo):
     sql = """
-       SELECT u.id_usuario, u.id_rol, u.nombre_completo, u.telefono, u.correo,
+       SELECT u.id_usuario, u.id_rol, u.nombre_completo, u.telefono, u.correo, u.estado_usuario,
         u.`contraseña`, u.foto_perfil,
         u.google_id, u.facebook_id, u.fecha_registro,
         r.nombre_rol
@@ -109,7 +134,7 @@ def obtener_usuario_por_id(id_usuario):
         r.nombre_rol
         FROM usuario u
         LEFT JOIN rol r ON r.id_rol = u.id_rol
-        WHERE u.id_usuario = %s
+        WHERE u.id_usuario = %s AND u.estado_usuario = 1
         LIMIT 1
     """
     with db_cursor() as cursor:
@@ -145,7 +170,7 @@ def obtener_usuario_por_google_id(google_id):
     sql = """
         SELECT *
         FROM usuario
-        WHERE google_id = %s
+        WHERE google_id = %s AND estado_usuario = 1
         LIMIT 1
     """
     with db_cursor() as cursor:
@@ -157,7 +182,7 @@ def obtener_usuario_por_facebook_id(facebook_id):
     sql = """
         SELECT *
         FROM usuario
-        WHERE facebook_id = %s
+        WHERE facebook_id = %s AND estado_usuario = 1
         LIMIT 1
     """
     with db_cursor() as cursor:
@@ -186,42 +211,4 @@ def actualizar_facebook_id(id_usuario, facebook_id):
 
 
 def eliminar_cuenta_usuario(id_usuario):
-    """Elimina la cuenta y todos los registros que dependen de ella."""
-    with db_cursor(commit=True) as cursor:
-        cursor.execute("SELECT id_mascota FROM mascota WHERE id_usuario = %s", (id_usuario,))
-        mascotas = [fila["id_mascota"] for fila in cursor.fetchall()]
-
-        condiciones_alerta = ["id_usuario = %s"]
-        parametros_alerta = [id_usuario]
-        if mascotas:
-            marcadores = ", ".join(["%s"] * len(mascotas))
-            condiciones_alerta.append(f"id_mascota IN ({marcadores})")
-            parametros_alerta.extend(mascotas)
-
-        where_alerta = " OR ".join(condiciones_alerta)
-        cursor.execute(f"SELECT id_alerta FROM alerta WHERE {where_alerta}", tuple(parametros_alerta))
-        alertas = [fila["id_alerta"] for fila in cursor.fetchall()]
-
-        condiciones_mensaje = ["usuario_emisor = %s", "usuario_receptor = %s"]
-        parametros_mensaje = [id_usuario, id_usuario]
-        if alertas:
-            marcadores = ", ".join(["%s"] * len(alertas))
-            condiciones_mensaje.append(f"id_alerta IN ({marcadores})")
-            parametros_mensaje.extend(alertas)
-        cursor.execute(
-            f"DELETE FROM mensaje WHERE {' OR '.join(condiciones_mensaje)}",
-            tuple(parametros_mensaje),
-        )
-
-        cursor.execute(f"DELETE FROM alerta WHERE {where_alerta}", tuple(parametros_alerta))
-        cursor.execute("DELETE FROM articulo WHERE id_usuario = %s", (id_usuario,))
-        cursor.execute("DELETE FROM informe WHERE id_usuario = %s", (id_usuario,))
-
-        if mascotas:
-            marcadores = ", ".join(["%s"] * len(mascotas))
-            cursor.execute(f"DELETE FROM foto_mascota WHERE id_mascota IN ({marcadores})", tuple(mascotas))
-            cursor.execute(f"DELETE FROM avistamiento WHERE id_mascota IN ({marcadores})", tuple(mascotas))
-            cursor.execute(f"DELETE FROM mascota WHERE id_mascota IN ({marcadores})", tuple(mascotas))
-
-        cursor.execute("DELETE FROM usuario WHERE id_usuario = %s", (id_usuario,))
-        return cursor.rowcount > 0
+    return desactivar_usuario(id_usuario) > 0

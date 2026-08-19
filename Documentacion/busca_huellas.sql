@@ -33,7 +33,8 @@ CREATE TABLE `alerta` (
   `id_mascota` int(11) DEFAULT NULL,
   `estado_alerta` varchar(50) DEFAULT NULL,
   `confirmacion` varchar(50) DEFAULT NULL,
-  `fecha_alerta` date DEFAULT NULL
+  `fecha_alerta` date DEFAULT NULL,
+  `estado_alerta_registro` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -48,7 +49,8 @@ CREATE TABLE `articulo` (
   `titulo` varchar(255) DEFAULT NULL,
   `contenido` text DEFAULT NULL,
   `url_imagen` varchar(255) DEFAULT NULL,
-  `fecha_publicacion` date DEFAULT NULL
+  `fecha_publicacion` date DEFAULT NULL,
+  `estado_articulo` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -70,7 +72,8 @@ CREATE TABLE `avistamiento` (
   `ubicacion` varchar(255) DEFAULT NULL,
   `descripcion_avistamiento` text DEFAULT NULL,
   `url_imagen` varchar(255) DEFAULT NULL,
-  `fecha_avistamiento` date DEFAULT NULL
+  `fecha_avistamiento` date DEFAULT NULL,
+  `estado_avistamiento` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -96,7 +99,8 @@ CREATE TABLE `informe` (
   `id_usuario` int(11) DEFAULT NULL,
   `tipo_informe` varchar(100) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
-  `fecha_generacion` date DEFAULT NULL
+  `fecha_generacion` date DEFAULT NULL,
+  `estado_informe` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -116,7 +120,8 @@ CREATE TABLE `mascota` (
   `tamaño` varchar(50) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
   `estado` varchar(50) DEFAULT NULL,
-  `fecha_registro` date DEFAULT NULL
+  `fecha_registro` date DEFAULT NULL,
+  `estado_mascota` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -176,7 +181,8 @@ CREATE TABLE `usuario` (
   `foto_perfil` varchar(255) DEFAULT NULL,
   `google_id` varchar(100) DEFAULT NULL,
   `facebook_id` varchar(100) DEFAULT NULL,
-  `fecha_registro` date DEFAULT NULL
+  `fecha_registro` date DEFAULT NULL,
+  `estado_usuario` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
