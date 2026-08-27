@@ -39,15 +39,16 @@
         <span class="material-symbols-outlined">notifications</span>
         <label>Alertas</label>
     </a>
-    <a class="nav-link" href="{{ url_for('usuario.perfil_usuario') }}">
-        {% if usuario_actual and usuario_actual.foto_perfil %}
-        <img class="nav-avatar" src="{{ usuario_actual.foto_perfil }}" alt="{{ usuario_actual.nombre_completo or 'Perfil' }}">
-        {% else %}
-        <span class="material-symbols-outlined">person</span>
-        {% endif %}
-        <label>Perfil</label>
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('mensaje.') %}active{% endif %}" href="{{ url_for('mensaje.chat_seguro') }}" aria-label="Chat">
+        <span class="material-symbols-outlined">forum</span>
+        <label>Chat</label>
     </a>
 </nav>
+<div class="desktop-chat-fab">
+    <a href="{{ url_for('mensaje.chat_seguro') }}" class="chat-btn" aria-label="Abrir chat">
+        <span class="material-symbols-rounded fill">forum</span>
+    </a>
+</div>
 <div class="desktop-fab">
     <a href="{{ url_for('reconocimiento.capturar_foto') }}" class="camera-btn">
         <span class="material-symbols-rounded fill">photo_camera</span>

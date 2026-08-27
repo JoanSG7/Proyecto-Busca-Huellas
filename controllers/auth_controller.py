@@ -30,6 +30,7 @@ from controllers.upload_utils import guardar_imagen, guardar_imagen_base64
 from models.alerta_model import crear_alerta, crear_alerta_coincidencia, listar_alertas_usuario
 from models.articulo_model import actualizar_articulo, crear_articulo, eliminar_articulo, listar_articulos, obtener_articulo
 from models.inicio_model import obtener_estadisticas_inicio
+from models.avistamiento_model import crear_avistamiento, obtener_imagen_avistamiento
 from models.mascota_model import actualizar_mascota, crear_fotos_mascota, crear_mascota, eliminar_mascota, listar_fotos_mascota, listar_mascotas_con_fotos, listar_mascotas_por_usuario, obtener_mascota
 from models.mensaje_model import (
     crear_mensaje_alerta,
@@ -677,9 +678,32 @@ def crear_alerta_coincidencia_desde_resultado():
         flash("No puedes abrir una alerta de coincidencia para tu propia mascota.", "warning")
         return redirect(url_for("mascota.info_mascota", id_mascota=id_mascota))
 
+    enviar_chat = request.form.get("accion") == "chat"
+    foto_alerta = request.form.get("foto_alerta") or ""
+    foto_capturada = session.get("ultima_foto_captura")
+    if foto_alerta != foto_capturada or not ruta_local_desde_url(foto_alerta):
+        flash("La foto de la alerta ya no está disponible. Realiza una nueva búsqueda.", "error")
+        return redirect(url_for("reconocimiento.capturar_foto"))
+
     id_alerta = crear_alerta_coincidencia(current_user_id(), id_mascota, mascota["nombre_mascota"])
+    ubicacion = clean_text(request.form.get("ubicacion_avistamiento"), 255) or "Ubicación no disponible"
+    crear_avistamiento(
+        id_alerta,
+        id_mascota,
+        ubicacion,
+        f"Avistamiento reportado por {session.get('usuario_nombre') or 'un usuario'}.",
+        foto_alerta,
+    )
     flash("Alerta de coincidencia enviada. Ya puedes comunicarte con el dueño.", "success")
-    if request.form.get("accion") == "chat":
+    if enviar_chat:
+        imagen_avistamiento = obtener_imagen_avistamiento(id_alerta)
+        crear_mensaje_alerta(
+            id_alerta,
+            current_user_id(),
+            mascota["id_usuario"],
+            f"Compartió una foto tomada para la alerta sobre {mascota['nombre_mascota']}.",
+            url_imagen=imagen_avistamiento,
+        )
         return redirect(url_for("mensaje.chat_alerta", id_alerta=id_alerta))
     return redirect(url_for("alerta.alertas"))
 
@@ -747,10 +771,11 @@ def mostrar_chat_alerta(id_alerta):
                 chat["id_mascota"],
                 "mensaje_recibido",
                 f"Nuevo mensaje recibido de {session.get('usuario_nombre') or 'un usuario'} sobre {chat['nombre_mascota']}.",
+                id_alerta_origen=id_alerta,
             )
             return redirect(url_for("mensaje.chat_alerta", id_alerta=id_alerta))
 
-    mensajes = listar_mensajes_alerta(id_alerta)
+    mensajes = listar_mensajes_alerta(chat["id_usuario_alerta"], chat["id_dueno"])
     return render_template(
         "modulo_mensaje/chat_avistamiento.html",
         chat=chat,
@@ -942,6 +967,8 @@ def mostrar_capturar_foto():
         if not foto_url:
             flash("No se pudo guardar la foto tomada. Intenta de nuevo.", "error")
             return render_template("modulo_reconocimiento/capturar_foto.html"), 400
+
+        session["ultima_foto_captura"] = foto_url
 
         ruta_foto_usuario = ruta_local_desde_url(foto_url)
         if not ruta_foto_usuario:

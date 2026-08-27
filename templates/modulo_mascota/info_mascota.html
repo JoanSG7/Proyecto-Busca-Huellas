@@ -40,7 +40,7 @@
                 <div class="item"><div class="label">Color</div><div class="value">{{ mascota.color or 'No registrado' }}</div></div>
                 <div class="item"><div class="label">Pelaje</div><div class="value">{{ mascota.pelaje or 'No registrado' }}</div></div>
                 <div class="item"><div class="label">Contacto</div><div class="value">{{ mascota.telefono or mascota.correo or 'No registrado' }}</div></div>
-                <div class="item"><div class="label">Fecha de reporte</div><div class="value">{{ mascota.fecha_registro.strftime('%d/%m/%Y') if mascota.fecha_registro else 'No registrada' }}</div></div>
+                <div class="item"><div class="label">Fecha de reporte</div><div class="value">{{ mascota.fecha_registro.strftime('%d/%m/%Y %H:%M') if mascota.fecha_registro else 'No registrada' }}</div></div>
             </div>
             <div class="description">
                 <strong>Características</strong>

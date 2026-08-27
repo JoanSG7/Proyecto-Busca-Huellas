@@ -23,7 +23,7 @@ def crear_mascota(id_usuario, nombre_mascota, raza, edad, color, pelaje, tamano,
             valores.insert(-1, ubicacion)
 
         columnas.append("fecha_registro")
-        placeholders = ", ".join(["%s"] * len(valores) + ["CURDATE()"])
+        placeholders = ", ".join(["%s"] * len(valores) + ["NOW()"])
         sql = f"""
             INSERT INTO mascota
                 ({", ".join(columnas)})

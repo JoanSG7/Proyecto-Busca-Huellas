@@ -276,6 +276,8 @@
                     <div class="top-actions">
                         <form action="{{ url_for('alerta.crear_coincidencia') }}" method="POST">
                             <input type="hidden" name="id_mascota" value="{{ mascota.id_mascota }}">
+                            <input type="hidden" name="foto_alerta" value="{{ foto_guardada }}">
+                            <input type="hidden" name="ubicacion_avistamiento" value="{{ ubicacion }} · {{ ubicacion_coordenadas }}">
                             <button class="btn btn-primary" type="submit">
                                 <span class="material-symbols-outlined">notifications_active</span>
                                 Enviar alerta
@@ -283,6 +285,8 @@
                         </form>
                         <form action="{{ url_for('alerta.crear_coincidencia') }}" method="POST">
                             <input type="hidden" name="id_mascota" value="{{ mascota.id_mascota }}">
+                            <input type="hidden" name="foto_alerta" value="{{ foto_guardada }}">
+                            <input type="hidden" name="ubicacion_avistamiento" value="{{ ubicacion }} · {{ ubicacion_coordenadas }}">
                             <input type="hidden" name="accion" value="chat">
                             <button class="btn btn-soft" type="submit">
                                 <span class="material-symbols-outlined">chat</span>

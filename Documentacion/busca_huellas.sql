@@ -31,9 +31,10 @@ CREATE TABLE `alerta` (
   `id_alerta` int(11) NOT NULL,
   `id_usuario` int(11) DEFAULT NULL,
   `id_mascota` int(11) DEFAULT NULL,
+  `id_alerta_origen` int(11) DEFAULT NULL,
   `estado_alerta` varchar(50) DEFAULT NULL,
   `confirmacion` varchar(50) DEFAULT NULL,
-  `fecha_alerta` date DEFAULT NULL,
+  `fecha_alerta` datetime DEFAULT NULL,
   `estado_alerta_registro` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -68,11 +69,12 @@ INSERT INTO `articulo` (`id_articulo`, `id_usuario`, `titulo`, `contenido`, `url
 
 CREATE TABLE `avistamiento` (
   `id_avistamiento` int(11) NOT NULL,
+  `id_alerta` int(11) DEFAULT NULL,
   `id_mascota` int(11) DEFAULT NULL,
   `ubicacion` varchar(255) DEFAULT NULL,
   `descripcion_avistamiento` text DEFAULT NULL,
   `url_imagen` varchar(255) DEFAULT NULL,
-  `fecha_avistamiento` date DEFAULT NULL,
+  `fecha_avistamiento` datetime DEFAULT NULL,
   `estado_avistamiento` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -120,7 +122,7 @@ CREATE TABLE `mascota` (
   `tamaño` varchar(50) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
   `estado` varchar(50) DEFAULT NULL,
-  `fecha_registro` date DEFAULT NULL,
+  `fecha_registro` datetime DEFAULT NULL,
   `estado_mascota` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -143,6 +145,7 @@ CREATE TABLE `mensaje` (
   `usuario_emisor` int(11) DEFAULT NULL,
   `usuario_receptor` int(11) DEFAULT NULL,
   `mensaje_chat` text DEFAULT NULL,
+  `url_imagen` varchar(255) DEFAULT NULL,
   `fecha_envio` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -209,7 +212,8 @@ INSERT INTO `usuario` (`id_usuario`, `id_rol`, `nombre_completo`, `telefono`, `c
 ALTER TABLE `alerta`
   ADD PRIMARY KEY (`id_alerta`),
   ADD KEY `id_usuario` (`id_usuario`),
-  ADD KEY `id_mascota` (`id_mascota`);
+  ADD KEY `id_mascota` (`id_mascota`),
+  ADD KEY `id_alerta_origen` (`id_alerta_origen`);
 
 --
 -- Indices de la tabla `articulo`
@@ -223,6 +227,7 @@ ALTER TABLE `articulo`
 --
 ALTER TABLE `avistamiento`
   ADD PRIMARY KEY (`id_avistamiento`),
+  ADD KEY `id_alerta` (`id_alerta`),
   ADD KEY `id_mascota` (`id_mascota`);
 
 --
@@ -338,7 +343,8 @@ ALTER TABLE `usuario`
 --
 ALTER TABLE `alerta`
   ADD CONSTRAINT `alerta_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`),
-  ADD CONSTRAINT `alerta_ibfk_2` FOREIGN KEY (`id_mascota`) REFERENCES `mascota` (`id_mascota`);
+  ADD CONSTRAINT `alerta_ibfk_2` FOREIGN KEY (`id_mascota`) REFERENCES `mascota` (`id_mascota`),
+  ADD CONSTRAINT `alerta_ibfk_3` FOREIGN KEY (`id_alerta_origen`) REFERENCES `alerta` (`id_alerta`);
 
 --
 -- Filtros para la tabla `articulo`
@@ -350,7 +356,8 @@ ALTER TABLE `articulo`
 -- Filtros para la tabla `avistamiento`
 --
 ALTER TABLE `avistamiento`
-  ADD CONSTRAINT `avistamiento_ibfk_1` FOREIGN KEY (`id_mascota`) REFERENCES `mascota` (`id_mascota`);
+  ADD CONSTRAINT `avistamiento_ibfk_1` FOREIGN KEY (`id_mascota`) REFERENCES `mascota` (`id_mascota`),
+  ADD CONSTRAINT `avistamiento_ibfk_2` FOREIGN KEY (`id_alerta`) REFERENCES `alerta` (`id_alerta`);
 
 --
 -- Filtros para la tabla `foto_mascota`

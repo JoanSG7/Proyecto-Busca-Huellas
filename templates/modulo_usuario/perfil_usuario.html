@@ -93,7 +93,7 @@
                     <h3>{{ mascota.nombre_mascota }}</h3>
                     <p class="muted">{{ mascota.raza or 'Sin raza' }}{% if mascota.tamano %} - {{ mascota.tamano }}{% endif %}</p>
                     <p class="muted">{{ mascota.descripcion or 'Sin descripción registrada.' }}</p>
-                    {% if mascota.fecha_registro %}<p class="muted">Reportada el {{ mascota.fecha_registro.strftime('%d/%m/%Y') }}</p>{% endif %}
+                    {% if mascota.fecha_registro %}<p class="muted">Reportada el {{ mascota.fecha_registro.strftime('%d/%m/%Y %H:%M') }}</p>{% endif %}
                 </div>
             </a>
             {% endfor %}

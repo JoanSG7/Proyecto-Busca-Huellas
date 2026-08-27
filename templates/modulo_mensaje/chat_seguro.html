@@ -27,7 +27,7 @@
     {% include 'includes/_header-up.html' %}
     <main>
         <h1>Chats de alertas confirmadas</h1>
-        <p class="subtitle">Solo aparecen cuando una alerta fue confirmada y hay una mascota relacionada.</p>
+        <p class="subtitle">Las alertas con una misma persona se reúnen en un solo chat.</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -41,7 +41,7 @@
             {% for chat in chats %}
             <a class="chat-card" href="{{ url_for('mensaje.chat_alerta', id_alerta=chat.id_alerta) }}">
                 <div>
-                    <div class="chat-title">{{ chat.nombre_mascota }} · Alerta #{{ chat.id_alerta }}</div>
+                    <div class="chat-title">Chat sobre {{ chat.nombre_mascota }}</div>
                     <div class="meta">Reportó: {{ chat.nombre_alerta_usuario or 'Usuario' }} · Dueño/a: {{ chat.nombre_dueno or 'Usuario' }}</div>
                     <div class="meta">{{ chat.estado_alerta or 'Sin estado' }} · {{ chat.fecha_alerta or '' }}</div>
                 </div>
