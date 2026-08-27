@@ -97,6 +97,11 @@
             flex-wrap: wrap;
         }
 
+        .enlace-btn-principal {
+            display: inline-flex;
+            text-decoration: none;
+        }
+
         @media (max-width: 767px) {
             .btn-group {
                 justify-content: center;
@@ -400,6 +405,33 @@
 
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @media (max-width: 767px) {
+            .container { padding: 0 1rem; }
+            .hero { padding: 2.5rem 0 3.5rem; gap: 2.25rem; }
+            .hero-content h1 { font-size: clamp(2.35rem, 12vw, 3.25rem); margin-bottom: 1.25rem; }
+            .hero-content p { font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem; }
+            .btn-group { display: grid; grid-template-columns: 1fr; gap: .75rem; width: 100%; }
+            .enlace-btn-principal, .btn-group .btn { width: 100%; }
+            .btn { min-height: 3.25rem; padding: .85rem 1rem; font-size: 1rem; }
+            .organic-blob { max-width: min(100%, 320px); }
+            .impact-section { margin-bottom: 3.5rem; padding: 2rem 1.25rem; border-radius: 1.25rem; }
+            .impact-grid { gap: 1.5rem; }
+            .impact-item h3 { font-size: clamp(2.3rem, 12vw, 3rem); }
+            .divider { width: 2.5rem; }
+            .articles-header { align-items: flex-start; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+            .articles-header h2 { font-size: clamp(2rem, 10vw, 2.5rem); }
+            .articles-header p { line-height: 1.55; }
+            .view-all { padding: .65rem 0; }
+            .articles-grid { gap: 2rem; }
+            .article-image-wrapper { margin-bottom: 1rem; border-radius: 1.25rem; }
+            .article-card h3 { font-size: 1.3rem; margin-bottom: .65rem; }
+        }
+
+        @media (max-width: 360px) {
+            .container { padding-inline: .75rem; }
+            .impact-section { padding: 1.5rem 1rem; }
         }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/paw_background.css') }}">

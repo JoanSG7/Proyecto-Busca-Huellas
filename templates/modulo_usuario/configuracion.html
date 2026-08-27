@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; }
         body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #fdf9f1; color: #1c1c17; }
         main { max-width: 760px; margin: 0 auto; padding: 5rem 1.5rem; }
         h1 { color: #0f5238; margin-bottom: .5rem; }
@@ -14,7 +15,7 @@
         .panel { background: #fff; border-radius: 1.25rem; padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 6px 22px rgba(0,0,0,.06); }
         h2 { color: #0f5238; font-size: 1.15rem; margin-top: 0; }
         label { display: block; font-weight: 700; margin: 1rem 0 .45rem; }
-        select { width: 100%; padding: .8rem; border: 1px solid #d8ded7; border-radius: .65rem; font: inherit; }
+        select { width: 100%; min-width: 0; padding: .8rem; border: 1px solid #d8ded7; border-radius: .65rem; font: inherit; }
         .check { display: flex; align-items: center; gap: .6rem; }
         .check input { width: 1.1rem; height: 1.1rem; }
         .danger { border: 2px solid #f2b8b5; }
@@ -23,6 +24,23 @@
         .btn { display: inline-flex; align-items: center; gap: .45rem; border: 0; border-radius: 999px; padding: .85rem 1.2rem; font: inherit; font-weight: 800; cursor: pointer; text-decoration: none; }
         .back { background: #e7efe9; color: #0f5238; }
         .delete { background: #ba1a1a; color: white; }
+
+        @media (max-width: 767px) {
+            main { padding: 2rem 1rem 8.5rem; }
+            h1 { font-size: clamp(1.8rem, 9vw, 2.25rem); line-height: 1.15; }
+            .intro { line-height: 1.55; margin-bottom: 1.5rem; }
+            .panel { padding: 1.25rem; border-radius: 1rem; margin-bottom: 1rem; }
+            .check { align-items: flex-start; line-height: 1.45; }
+            .check input { flex: 0 0 1.1rem; margin-top: .15rem; }
+            .btn { width: 100%; min-height: 3.1rem; justify-content: center; padding: .85rem 1rem; text-align: center; }
+            main > .back { width: fit-content; min-height: 0; margin-bottom: 1.25rem; }
+            .danger p { line-height: 1.55; }
+        }
+
+        @media (max-width: 360px) {
+            main { padding-inline: .75rem; }
+            .panel { padding: 1rem; }
+        }
     </style>
 </head>
 <body>
