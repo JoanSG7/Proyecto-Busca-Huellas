@@ -33,9 +33,14 @@ def listar_chats_alerta(id_usuario, es_admin=False):
               AND (a2.id_usuario = %s OR m2.id_usuario = %s)
             GROUP BY LEAST(a2.id_usuario, m2.id_usuario), GREATEST(a2.id_usuario, m2.id_usuario)
         )
+          AND NOT EXISTS (
+              SELECT 1
+              FROM chat_eliminado ce
+              WHERE ce.id_alerta = a.id_alerta AND ce.id_usuario = %s
+          )
         ORDER BY a.fecha_alerta DESC
     """
-    params = (id_usuario, id_usuario)
+    params = (id_usuario, id_usuario, id_usuario)
     with db_cursor() as cursor:
         cursor.execute(sql, params)
         return cursor.fetchall()
@@ -74,12 +79,14 @@ def listar_mensajes_alerta(usuario_uno, usuario_dos):
         SELECT ms.id_mensaje, ms.id_alerta, ms.usuario_emisor, ms.usuario_receptor,
                ms.mensaje_chat, ms.fecha_envio, emisor.nombre_completo AS nombre_emisor,
                receptor.nombre_completo AS nombre_receptor,
-               av.ubicacion AS ubicacion_avistamiento
+               av.id_avistamiento, av.ubicacion AS ubicacion_avistamiento,
+               ac.id_confirmacion
         FROM mensaje ms
         LEFT JOIN usuario emisor ON emisor.id_usuario = ms.usuario_emisor
         LEFT JOIN usuario receptor ON receptor.id_usuario = ms.usuario_receptor
         LEFT JOIN avistamiento av ON av.id_alerta = ms.id_alerta
             AND av.estado_avistamiento = 1
+        LEFT JOIN avistamiento_confirmado ac ON ac.id_avistamiento = av.id_avistamiento
         WHERE (ms.usuario_emisor = %s AND ms.usuario_receptor = %s)
            OR (ms.usuario_emisor = %s AND ms.usuario_receptor = %s)
         ORDER BY ms.fecha_envio ASC, ms.id_mensaje ASC
@@ -103,3 +110,14 @@ def crear_mensaje_alerta(id_alerta, usuario_emisor, usuario_receptor, mensaje, u
         sql = f"INSERT INTO mensaje ({', '.join(columnas)}) VALUES ({', '.join(marcadores)})"
         cursor.execute(sql, tuple(valor for valor in valores if valor != "NOW()"))
         return cursor.lastrowid
+
+
+def eliminar_chat_para_usuario(id_alerta, id_usuario):
+    """Oculta el chat solo para quien lo elimina, sin afectar al otro participante."""
+    with db_cursor(commit=True) as cursor:
+        cursor.execute(
+            """INSERT IGNORE INTO chat_eliminado (id_alerta, id_usuario, fecha_eliminacion)
+               VALUES (%s, %s, NOW())""",
+            (id_alerta, id_usuario),
+        )
+        return cursor.rowcount > 0

@@ -8,6 +8,7 @@ from controllers.admin_controller import (
     guardar_detalle_admin,
     mostrar_admin,
     mostrar_detalle_admin,
+    entregar_pdf_informe,
 )
 from controllers.security import admin_required
 
@@ -56,3 +57,21 @@ def generar_informe():
 @admin_required
 def exportar_informe(formato):
     return exportar_informe_admin(formato)
+
+
+@admin_bp.route("/informes/<int:item_id>/pdf")
+@admin_required
+def ver_pdf(item_id):
+    return entregar_pdf_informe(item_id, "pdf")
+
+
+@admin_bp.route("/informes/<int:item_id>/pdf/descargar")
+@admin_required
+def descargar_pdf(item_id):
+    return entregar_pdf_informe(item_id, "pdf", descargar=True)
+
+
+@admin_bp.route("/informes/<int:item_id>/excel/descargar")
+@admin_required
+def descargar_excel(item_id):
+    return entregar_pdf_informe(item_id, "excel", descargar=True)

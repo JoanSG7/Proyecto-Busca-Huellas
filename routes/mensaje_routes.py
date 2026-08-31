@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from controllers.auth_controller import mostrar_chat_alerta, mostrar_chat_seguro
+from controllers.auth_controller import eliminar_mi_chat, mostrar_chat_alerta, mostrar_chat_seguro
 from controllers.security import login_required
 
 
@@ -17,3 +17,9 @@ def chat_seguro():
 @login_required
 def chat_alerta(id_alerta):
     return mostrar_chat_alerta(id_alerta)
+
+
+@mensaje_bp.route("/chat/<int:id_alerta>/eliminar", methods=["POST"])
+@login_required
+def eliminar_chat(id_alerta):
+    return eliminar_mi_chat(id_alerta)

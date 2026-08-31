@@ -76,6 +76,7 @@ def listar_mascotas_con_fotos():
         LEFT JOIN usuario u ON u.id_usuario = m.id_usuario
         WHERE fm.url_imagen IS NOT NULL AND fm.url_imagen <> ''
           AND m.estado_mascota = 1
+          AND LOWER(COALESCE(m.estado, 'perdida')) <> 'encontrada'
           AND (u.estado_usuario = 1 OR u.id_usuario IS NULL)
         ORDER BY m.id_mascota DESC, fm.id_foto ASC
     """
@@ -123,6 +124,17 @@ def actualizar_mascota(id_mascota, id_usuario, nombre_mascota, raza, edad, color
     with db_cursor(commit=True) as cursor:
         cursor.execute(sql, params)
         return cursor.rowcount
+
+
+def marcar_mascota_encontrada(id_mascota, id_usuario):
+    """Cierra el reporte de una mascota cuando su dueño confirma el avistamiento."""
+    with db_cursor(commit=True) as cursor:
+        cursor.execute(
+            """UPDATE mascota SET estado = 'encontrada'
+               WHERE id_mascota = %s AND id_usuario = %s AND estado_mascota = 1""",
+            (id_mascota, id_usuario),
+        )
+        return cursor.rowcount > 0
 
 
 def eliminar_mascota(id_mascota, id_usuario):

@@ -30,6 +30,7 @@
         .metric strong { display:block; color:var(--primary); font-size:1.8rem; }
         .flash { font-weight:800; color:var(--primary); }
         .row-actions { display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; }
+        .thumb { width:72px; height:56px; object-fit:cover; border-radius:6px; border:1px solid var(--line); }
         .delete-form { margin:0; }
         .btn.danger { background:#ffe7e7; color:#ba1a1a; }
         pre { white-space:pre-wrap; line-height:1.5; margin:0; }
@@ -62,20 +63,19 @@
         </section>
         <form class="builder" method="POST" action="{{ url_for('admin.generar_informe') }}">
             <div class="filters" style="border:0; padding:0; margin:0;">
-                <div class="field"><label>Título</label><input name="titulo" placeholder="Informe mensual de mascotas"></div>
-                <div class="field"><label>Tipo</label><select name="tipo_informe"><option value="mascotas_por_fecha">Mascotas creadas</option><option value="alertas_por_fecha">Alertas por fecha</option><option value="top_usuarios_avistamientos">Top usuarios con avistamientos confirmados</option><option value="usuarios_recientes">Usuarios recientes</option></select></div>
-                <div><label>Desde</label><input type="date" name="fecha_inicio"></div>
-                <div><label>Hasta</label><input type="date" name="fecha_fin"></div>
-                <div><label>Límite</label><input type="number" name="limite" value="10" min="1" max="100"></div>
+                <div class="field"><label>Título</label><input name="titulo" value="{{ preview.titulo if preview else '' }}" placeholder="Informe mensual de mascotas"></div>
+                <div class="field"><label>Tipo</label><select name="tipo_informe"><option value="mascotas_por_fecha" {% if preview and preview.tipo == 'mascotas_por_fecha' %}selected{% endif %}>Mascotas creadas</option><option value="alertas_por_fecha" {% if preview and preview.tipo == 'alertas_por_fecha' %}selected{% endif %}>Alertas por fecha</option><option value="top_usuarios_avistamientos" {% if preview and preview.tipo == 'top_usuarios_avistamientos' %}selected{% endif %}>Top usuarios con avistamientos confirmados</option><option value="usuarios_recientes" {% if preview and preview.tipo == 'usuarios_recientes' %}selected{% endif %}>Usuarios recientes</option></select></div>
+                <div><label>Desde</label><input type="date" name="fecha_inicio" value="{{ preview.fecha_inicio if preview else '' }}"></div>
+                <div><label>Hasta</label><input type="date" name="fecha_fin" value="{{ preview.fecha_fin if preview else '' }}"></div>
+                <div><label>Límite</label><input type="number" name="limite" value="{{ preview.limite if preview else '10' }}" min="1" max="100"></div>
             </div>
-            <div class="actions" style="margin-top:1rem;"><button class="btn primary" name="accion" value="preview">Vista previa</button><button class="btn secondary" name="accion" value="guardar">Guardar informe</button></div>
+            <div class="actions" style="margin-top:1rem;"><button class="btn secondary" name="accion" value="preview">Vista previa de informe</button><button class="btn primary" name="accion" value="guardar">Guardar informe</button></div>
         </form>
         {% if preview %}
         <section class="preview">
-            <h2>{{ preview.titulo }}</h2>
-            <pre>{% for row in preview.datos %}{{ loop.index }}. {% for key, value in row.items() %}{{ key }}: {{ value }}{% if not loop.last %} | {% endif %}{% endfor %}
-{% else %}Sin resultados para los filtros seleccionados.{% endfor %}</pre>
-            <div class="actions" style="margin-top:1rem;"><a class="btn primary" href="{{ url_for('admin.exportar_informe', formato='pdf') }}">Descargar PDF</a><a class="btn secondary" href="{{ url_for('admin.exportar_informe', formato='word') }}">Descargar Word</a></div>
+            <h2>Vista previa del informe</h2>
+            <div style="max-width:760px; margin:auto; padding:2rem; background:#fff; border:1px solid var(--line); box-shadow:0 4px 16px #0001; text-align:center;"><strong style="color:var(--primary);">BUSCA HUELLAS</strong><h2>{{ preview.titulo }}</h2><p>{{ preview.tipo.replace('_',' ')|title }}</p><table style="min-width:0; margin-top:1rem;">{% for row in preview.datos %}{% if loop.first %}<thead><tr>{% for key in row.keys() %}<th>{{ key.replace('_',' ')|title }}</th>{% endfor %}</tr></thead>{% endif %}<tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>{% else %}<tr><td>Sin resultados para los filtros seleccionados.</td></tr>{% endfor %}</table></div>
+            <p>Cuando estés conforme con los datos, usa “Guardar informe”. Se crearán automáticamente un PDF y un Excel.</p>
         </section>
         {% endif %}
         {% endif %}
@@ -104,9 +104,12 @@
                 {% elif seccion == 'avistamientos' %}
                 <thead><tr><th>ID</th><th>Mascota</th><th>Dueño</th><th>Ubicación</th><th>Fecha</th><th>Acciones</th></tr></thead>
                 <tbody>{% for item in items %}<tr><td>{{ item.id_avistamiento }}</td><td>{{ item.nombre_mascota or 'Sin confirmar' }}</td><td>{{ item.nombre_dueno }}</td><td>{{ item.ubicacion }}</td><td>{{ item.fecha_avistamiento }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_avistamiento, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_avistamiento, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_avistamiento) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
+                {% elif seccion == 'avistamientos_confirmados' %}
+                <thead><tr><th>ID confirmación</th><th>ID alertó</th><th>ID dueño</th><th>ID mascota</th><th>Mascota</th><th>Foto</th><th>Dirección reportada</th><th>Confirmado</th></tr></thead>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_confirmacion }}</td><td>{{ item.id_usuario_alerto }}<br><small>{{ item.nombre_usuario_alerto or '-' }}</small></td><td>{{ item.id_usuario_dueno }}<br><small>{{ item.nombre_dueno or '-' }}</small></td><td>{{ item.id_mascota }}</td><td>{{ item.nombre_mascota }}</td><td>{% if item.url_imagen %}<a href="{{ item.url_imagen }}" target="_blank"><img class="thumb" src="{{ item.url_imagen }}" alt="Foto del avistamiento confirmado"></a>{% else %}-{% endif %}</td><td>{{ item.ubicacion or '-' }}</td><td>{{ item.fecha_confirmacion }}</td></tr>{% else %}<tr><td colspan="8">Aún no hay avistamientos confirmados.</td></tr>{% endfor %}</tbody>
                 {% else %}
-                <thead><tr><th>ID</th><th>Tipo</th><th>Admin</th><th>Fecha</th><th>Acciones</th></tr></thead>
-                <tbody>{% for item in items %}<tr><td>{{ item.id_informe }}</td><td>{{ item.tipo_informe }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_generacion }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_informe, modo='ver') }}">Ver</a><a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_informe, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_informe) }}"><button class="btn danger" type="submit">Eliminar</button></form></div></td></tr>{% endfor %}</tbody>
+                <thead><tr><th>ID</th><th>Título</th><th>Admin</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_informe }}</td><td>{{ item.titulo or 'Informe sin título' }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_generacion }}</td><td><div class="row-actions">{% if item.ruta_pdf %}<a class="btn primary" target="_blank" href="{{ url_for('admin.ver_pdf', item_id=item.id_informe) }}">Ver PDF</a><a class="btn secondary" href="{{ url_for('admin.descargar_pdf', item_id=item.id_informe) }}">Descargar PDF</a>{% endif %}{% if item.ruta_excel %}<a class="btn secondary" href="{{ url_for('admin.descargar_excel', item_id=item.id_informe) }}">Descargar Excel</a>{% endif %}<form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_informe) }}"><button class="btn danger" type="submit">Eliminar</button></form></div></td></tr>{% endfor %}</tbody>
                 {% endif %}
             </table>
         </div>

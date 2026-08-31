@@ -16,6 +16,21 @@ def _like(value):
     return f"%{value or ''}%"
 
 
+def _tiene_columna_ruta_pdf(cursor):
+    cursor.execute("SHOW COLUMNS FROM informe LIKE 'ruta_pdf'")
+    return cursor.fetchone() is not None
+
+
+def _tiene_columna_titulo(cursor):
+    cursor.execute("SHOW COLUMNS FROM informe LIKE 'titulo'")
+    return cursor.fetchone() is not None
+
+
+def _tiene_columna_ruta_excel(cursor):
+    cursor.execute("SHOW COLUMNS FROM informe LIKE 'ruta_excel'")
+    return cursor.fetchone() is not None
+
+
 def _where_text(fields, q, params):
     if not q:
         return None
@@ -309,10 +324,42 @@ def eliminar_avistamiento_admin(id_avistamiento):
     return desactivar_avistamiento(id_avistamiento)
 
 
+def listar_avistamientos_confirmados_admin(q="", filtro="", eliminados=False):
+    params = []
+    where = []
+    texto = _where_text(
+        ["m.nombre_mascota", "alerta_usuario.nombre_completo", "dueno.nombre_completo", "av.ubicacion"], q, params
+    )
+    if texto:
+        where.append(texto)
+    sql = """
+        SELECT ac.id_confirmacion, ac.id_avistamiento, ac.id_usuario_alerto, ac.id_usuario_dueno, ac.id_mascota,
+               ac.fecha_confirmacion, av.url_imagen, av.ubicacion, m.nombre_mascota,
+               alerta_usuario.nombre_completo AS nombre_usuario_alerto,
+               dueno.nombre_completo AS nombre_dueno
+        FROM avistamiento_confirmado ac
+        INNER JOIN avistamiento av ON av.id_avistamiento = ac.id_avistamiento
+        INNER JOIN mascota m ON m.id_mascota = ac.id_mascota
+        LEFT JOIN usuario alerta_usuario ON alerta_usuario.id_usuario = ac.id_usuario_alerto
+        LEFT JOIN usuario dueno ON dueno.id_usuario = ac.id_usuario_dueno
+    """
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY ac.fecha_confirmacion DESC, ac.id_confirmacion DESC"
+    with db_cursor() as cursor:
+        cursor.execute(sql, tuple(params))
+        return cursor.fetchall()
+
+
+def obtener_avistamiento_confirmado_admin(id_confirmacion):
+    resultados = listar_avistamientos_confirmados_admin()
+    return next((item for item in resultados if item["id_confirmacion"] == id_confirmacion), None)
+
+
 def listar_informes_admin(q="", tipo="", eliminados=False):
     where = []
     params = []
-    text_where = _where_text(["i.tipo_informe", "i.descripcion", "u.nombre_completo"], q, params)
+    text_where = _where_text(["i.tipo_informe", "i.titulo", "i.descripcion", "u.nombre_completo"], q, params)
     if text_where:
         where.append(text_where)
     if tipo:
@@ -320,9 +367,13 @@ def listar_informes_admin(q="", tipo="", eliminados=False):
         params.append(tipo)
     where.insert(0, "i.estado_informe = %s")
     params.insert(0, 0 if eliminados else 1)
-    sql = """
-        SELECT i.id_informe, i.id_usuario, i.tipo_informe, i.descripcion, i.fecha_generacion, i.estado_informe,
-               u.nombre_completo AS nombre_usuario
+    with db_cursor() as cursor:
+        columna_pdf = "i.ruta_pdf" if _tiene_columna_ruta_pdf(cursor) else "NULL AS ruta_pdf"
+        columna_titulo = "i.titulo" if _tiene_columna_titulo(cursor) else "'' AS titulo"
+        columna_excel = "i.ruta_excel" if _tiene_columna_ruta_excel(cursor) else "NULL AS ruta_excel"
+    sql = f"""
+        SELECT i.id_informe, i.id_usuario, {columna_titulo}, i.tipo_informe, i.descripcion, i.fecha_generacion, i.estado_informe,
+               {columna_pdf}, {columna_excel}, u.nombre_completo AS nombre_usuario
         FROM informe i
         LEFT JOIN usuario u ON u.id_usuario = i.id_usuario
     """
@@ -335,9 +386,13 @@ def listar_informes_admin(q="", tipo="", eliminados=False):
 
 
 def obtener_informe_admin(id_informe):
-    sql = """
-        SELECT i.id_informe, i.id_usuario, i.tipo_informe, i.descripcion, i.fecha_generacion, i.estado_informe,
-               u.nombre_completo AS nombre_usuario
+    with db_cursor() as cursor:
+        columna_pdf = "i.ruta_pdf" if _tiene_columna_ruta_pdf(cursor) else "NULL AS ruta_pdf"
+        columna_titulo = "i.titulo" if _tiene_columna_titulo(cursor) else "'' AS titulo"
+        columna_excel = "i.ruta_excel" if _tiene_columna_ruta_excel(cursor) else "NULL AS ruta_excel"
+    sql = f"""
+        SELECT i.id_informe, i.id_usuario, {columna_titulo}, i.tipo_informe, i.descripcion, i.fecha_generacion, i.estado_informe,
+               {columna_pdf}, {columna_excel}, u.nombre_completo AS nombre_usuario
         FROM informe i
         LEFT JOIN usuario u ON u.id_usuario = i.id_usuario
         WHERE i.id_informe = %s
@@ -348,20 +403,19 @@ def obtener_informe_admin(id_informe):
         return cursor.fetchone()
 
 
-def crear_informe_admin(id_usuario, tipo_informe, descripcion):
-    sql = """
-        INSERT INTO informe (id_usuario, tipo_informe, descripcion, fecha_generacion)
-        VALUES (%s, %s, %s, NOW())
-    """
+def crear_informe_admin(id_usuario, titulo, tipo_informe, descripcion, ruta_pdf, ruta_excel):
     with db_cursor(commit=True) as cursor:
-        cursor.execute(sql, (id_usuario, tipo_informe, descripcion))
+        if not _tiene_columna_ruta_pdf(cursor) or not _tiene_columna_ruta_excel(cursor) or not _tiene_columna_titulo(cursor):
+            raise RuntimeError("Falta la migración de archivos de informes.")
+        cursor.execute("""INSERT INTO informe (id_usuario, titulo, tipo_informe, descripcion, ruta_pdf, ruta_excel, fecha_generacion)
+                          VALUES (%s, %s, %s, %s, %s, %s, NOW())""", (id_usuario, titulo, tipo_informe, descripcion, ruta_pdf, ruta_excel))
         return cursor.lastrowid
 
 
-def actualizar_informe_admin(id_informe, tipo_informe, descripcion):
-    sql = "UPDATE informe SET tipo_informe = %s, descripcion = %s WHERE id_informe = %s"
+def actualizar_informe_admin(id_informe, titulo, tipo_informe, descripcion):
+    sql = "UPDATE informe SET titulo = %s, tipo_informe = %s, descripcion = %s WHERE id_informe = %s"
     with db_cursor(commit=True) as cursor:
-        cursor.execute(sql, (tipo_informe, descripcion, id_informe))
+        cursor.execute(sql, (titulo, tipo_informe, descripcion, id_informe))
         return cursor.rowcount
 
 
@@ -369,19 +423,24 @@ def eliminar_informe_admin(id_informe):
     return desactivar_informe(id_informe)
 
 
-def obtener_resumen_admin():
+def obtener_resumen_admin(eliminados=False):
+    """Cuenta registros según la vista del panel: activos o eliminados lógicamente."""
+    estado = 0 if eliminados else 1
     consultas = {
-        "usuarios": "SELECT COUNT(*) AS total FROM usuario",
-        "mascotas": "SELECT COUNT(*) AS total FROM mascota",
-        "alertas": "SELECT COUNT(*) AS total FROM alerta",
-        "avistamientos": "SELECT COUNT(*) AS total FROM avistamiento",
-        "informes": "SELECT COUNT(*) AS total FROM informe",
-        "avistamientos_confirmados": "SELECT COUNT(*) AS total FROM avistamiento WHERE id_mascota IS NOT NULL",
+        "usuarios": ("SELECT COUNT(*) AS total FROM usuario WHERE estado_usuario = %s", (estado,)),
+        "mascotas": ("SELECT COUNT(*) AS total FROM mascota WHERE estado_mascota = %s", (estado,)),
+        "alertas": ("SELECT COUNT(*) AS total FROM alerta WHERE estado_alerta_registro = %s", (estado,)),
+        "avistamientos": ("SELECT COUNT(*) AS total FROM avistamiento WHERE estado_avistamiento = %s", (estado,)),
+        "informes": ("SELECT COUNT(*) AS total FROM informe WHERE estado_informe = %s", (estado,)),
+        "avistamientos_confirmados": (
+            "SELECT COUNT(*) AS total FROM avistamiento WHERE id_mascota IS NOT NULL AND estado_avistamiento = %s",
+            (estado,),
+        ),
     }
     resumen = {}
     with db_cursor() as cursor:
-        for clave, sql in consultas.items():
-            cursor.execute(sql)
+        for clave, (sql, params) in consultas.items():
+            cursor.execute(sql, params)
             resumen[clave] = (cursor.fetchone() or {}).get("total", 0)
     return resumen
 

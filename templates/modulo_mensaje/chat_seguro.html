@@ -14,11 +14,12 @@
         .subtitle { margin:0 0 1.25rem; color:var(--muted); font-weight:700; }
         .flash { font-weight:800; color:#ba1a1a; }
         .chat-list { display:grid; gap:.85rem; }
-        .chat-card { display:grid; grid-template-columns:1fr auto; gap:1rem; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:1rem; text-decoration:none; color:inherit; }
+        .chat-card { display:grid; grid-template-columns:1fr auto; gap:1rem; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:1rem; }
         .chat-card:hover { border-color:var(--primary); }
+        .chat-link { text-decoration:none; color:inherit; min-width:0; }
         .chat-title { font-weight:800; color:var(--primary); margin-bottom:.25rem; }
         .meta { color:var(--muted); font-size:.9rem; font-weight:700; }
-        .badge { background:#ffdcc1; color:#2d1601; border-radius:999px; padding:.45rem .75rem; font-weight:800; white-space:nowrap; }
+        .delete-chat { border:0; border-radius:999px; padding:.45rem .75rem; color:#ba1a1a; background:#ffe7e7; font:inherit; font-weight:800; cursor:pointer; }
         .empty { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:1.25rem; color:var(--muted); font-weight:700; }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/paw_background.css') }}">
@@ -39,14 +40,20 @@
 
         <section class="chat-list">
             {% for chat in chats %}
-            <a class="chat-card" href="{{ url_for('mensaje.chat_alerta', id_alerta=chat.id_alerta) }}">
+            <article class="chat-card">
+                <a class="chat-link" href="{{ url_for('mensaje.chat_alerta', id_alerta=chat.id_alerta) }}">
                 <div>
                     <div class="chat-title">Chat sobre {{ chat.nombre_mascota }}</div>
                     <div class="meta">Reportó: {{ chat.nombre_alerta_usuario or 'Usuario' }} · Dueño/a: {{ chat.nombre_dueno or 'Usuario' }}</div>
                     <div class="meta">{{ chat.estado_alerta or 'Sin estado' }} · {{ chat.fecha_alerta or '' }}</div>
                 </div>
-                <span class="badge">Chat seguro</span>
-            </a>
+                </a>
+                <div>
+                    <form method="POST" action="{{ url_for('mensaje.eliminar_chat', id_alerta=chat.id_alerta) }}" style="margin-top:.5rem;" onsubmit="return confirm('¿Eliminar este chat de tu lista? El otro usuario conservará el suyo.');">
+                        <button class="delete-chat" type="submit">Eliminar chat</button>
+                    </form>
+                </div>
+            </article>
             {% else %}
             <div class="empty">Aun no tienes chats activos. Se abriran cuando una alerta se confirme.</div>
             {% endfor %}

@@ -5,3 +5,6 @@ env/
 __pycache__/
 *.pyc
 .env
+node_modules/
+private_reports/
+tmp/

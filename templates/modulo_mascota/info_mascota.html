@@ -12,6 +12,7 @@
         .hero { background: #f1ede5; border-radius: 2rem; padding: 2rem; display: grid; gap: 1.5rem; }
         h1 { color: #0f5238; font-size: clamp(3rem, 8vw, 5rem); margin: 0; }
         .badge { display: inline-block; background: #b1f0ce; color: #0e5138; border-radius: 999px; padding: .45rem 1rem; font-weight: 800; text-transform: uppercase; }
+        .badge.found { background: #b1f0ce; color: #0e5138; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
         .item { background: white; border-radius: 1rem; padding: 1rem; }
         .label { color: #404943; font-size: .8rem; text-transform: uppercase; font-weight: 800; }
@@ -31,7 +32,7 @@
     {% include 'includes/_header-up.html' %}
     <main>
         <section class="hero">
-            <span class="badge">{{ mascota.estado or 'perdida' }}</span>
+            <span class="badge {% if mascota.estado == 'encontrada' %}found{% endif %}">{{ mascota.estado or 'perdida' }}</span>
             <h1>{{ mascota.nombre_mascota }}</h1>
             <div class="grid">
                 <div class="item"><div class="label">Raza</div><div class="value">{{ mascota.raza or 'No registrada' }}</div></div>

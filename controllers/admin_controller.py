@@ -1,7 +1,10 @@
+import os
 from io import BytesIO
 
-from flask import flash, make_response, redirect, render_template, request, session, url_for
+from flask import flash, make_response, redirect, render_template, request, send_file, session, url_for
 
+from controllers.report_pdf import crear_pdf_informe, ruta_pdf_informe
+from controllers.report_excel import crear_excel_informe
 from controllers.security import clean_text, is_valid_email, is_valid_phone
 from models.admin_model import (
     actualizar_alerta_admin,
@@ -22,12 +25,14 @@ from models.admin_model import (
     listar_alertas_admin,
     listar_articulos_admin,
     listar_avistamientos_admin,
+    listar_avistamientos_confirmados_admin,
     listar_informes_admin,
     listar_mascotas_admin,
     listar_usuarios_admin,
     obtener_alerta_admin,
     obtener_articulo_admin,
     obtener_avistamiento_admin,
+    obtener_avistamiento_confirmado_admin,
     obtener_informe_admin,
     obtener_mascota_admin,
     obtener_resumen_admin,
@@ -41,6 +46,7 @@ ADMIN_SECTIONS = {
     "mascotas": {"titulo": "Mascotas", "filtro": ("estado", [("", "Todos"), ("perdida", "Perdida"), ("encontrada", "Encontrada"), ("en proceso", "En proceso")])},
     "alertas": {"titulo": "Alertas", "filtro": ("estado", [("", "Todos"), ("pendiente", "Pendiente"), ("enviada", "Enviada"), ("vista", "Vista")])},
     "avistamientos": {"titulo": "Avistamientos", "filtro": ("estado", [("", "Todos"), ("confirmados", "Confirmados"), ("sin_confirmar", "Sin confirmar")])},
+    "avistamientos_confirmados": {"titulo": "Avistamientos confirmados", "filtro": ("filtro", [("", "Todos")])},
     "informes": {"titulo": "Informes", "filtro": ("tipo", [("", "Todos"), ("mascotas_por_fecha", "Mascotas"), ("alertas_por_fecha", "Alertas"), ("top_usuarios_avistamientos", "Top usuarios")])},
 }
 
@@ -56,6 +62,8 @@ def _list_items(seccion, q, filtro, eliminados=False):
         return listar_alertas_admin(q, filtro, eliminados)
     if seccion == "avistamientos":
         return listar_avistamientos_admin(q, filtro, eliminados)
+    if seccion == "avistamientos_confirmados":
+        return listar_avistamientos_confirmados_admin(q, filtro, eliminados)
     return listar_informes_admin(q, filtro, eliminados)
 
 
@@ -66,6 +74,7 @@ def _get_item(seccion, item_id):
         "mascotas": obtener_mascota_admin,
         "alertas": obtener_alerta_admin,
         "avistamientos": obtener_avistamiento_admin,
+        "avistamientos_confirmados": obtener_avistamiento_confirmado_admin,
         "informes": obtener_informe_admin,
     }
     return getters[seccion](item_id)
@@ -88,7 +97,7 @@ def mostrar_admin(seccion="usuarios"):
         q=q,
         filtro=filtro,
         items=_list_items(seccion, q, filtro, eliminados),
-        resumen=obtener_resumen_admin(),
+        resumen=obtener_resumen_admin(eliminados),
         preview=preview,
         eliminados=eliminados,
     )
@@ -107,6 +116,7 @@ def mostrar_detalle_admin(seccion, item_id):
         "mascotas": "estado_mascota",
         "alertas": "estado_alerta_registro",
         "avistamientos": "estado_avistamiento",
+        "avistamientos_confirmados": "estado_confirmacion",
         "informes": "estado_informe",
     }[seccion]
     eliminado = not bool(item.get(campo_estado, 1))
@@ -204,6 +214,7 @@ def guardar_detalle_admin(seccion, item_id):
     elif seccion == "informes":
         actualizar_informe_admin(
             item_id,
+            clean_text(request.form.get("titulo"), 120),
             clean_text(request.form.get("tipo_informe"), 80),
             clean_text(request.form.get("descripcion"), 3000),
         )
@@ -240,12 +251,53 @@ def generar_informe_admin():
     }
     accion = request.form.get("accion")
     if accion == "guardar":
-        descripcion = _render_text_report(preview)
-        crear_informe_admin(session.get("usuario_id"), tipo, descripcion)
-        flash("Informe guardado.", "success")
+        # La tabla conserva metadatos; los contenidos completos viven en PDF y Excel.
+        descripcion = f"Archivos PDF y Excel generados: {preview['titulo']}"
+        nombre_pdf = crear_pdf_informe(preview)
+        try:
+            nombre_excel = crear_excel_informe(preview)
+        except Exception:
+            ruta_pdf = ruta_pdf_informe(nombre_pdf)
+            if ruta_pdf:
+                os.remove(ruta_pdf)
+            raise
+        try:
+            crear_informe_admin(session.get("usuario_id"), titulo, tipo, descripcion, nombre_pdf, nombre_excel)
+        except RuntimeError as exc:
+            ruta_pdf = ruta_pdf_informe(nombre_pdf)
+            if ruta_pdf:
+                os.remove(ruta_pdf)
+            ruta_excel = ruta_pdf_informe(nombre_excel)
+            if ruta_excel:
+                os.remove(ruta_excel)
+            flash(f"{exc} Ejecuta Documentacion/migracion_informes_dos_formatos.sql.", "error")
+            return redirect(url_for("admin.panel", seccion="informes"))
+        except Exception:
+            ruta_pdf = ruta_pdf_informe(nombre_pdf)
+            if ruta_pdf:
+                os.remove(ruta_pdf)
+            ruta_excel = ruta_pdf_informe(nombre_excel)
+            if ruta_excel:
+                os.remove(ruta_excel)
+            raise
+        flash("Informe en PDF y Excel generado y guardado correctamente.", "success")
     else:
         session["informe_preview"] = preview
     return redirect(url_for("admin.panel", seccion="informes"))
+
+
+def entregar_pdf_informe(id_informe, formato="pdf", descargar=False):
+    informe = obtener_informe_admin(id_informe)
+    nombre_archivo = informe.get("ruta_pdf") if informe and formato == "pdf" else informe.get("ruta_excel") if informe else None
+    if not nombre_archivo:
+        flash("El archivo solicitado no está disponible.", "error")
+        return redirect(url_for("admin.panel", seccion="informes"))
+    ruta_pdf = ruta_pdf_informe(nombre_archivo)
+    if not ruta_pdf:
+        flash("No se encontró el archivo PDF de este informe.", "error")
+        return redirect(url_for("admin.panel", seccion="informes"))
+    mimetype = "application/pdf" if formato == "pdf" else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    return send_file(ruta_pdf, mimetype=mimetype, as_attachment=descargar or formato == "excel", download_name=f"informe_busca_huellas_{id_informe}.{formato}")
 
 
 def exportar_informe_admin(formato):

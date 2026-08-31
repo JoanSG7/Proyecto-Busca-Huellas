@@ -31,9 +31,11 @@ from models.alerta_model import crear_alerta, crear_alerta_coincidencia, listar_
 from models.articulo_model import actualizar_articulo, crear_articulo, eliminar_articulo, listar_articulos, obtener_articulo
 from models.inicio_model import obtener_estadisticas_inicio
 from models.avistamiento_model import crear_avistamiento, obtener_imagen_avistamiento
-from models.mascota_model import actualizar_mascota, crear_fotos_mascota, crear_mascota, eliminar_mascota, listar_fotos_mascota, listar_mascotas_con_fotos, listar_mascotas_por_usuario, obtener_mascota
+from models.avistamiento_confirmado_model import confirmar_avistamiento, obtener_avistamiento_confirmable
+from models.mascota_model import actualizar_mascota, crear_fotos_mascota, crear_mascota, eliminar_mascota, listar_fotos_mascota, listar_mascotas_con_fotos, listar_mascotas_por_usuario, marcar_mascota_encontrada, obtener_mascota
 from models.mensaje_model import (
     crear_mensaje_alerta,
+    eliminar_chat_para_usuario,
     listar_chats_alerta,
     listar_mensajes_alerta,
     obtener_chat_alerta,
@@ -627,7 +629,14 @@ def mostrar_editar_perfil():
         nombre = clean_text(request.form.get("fullname"), 100)
         telefono = clean_text(request.form.get("phone"), 20)
         correo = clean_text(request.form.get("email"), 100).lower()
-        foto_perfil = guardar_imagen(request.files.get("foto_perfil"), "perfiles")
+        # La versión recortada se crea en el navegador a partir de la foto elegida.
+        # Si JavaScript no está disponible, conservamos la carga de archivo normal.
+        foto_recortada = request.form.get("foto_perfil_recortada")
+        foto_perfil = (
+            guardar_imagen_base64(foto_recortada, "perfiles")
+            if foto_recortada
+            else guardar_imagen(request.files.get("foto_perfil"), "perfiles")
+        )
 
         if len(nombre) < 3 or not is_valid_email(correo) or not is_valid_phone(telefono):
             flash("Revisa nombre, correo y teléfono antes de guardar.", "error")
@@ -756,6 +765,30 @@ def mostrar_chat_alerta(id_alerta):
         return redirect(url_for("mensaje.chat_seguro"))
 
     if request.method == "POST":
+        accion = request.form.get("accion")
+        if accion == "confirmar_avistamiento":
+            try:
+                id_avistamiento = int(request.form.get("id_avistamiento") or 0)
+            except (TypeError, ValueError):
+                id_avistamiento = 0
+            if current_user_id() != chat["id_dueno"]:
+                flash("Solo el dueño de la mascota puede confirmar este avistamiento.", "error")
+            elif not obtener_avistamiento_confirmable(
+                id_avistamiento,
+                id_alerta,
+                chat["id_mascota"],
+                chat["id_usuario_alerta"],
+                chat["id_dueno"],
+            ):
+                flash("El avistamiento seleccionado no está disponible para confirmar.", "error")
+            elif confirmar_avistamiento(id_avistamiento, chat["id_usuario_alerta"], chat["id_dueno"], chat["id_mascota"]):
+                marcar_mascota_encontrada(chat["id_mascota"], chat["id_dueno"])
+                flash("Avistamiento confirmado. La mascota ahora figura como encontrada.", "success")
+            else:
+                marcar_mascota_encontrada(chat["id_mascota"], chat["id_dueno"])
+                flash("Este avistamiento ya había sido confirmado.", "warning")
+            return redirect(url_for("mensaje.chat_alerta", id_alerta=id_alerta))
+
         mensaje = clean_text(request.form.get("mensaje"), 700)
         receptor = chat["id_dueno"] if current_user_id() != chat["id_dueno"] else chat["id_usuario_alerta"]
         if len(mensaje) < 2:
@@ -781,6 +814,17 @@ def mostrar_chat_alerta(id_alerta):
         chat=chat,
         mensajes=mensajes,
     )
+
+
+def eliminar_mi_chat(id_alerta):
+    chat = obtener_chat_alerta(id_alerta, current_user_id(), is_admin())
+    if not chat:
+        flash("No puedes eliminar un chat al que no perteneces.", "error")
+    elif eliminar_chat_para_usuario(id_alerta, current_user_id()):
+        flash("Chat eliminado de tu lista.", "success")
+    else:
+        flash("Este chat ya no estaba en tu lista.", "warning")
+    return redirect(url_for("mensaje.chat_seguro"))
 
 
 def mostrar_lista_articulos():
