@@ -412,6 +412,7 @@ def crear_informe_admin(id_usuario, titulo, tipo_informe, descripcion, ruta_pdf,
         return cursor.lastrowid
 
 
+<<<<<<< HEAD
 def actualizar_archivos_informe(id_informe, ruta_pdf, ruta_excel):
     """Guarda los nombres de los archivos regenerados de un informe existente."""
     with db_cursor(commit=True) as cursor:
@@ -422,6 +423,8 @@ def actualizar_archivos_informe(id_informe, ruta_pdf, ruta_excel):
         return cursor.rowcount
 
 
+=======
+>>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
 def actualizar_informe_admin(id_informe, titulo, tipo_informe, descripcion):
     sql = "UPDATE informe SET titulo = %s, tipo_informe = %s, descripcion = %s WHERE id_informe = %s"
     with db_cursor(commit=True) as cursor:
@@ -508,3 +511,7 @@ def generar_datos_informe(tipo, fecha_inicio=None, fecha_fin=None, limite=5):
     with db_cursor() as cursor:
         cursor.execute(sql, tuple(params))
         return cursor.fetchall()
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
