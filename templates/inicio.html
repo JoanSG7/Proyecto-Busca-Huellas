@@ -462,20 +462,14 @@
         <section class="impact-section">
             <div class="impact-grid">
                 <div class="impact-item">
-<<<<<<< HEAD
+
                     <h3 class style id="mascotas-reencontradas">{{ estadisticas.mascotas_reencontradas }}</h3>
-=======
-                    <h3 class style>{{ estadisticas.mascotas_reencontradas }}</h3>
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
                     <p class style>Mascotas Reencontradas</p>
                 </div>
                 <div class="divider"></div>
                 <div class="impact-item">
-<<<<<<< HEAD
+
                     <h3 class style id="voluntarios-activos">{{ estadisticas.voluntarios_activos }}</h3>
-=======
-                    <h3 class style>{{ estadisticas.voluntarios_activos }}</h3>
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
                     <p class style>Voluntarios Activos</p>
                 </div>
                 <div class="divider"></div>
@@ -518,16 +512,13 @@
         <div style="padding-bottom: 8rem;"></div>
     </main>
     <script>
-<<<<<<< HEAD
         async function actualizarEstadisticas() {
-=======
+
         async function actualizarReportesActivos() {
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
             try {
                 const respuesta = await fetch("{{ url_for('inicio.estadisticas') }}", { headers: { "Accept": "application/json" } });
                 if (!respuesta.ok) return;
                 const estadisticas = await respuesta.json();
-<<<<<<< HEAD
                 const elementos = {
                     "mascotas-reencontradas": estadisticas.mascotas_reencontradas,
                     "voluntarios-activos": estadisticas.voluntarios_activos,
@@ -544,7 +535,7 @@
 
         actualizarEstadisticas();
         setInterval(actualizarEstadisticas, 15000);
-=======
+
                 const reportes = document.getElementById("reportes-activos");
                 if (reportes) reportes.textContent = estadisticas.reportes_activos_hoy ?? reportes.textContent;
             } catch (error) {
@@ -554,7 +545,7 @@
 
         actualizarReportesActivos();
         setInterval(actualizarReportesActivos, 15000);
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
+
 
         (function () {
             const logoutUrl = "{{ url_for('usuario.logout') }}";

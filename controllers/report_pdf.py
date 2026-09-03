@@ -20,26 +20,26 @@ def _texto_pdf(valor):
     return escape(str(valor or "-"))
 
 
-<<<<<<< HEAD
+
 def ruta_archivo_informe(nombre_archivo):
     """Devuelve la ruta de un archivo de informe dentro del almacenamiento privado."""
-=======
+
 def ruta_pdf_informe(nombre_archivo):
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
+
     if not nombre_archivo:
         return None
     ruta = os.path.abspath(os.path.join(REPORTS_FOLDER, os.path.basename(nombre_archivo)))
     return ruta if ruta.startswith(REPORTS_FOLDER + os.sep) and os.path.isfile(ruta) else None
 
 
-<<<<<<< HEAD
+
 # Se conserva para no romper usos existentes del módulo.
 def ruta_pdf_informe(nombre_archivo):
     return ruta_archivo_informe(nombre_archivo)
 
 
-=======
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
+
+
 def crear_pdf_informe(preview):
     """Crea un PDF profesional y devuelve el nombre seguro que se guarda en la BD."""
     os.makedirs(REPORTS_FOLDER, exist_ok=True)

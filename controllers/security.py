@@ -29,6 +29,8 @@ def is_valid_phone(value):
     return not value or bool(fullmatch(PHONE_PATTERN, value))
 
 
+
+
 def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):

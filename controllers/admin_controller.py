@@ -3,21 +3,21 @@ from io import BytesIO
 
 from flask import flash, make_response, redirect, render_template, request, send_file, session, url_for
 
-<<<<<<< HEAD
+
 from controllers.report_pdf import crear_pdf_informe, ruta_archivo_informe
-=======
+
 from controllers.report_pdf import crear_pdf_informe, ruta_pdf_informe
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
+
 from controllers.report_excel import crear_excel_informe
 from controllers.security import clean_text, is_valid_email, is_valid_phone
 from models.admin_model import (
     actualizar_alerta_admin,
     actualizar_articulo_admin,
     actualizar_avistamiento_admin,
-<<<<<<< HEAD
+
     actualizar_archivos_informe,
-=======
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
+
+
     actualizar_informe_admin,
     actualizar_mascota_admin,
     actualizar_usuario_admin,
@@ -265,44 +265,44 @@ def generar_informe_admin():
         try:
             nombre_excel = crear_excel_informe(preview)
         except Exception:
-<<<<<<< HEAD
+
             ruta_pdf = ruta_archivo_informe(nombre_pdf)
-=======
+
             ruta_pdf = ruta_pdf_informe(nombre_pdf)
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
+
             if ruta_pdf:
                 os.remove(ruta_pdf)
             raise
         try:
             crear_informe_admin(session.get("usuario_id"), titulo, tipo, descripcion, nombre_pdf, nombre_excel)
         except RuntimeError as exc:
-<<<<<<< HEAD
+
             ruta_pdf = ruta_archivo_informe(nombre_pdf)
             if ruta_pdf:
                 os.remove(ruta_pdf)
             ruta_excel = ruta_archivo_informe(nombre_excel)
-=======
+
             ruta_pdf = ruta_pdf_informe(nombre_pdf)
             if ruta_pdf:
                 os.remove(ruta_pdf)
             ruta_excel = ruta_pdf_informe(nombre_excel)
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
+
             if ruta_excel:
                 os.remove(ruta_excel)
             flash(f"{exc} Ejecuta Documentacion/migracion_informes_dos_formatos.sql.", "error")
             return redirect(url_for("admin.panel", seccion="informes"))
         except Exception:
-<<<<<<< HEAD
+
             ruta_pdf = ruta_archivo_informe(nombre_pdf)
             if ruta_pdf:
                 os.remove(ruta_pdf)
             ruta_excel = ruta_archivo_informe(nombre_excel)
-=======
+
             ruta_pdf = ruta_pdf_informe(nombre_pdf)
             if ruta_pdf:
                 os.remove(ruta_pdf)
             ruta_excel = ruta_pdf_informe(nombre_excel)
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
+
             if ruta_excel:
                 os.remove(ruta_excel)
             raise
@@ -314,7 +314,7 @@ def generar_informe_admin():
 
 def entregar_pdf_informe(id_informe, formato="pdf", descargar=False):
     informe = obtener_informe_admin(id_informe)
-<<<<<<< HEAD
+
     if not informe:
         flash("El archivo solicitado no está disponible.", "error")
         return redirect(url_for("admin.panel", seccion="informes"))
@@ -349,7 +349,7 @@ def entregar_pdf_informe(id_informe, formato="pdf", descargar=False):
     mimetype = "application/pdf" if formato == "pdf" else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     extension = "pdf" if formato == "pdf" else "xlsx"
     return send_file(ruta_archivo, mimetype=mimetype, as_attachment=descargar or formato == "excel", download_name=f"informe_busca_huellas_{id_informe}.{extension}")
-=======
+
     nombre_archivo = informe.get("ruta_pdf") if informe and formato == "pdf" else informe.get("ruta_excel") if informe else None
     if not nombre_archivo:
         flash("El archivo solicitado no está disponible.", "error")
@@ -360,7 +360,7 @@ def entregar_pdf_informe(id_informe, formato="pdf", descargar=False):
         return redirect(url_for("admin.panel", seccion="informes"))
     mimetype = "application/pdf" if formato == "pdf" else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     return send_file(ruta_pdf, mimetype=mimetype, as_attachment=descargar or formato == "excel", download_name=f"informe_busca_huellas_{id_informe}.{formato}")
->>>>>>> 0a052e6d581fde25f652436a84e9efff524db728
+
 
 
 def exportar_informe_admin(formato):
