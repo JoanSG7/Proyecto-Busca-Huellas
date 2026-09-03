@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#fdf9f1; --surface:#fff; --soft:#f1ede5; --primary:#0f5238; --text:#1c1c17; --muted:#56615a; --line:#d8ded7; --radius:8px; --font:'Plus Jakarta Sans',sans-serif; }
+        * { box-sizing:border-box; }
+        body { margin:0; background:var(--bg); color:var(--text); font-family:var(--font); }
+        main { width:min(100%,1180px); margin:0 auto; padding:2rem 1rem 7rem; }
+        h1 { margin:1rem 0 .4rem; color:var(--primary); font-size:clamp(2rem,5vw,3rem); }
+        .tabs,.filters,.actions { display:flex; gap:.55rem; flex-wrap:wrap; align-items:end; }
+        .tabs { margin:1rem 0; }
+        .tab,.btn { border:0; border-radius:var(--radius); padding:.75rem 1rem; font-weight:800; text-decoration:none; font:inherit; cursor:pointer; }
+        .tab { background:var(--soft); color:var(--primary); }
+        .tab.active,.btn.primary { background:var(--primary); color:#fff; }
+        .btn.secondary { background:var(--soft); color:var(--primary); }
+        .filters,.builder,.preview,.metrics,.table-wrap { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:1rem; margin-bottom:1rem; }
+        label { display:block; font-size:.72rem; text-transform:uppercase; color:var(--muted); font-weight:800; margin-bottom:.3rem; }
+        input,select,textarea { width:100%; border:1px solid var(--line); border-radius:var(--radius); padding:.72rem; font:inherit; }
+        .field { min-width:210px; flex:1; }
+        table { width:100%; border-collapse:collapse; min-width:860px; }
+        .table-wrap { overflow-x:auto; padding:0; }
+        th,td { padding:.85rem; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+        th { color:var(--muted); font-size:.72rem; text-transform:uppercase; background:#fbfcfa; }
+        .metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.7rem; }
+        .metric { background:var(--soft); border-radius:var(--radius); padding:1rem; }
+        .metric strong { display:block; color:var(--primary); font-size:1.8rem; }
+        .flash { font-weight:800; color:var(--primary); }
+        .row-actions { display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; }
+        .thumb { width:72px; height:56px; object-fit:cover; border-radius:6px; border:1px solid var(--line); }
+        .delete-form { margin:0; }
+        .btn.danger { background:#ffe7e7; color:#ba1a1a; }
+        pre { white-space:pre-wrap; line-height:1.5; margin:0; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/paw_background.css') }}">
+</head>
+<body>
+    {% include 'includes/_header-up.html' %}
+    <main>
+        <h1>{{ config.titulo }}</h1>
+        <nav class="tabs">
+            {% for key, item in secciones.items() %}
+            <a class="tab {% if key == seccion %}active{% endif %}" href="{{ url_for('admin.panel', seccion=key) }}">{{ item.titulo }}</a>
+            {% endfor %}
+        </nav>
+        <div class="actions" style="margin-bottom:1rem;">
+            <a class="btn {% if not eliminados %}primary{% else %}secondary{% endif %}" href="{{ url_for('admin.panel', seccion=seccion) }}">Registros activos</a>
+            <a class="btn {% if eliminados %}primary{% else %}secondary{% endif %}" href="{{ url_for('admin.panel', seccion=seccion, vista='eliminados') }}">Eliminados</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}<p class="flash">{{ message }}</p>{% endfor %}{% endif %}
+        {% endwith %}
+
+        {% if seccion == 'informes' %}
+        <section class="metrics">
+            {% for key, value in resumen.items() %}
+            <div class="metric"><strong>{{ value }}</strong><span>{{ key.replace('_',' ')|title }}</span></div>
+            {% endfor %}
+        </section>
+        <form class="builder" method="POST" action="{{ url_for('admin.generar_informe') }}">
+            <div class="filters" style="border:0; padding:0; margin:0;">
+                <div class="field"><label>Título</label><input name="titulo" value="{{ preview.titulo if preview else '' }}" placeholder="Informe mensual de mascotas"></div>
+                <div class="field"><label>Tipo</label><select name="tipo_informe"><option value="mascotas_por_fecha" {% if preview and preview.tipo == 'mascotas_por_fecha' %}selected{% endif %}>Mascotas creadas</option><option value="alertas_por_fecha" {% if preview and preview.tipo == 'alertas_por_fecha' %}selected{% endif %}>Alertas por fecha</option><option value="top_usuarios_avistamientos" {% if preview and preview.tipo == 'top_usuarios_avistamientos' %}selected{% endif %}>Top usuarios con avistamientos confirmados</option><option value="usuarios_recientes" {% if preview and preview.tipo == 'usuarios_recientes' %}selected{% endif %}>Usuarios recientes</option></select></div>
+                <div><label>Desde</label><input type="date" name="fecha_inicio" value="{{ preview.fecha_inicio if preview else '' }}"></div>
+                <div><label>Hasta</label><input type="date" name="fecha_fin" value="{{ preview.fecha_fin if preview else '' }}"></div>
+                <div><label>Límite</label><input type="number" name="limite" value="{{ preview.limite if preview else '10' }}" min="1" max="100"></div>
+            </div>
+            <div class="actions" style="margin-top:1rem;"><button class="btn secondary" name="accion" value="preview">Vista previa de informe</button><button class="btn primary" name="accion" value="guardar">Guardar informe</button></div>
+        </form>
+        {% if preview %}
+        <section class="preview">
+            <h2>Vista previa del informe</h2>
+            <div style="max-width:760px; margin:auto; padding:2rem; background:#fff; border:1px solid var(--line); box-shadow:0 4px 16px #0001; text-align:center;"><strong style="color:var(--primary);">BUSCA HUELLAS</strong><h2>{{ preview.titulo }}</h2><p>{{ preview.tipo.replace('_',' ')|title }}</p><table style="min-width:0; margin-top:1rem;">{% for row in preview.datos %}{% if loop.first %}<thead><tr>{% for key in row.keys() %}<th>{{ key.replace('_',' ')|title }}</th>{% endfor %}</tr></thead>{% endif %}<tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>{% else %}<tr><td>Sin resultados para los filtros seleccionados.</td></tr>{% endfor %}</table></div>
+            <p>Cuando estés conforme con los datos, usa “Guardar informe”. Se crearán automáticamente un PDF y un Excel.</p>
+        </section>
+        {% endif %}
+        {% endif %}
+
+        <form class="filters" method="GET" action="{{ url_for('admin.panel', seccion=seccion) }}">
+            {% if eliminados %}<input type="hidden" name="vista" value="eliminados">{% endif %}
+            <div class="field"><label>Buscar texto</label><input name="q" value="{{ q }}" placeholder="Nombre, correo, mascota, ubicación..."></div>
+            <div class="field"><label>Filtro</label><select name="{{ filtro_nombre }}">{% for value, text in config.filtro[1] %}<option value="{{ value }}" {% if value == filtro %}selected{% endif %}>{{ text }}</option>{% endfor %}</select></div>
+            <button class="btn primary" type="submit">Buscar</button>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                {% if seccion == 'usuarios' %}
+                <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Registro</th><th>Rol</th><th>Mascotas</th><th>Acciones</th></tr></thead>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_usuario }}</td><td>{{ item.nombre_completo }}</td><td>{{ item.correo }}</td><td>{{ item.fecha_registro or '-' }}</td><td>{{ item.nombre_rol }}</td><td>{{ item.total_mascotas }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_usuario, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_usuario, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_usuario) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
+                {% elif seccion == 'articulos' %}
+                <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_articulo }}</td><td>{{ item.titulo }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_publicacion or '-' }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_articulo, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_articulo, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_articulo) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% else %}<form class="restore-form" method="POST" action="{{ url_for('admin.reactivar', seccion=seccion, item_id=item.id_articulo) }}"><button class="btn primary" type="submit">Reactivar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
+                {% elif seccion == 'mascotas' %}
+                <thead><tr><th>ID</th><th>Nombre</th><th>Dueño</th><th>Fecha de reporte</th><th>Estado</th><th>Raza</th><th>Acciones</th></tr></thead>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_mascota }}</td><td>{{ item.nombre_mascota }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_registro or '-' }}</td><td>{{ item.estado }}</td><td>{{ item.raza }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_mascota, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_mascota, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_mascota) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
+                {% elif seccion == 'alertas' %}
+                <thead><tr><th>ID</th><th>Usuario</th><th>Mascota</th><th>Estado</th><th>Confirmación</th><th>Acciones</th></tr></thead>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_alerta }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.nombre_mascota }}</td><td>{{ item.estado_alerta }}</td><td>{{ item.confirmacion }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_alerta, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_alerta, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_alerta) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
+                {% elif seccion == 'avistamientos' %}
+                <thead><tr><th>ID</th><th>Mascota</th><th>Dueño</th><th>Ubicación</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_avistamiento }}</td><td>{{ item.nombre_mascota or 'Sin confirmar' }}</td><td>{{ item.nombre_dueno }}</td><td>{{ item.ubicacion }}</td><td>{{ item.fecha_avistamiento }}</td><td><div class="row-actions"><a class="btn secondary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_avistamiento, modo='ver') }}">Ver</a>{% if not eliminados %}<a class="btn primary" href="{{ url_for('admin.detalle', seccion=seccion, item_id=item.id_avistamiento, modo='editar') }}">Editar</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_avistamiento) }}"><button class="btn danger" type="submit">Eliminar</button></form>{% endif %}</div></td></tr>{% endfor %}</tbody>
+                {% elif seccion == 'avistamientos_confirmados' %}
+                <thead><tr><th>ID confirmación</th><th>ID alertó</th><th>ID dueño</th><th>ID mascota</th><th>Mascota</th><th>Foto</th><th>Dirección reportada</th><th>Confirmado</th></tr></thead>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_confirmacion }}</td><td>{{ item.id_usuario_alerto }}<br><small>{{ item.nombre_usuario_alerto or '-' }}</small></td><td>{{ item.id_usuario_dueno }}<br><small>{{ item.nombre_dueno or '-' }}</small></td><td>{{ item.id_mascota }}</td><td>{{ item.nombre_mascota }}</td><td>{% if item.url_imagen %}<a href="{{ item.url_imagen }}" target="_blank"><img class="thumb" src="{{ item.url_imagen }}" alt="Foto del avistamiento confirmado"></a>{% else %}-{% endif %}</td><td>{{ item.ubicacion or '-' }}</td><td>{{ item.fecha_confirmacion }}</td></tr>{% else %}<tr><td colspan="8">Aún no hay avistamientos confirmados.</td></tr>{% endfor %}</tbody>
+                {% else %}
+                <thead><tr><th>ID</th><th>Título</th><th>Admin</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_informe }}</td><td>{{ item.titulo or 'Informe sin título' }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_generacion }}</td><td><div class="row-actions">{% if item.ruta_pdf %}<a class="btn primary" target="_blank" href="{{ url_for('admin.ver_pdf', item_id=item.id_informe) }}">Ver PDF</a><a class="btn secondary" href="{{ url_for('admin.descargar_pdf', item_id=item.id_informe) }}">Descargar PDF</a>{% endif %}{% if item.ruta_excel %}<a class="btn secondary" href="{{ url_for('admin.descargar_excel', item_id=item.id_informe) }}">Descargar Excel</a>{% endif %}<form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_informe) }}"><button class="btn danger" type="submit">Eliminar</button></form></div></td></tr>{% endfor %}</tbody>
+                {% endif %}
+            </table>
+        </div>
+    </main>
+    <script>
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!confirm('¿Seguro que desea eliminar? Esta acción no se puede revertir.')) event.preventDefault();
+            });
+        });
+        document.querySelectorAll('.restore-form').forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!confirm('¿Seguro que desea reactivar el artículo?')) event.preventDefault();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil - Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #fdf9f1; color: #1c1c17; }
+        main { max-width: 760px; margin: 0 auto; padding: 6rem 1.5rem; }
+        h1 { color: #2d6a4f; font-size: 2.5rem; margin-bottom: .5rem; }
+        form { background: white; border-radius: 2rem; padding: 2rem; display: grid; gap: 1.25rem; box-shadow: 0 20px 40px rgba(28,28,23,.06); }
+        label { font-weight: 800; color: #404943; font-size: .85rem; margin-left: 1rem; }
+        input { width: 100%; min-width: 0; border: 0; border-radius: 999px; background: #ece8e0; padding: 1rem 1.25rem; font: inherit; }
+        input[type="file"] { border-radius: 1rem; cursor: pointer; }
+        .group { display: grid; gap: .45rem; }
+        .actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 999px; padding: 1rem 1.5rem; font-weight: 800; text-decoration: none; cursor: pointer; }
+        .save { background: #2d6a4f; color: white; }
+        .cancel { background: #ffd1ac; color: #7a583b; }
+        .password { background: #f1ede5; color: #0f5238; }
+        .flash { font-weight: 800; color: #ba1a1a; }
+        .current-photo { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; }
+        .photo-editor { display: none; gap: 1rem; margin-top: .35rem; padding: 1rem; border-radius: 1.25rem; background: #f6f2ea; }
+        .photo-editor.visible { display: grid; }
+        .editor-top { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .crop-frame { width: min(100%, 320px); aspect-ratio: 1; overflow: hidden; border-radius: 50%; background: #d8d4cc; box-shadow: 0 0 0 5px white, 0 0 0 7px #2d6a4f; touch-action: none; cursor: grab; }
+        .crop-frame.dragging { cursor: grabbing; }
+        #crop-canvas { display: block; width: 100%; height: 100%; }
+        .editor-help { max-width: 270px; margin: 0; color: #565b55; font-size: .88rem; line-height: 1.5; }
+        .zoom-control { display: grid; gap: .35rem; color: #404943; font-weight: 800; font-size: .85rem; }
+        input[type="range"] { accent-color: #2d6a4f; padding: 0; }
+
+        @media (max-width: 767px) {
+            main { padding: 2rem 1rem 8.5rem; }
+            h1 { font-size: clamp(1.8rem, 9vw, 2.25rem); line-height: 1.15; }
+            main > p { line-height: 1.55; }
+            form { padding: 1.25rem; border-radius: 1.5rem; gap: 1rem; }
+            label { margin-left: .5rem; }
+            input { padding: .9rem 1rem; }
+            .actions { display: grid; grid-template-columns: 1fr; gap: .75rem; }
+            .btn { width: 100%; min-height: 3.2rem; justify-content: center; padding: .9rem 1rem; text-align: center; }
+        }
+
+        @media (max-width: 360px) {
+            main { padding-inline: .75rem; }
+            form { padding: 1rem; }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/paw_background.css') }}">
+</head>
+<body>
+    {% include 'includes/_header-up.html' %}
+    <main>
+        <h1>Editar Información</h1>
+        <p>Mantén tus datos actualizados para que la comunidad pueda contactarte.</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <p class="flash">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('usuario.editar_perfil') }}" method="POST" enctype="multipart/form-data">
+            <div class="group">
+                <label for="fullname">Nombre completo</label>
+                <input id="fullname" name="fullname" required type="text" value="{{ usuario.nombre_completo }}">
+            </div>
+            <div class="group">
+                <label for="email">Correo electrónico</label>
+                <input id="email" name="email" required type="email" value="{{ usuario.correo }}">
+            </div>
+            <div class="group">
+                <label for="phone">Teléfono</label>
+                <input id="phone" name="phone" type="tel" value="{{ usuario.telefono or '' }}">
+            </div>
+            <div class="group">
+                <label for="foto_perfil">Foto de perfil</label>
+                <input id="foto_perfil" name="foto_perfil" type="file" accept="image/*">
+                <input id="foto_perfil_recortada" name="foto_perfil_recortada" type="hidden">
+                <section class="photo-editor" id="photo-editor" aria-label="Editor de foto de perfil">
+                    <div class="editor-top">
+                        <div class="crop-frame" id="crop-frame">
+                            <canvas id="crop-canvas" width="400" height="400" aria-label="Vista previa de la foto recortada"></canvas>
+                        </div>
+                        <p class="editor-help">Arrastra la foto para elegir qué parte se verá. El borde redondo indica cómo aparecerá en tu perfil.</p>
+                    </div>
+                    <label class="zoom-control" for="photo-zoom">Tamaño de la foto
+                        <input id="photo-zoom" type="range" min="1" max="4" step="0.01" value="1">
+                    </label>
+                </section>
+                {% if usuario.foto_perfil %}
+                <img class="current-photo" alt="Foto actual" src="{{ usuario.foto_perfil }}">
+                {% endif %}
+            </div>
+            <div class="actions">
+                <button class="btn save" type="submit">Guardar cambios</button>
+                <a class="btn cancel" href="{{ url_for('usuario.perfil_usuario') }}">Cancelar</a>
+                <a class="btn password" href="{{ url_for('usuario.recuperar_contrasena', email=usuario.correo) }}">Cambiar contraseña</a>
+            </div>
+        </form>
+    </main>
+    <script>
+        (() => {
+            const input = document.getElementById('foto_perfil');
+            const croppedInput = document.getElementById('foto_perfil_recortada');
+            const editor = document.getElementById('photo-editor');
+            const frame = document.getElementById('crop-frame');
+            const canvas = document.getElementById('crop-canvas');
+            const context = canvas.getContext('2d');
+            const zoom = document.getElementById('photo-zoom');
+            let image = null;
+            let minimumScale = 1;
+            let scale = 1;
+            let x = 0;
+            let y = 0;
+            let dragStart = null;
+
+            function clampPosition() {
+                const width = image.width * scale;
+                const height = image.height * scale;
+                x = Math.min(0, Math.max(canvas.width - width, x));
+                y = Math.min(0, Math.max(canvas.height - height, y));
+            }
+
+            function render() {
+                if (!image) return;
+                clampPosition();
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(image, x, y, image.width * scale, image.height * scale);
+                croppedInput.value = canvas.toDataURL('image/jpeg', 0.9);
+            }
+
+            input.addEventListener('change', () => {
+                const file = input.files && input.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    input.value = '';
+                    croppedInput.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => {
+                    image = new Image();
+                    image.onload = () => {
+                        minimumScale = Math.max(canvas.width / image.width, canvas.height / image.height);
+                        scale = minimumScale;
+                        x = (canvas.width - image.width * scale) / 2;
+                        y = (canvas.height - image.height * scale) / 2;
+                        zoom.value = '1';
+                        editor.classList.add('visible');
+                        render();
+                    };
+                    image.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            zoom.addEventListener('input', () => {
+                if (!image) return;
+                const previousWidth = image.width * scale;
+                const previousHeight = image.height * scale;
+                scale = minimumScale * Number(zoom.value);
+                x -= (image.width * scale - previousWidth) / 2;
+                y -= (image.height * scale - previousHeight) / 2;
+                render();
+            });
+
+            frame.addEventListener('pointerdown', (event) => {
+                if (!image) return;
+                frame.setPointerCapture(event.pointerId);
+                dragStart = { pointerX: event.clientX, pointerY: event.clientY, x, y };
+                frame.classList.add('dragging');
+            });
+            frame.addEventListener('pointermove', (event) => {
+                if (!dragStart) return;
+                const factor = canvas.width / frame.getBoundingClientRect().width;
+                x = dragStart.x + (event.clientX - dragStart.pointerX) * factor;
+                y = dragStart.y + (event.clientY - dragStart.pointerY) * factor;
+                render();
+            });
+            function finishDrag() {
+                dragStart = null;
+                frame.classList.remove('dragging');
+            }
+            frame.addEventListener('pointerup', finishDrag);
+            frame.addEventListener('pointercancel', finishDrag);
+        })();
+    </script>
+</body>
+</html>

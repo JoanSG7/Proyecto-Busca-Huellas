@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Registrar Mascota Perdida | Busca Huellas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
+    <style>
+        :root {
+            --primary: #2d6a4f;
+            --primary-container: #40916c;
+            --on-primary: #ffffff;
+            --background: #fdfaf5;
+            --surface: #ffffff;
+            --surface-container-low: #f5f0e8;
+            --surface-container-high: #ede7dd;
+            --on-surface: #1a1c1a;
+            --on-surface-variant: #424940;
+            --outline: #72796f;
+            --error: #ba1a1a;
+            --primary-fixed: #b7f397;
+            --on-primary-fixed-variant: #002107;
+            --secondary-container: #d9e7cb;
+            --radius-lg: 2rem;
+            --radius-xl: 3.5rem;
+            --radius-full: 9999px;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.03);
+            --shadow-strong: 0 20px 60px rgba(45, 106, 79, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--background);
+            color: var(--on-surface);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 8rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+
+        @media (min-width: 1024px) {
+            main {
+                grid-template-columns: 1.1fr 1fr;
+                padding: 4rem 1.5rem 6rem;
+                gap: 5rem;
+                align-items: start;
+            }
+        }
+
+        /* Left Column */
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        @media (min-width: 1024px) {
+            .info-section {
+                position: sticky;
+                top: 8rem;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: #d8eada;
+            color: var(--primary);
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            letter-spacing: -0.04em;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 4.5rem;
+            }
+        }
+
+        .subtitle {
+            font-size: 1.15rem;
+            color: var(--on-surface-variant);
+            line-height: 1.6;
+            max-width: 500px;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            margin: 1.5rem 0;
+            align-self: center;
+        }
+
+        @media (min-width: 1024px) {
+            .image-container {
+                align-self: flex-start;
+            }
+        }
+
+        .blob-bg {
+            position: absolute;
+            inset: -20px;
+            background-color: var(--primary-fixed);
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            opacity: 0.35;
+            transform: rotate(5deg);
+            z-index: 1;
+        }
+
+        .main-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Right Column Form */
+        .form-card {
+            background-color: var(--surface);
+            padding: 2.5rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-strong);
+        }
+
+        @media (min-width: 768px) {
+            .form-card {
+                padding: 3.5rem;
+            }
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 3.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-header span {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+        }
+
+        /* Fixed Grid Alignment for Data Section */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem 2rem;
+        }
+
+        @media (min-width: 640px) {
+            .input-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .input-group label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--on-surface-variant);
+            padding-left: 0.25rem;
+        }
+
+        input,
+        select,
+        textarea {
+            background-color: var(--surface-container-low);
+            border: 2px solid transparent;
+            padding: 1.1rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--on-surface);
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        textarea {
+            border-radius: 1.5rem;
+            resize: none;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            background-color: var(--surface);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.06);
+        }
+
+        /* Toggle Group */
+        .toggle-group {
+            display: flex;
+            gap: 0.5rem;
+            background-color: var(--surface-container-low);
+            padding: 0.4rem;
+            border-radius: var(--radius-full);
+            width: 100%;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.7rem 0.25rem;
+            border-radius: var(--radius-full);
+            background: none;
+            border: none;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(45, 106, 79, 0.2);
+        }
+
+        /* Map Styling */
+        .map-container {
+            width: 100%;
+            height: 320px;
+            background-color: var(--secondary-container);
+            border-radius: 2rem;
+            overflow: hidden;
+            position: relative;
+            border: 8px solid var(--surface-container-low);
+        }
+
+        .map-container .leaflet-control-attribution {
+            font-size: 0.65rem;
+        }
+
+        .map-hint {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 500;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary);
+            border-radius: var(--radius-full);
+            padding: 0.55rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .map-search {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .map-search input {
+            flex: 1;
+        }
+
+        .map-tools {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .map-action {
+            border: none;
+            border-radius: var(--radius-full);
+            padding: 0.8rem 1.1rem;
+            background: var(--surface-container-low);
+            color: var(--primary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: inherit;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .map-action:hover {
+            background: var(--surface-container-high);
+        }
+
+        .map-status {
+            margin-top: 0.75rem;
+            color: var(--on-surface-variant);
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .map-selected {
+            margin-top: 0.75rem;
+            background: var(--surface-container-low);
+            color: var(--on-surface);
+            border-radius: 1rem;
+            padding: 0.9rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        @media (max-width: 640px) {
+            .map-search {
+                flex-direction: column;
+            }
+
+            .map-action {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+
+        /* Photos */
+        .photo-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .photo-slot {
+            aspect-ratio: 1/1;
+            border: 2px dashed var(--outline);
+            border-radius: 1.5rem;
+            background-color: var(--surface-container-low);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.7;
+        }
+
+        .photo-slot:hover {
+            opacity: 1;
+            border-color: var(--primary);
+            background-color: var(--surface-container-high);
+            color: var(--primary);
+        }
+
+        .photo-slot span {
+            font-size: 1.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .photo-slot small {
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .photo-preview {
+            position: relative;
+            aspect-ratio: 1/1;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            background: var(--surface-container-low);
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: var(--radius-full);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            color: white;
+            background: rgba(26, 28, 26, 0.72);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1.25rem;
+            border-radius: var(--radius-full);
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(45, 106, 79, 0.2);
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            background-color: var(--primary-container);
+            box-shadow: 0 15px 40px rgba(45, 106, 79, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--background);
+            padding: 4rem 1.5rem 8rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        @media (min-width: 768px) {
+            footer {
+                padding: 4rem 1.5rem;
+            }
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .footer-inner {
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+            }
+        }
+
+        .footer-inner p {
+            font-size: 0.85rem;
+            color: var(--on-surface-variant);
+        }
+
+        .footer-nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-nav a {
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--on-surface-variant);
+        }
+
+        /* Navigation & Floating Button */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            padding: 0.75rem 1rem 2rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            border-radius: 2rem 2rem 0 0;
+        }
+
+        @media (min-width: 768px) {
+            .nav-bar {
+                display: none;
+            }
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--on-surface-variant);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+        }
+
+        .nav-link span {
+            font-size: 1.5rem;
+        }
+
+        .nav-link label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* Adaptive Camera Button */
+        .camera-btn {
+            background-color: var(--primary);
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(45, 106, 79, 0.3);
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .camera-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Mobile Integrated Cam */
+        .nav-bar .camera-btn {
+            margin-top: -3.5rem;
+            width: 64px;
+            height: 64px;
+            border: 4px solid var(--background);
+        }
+
+        /* Desktop Floating Cam */
+        @media (min-width: 768px) {
+            .desktop-fab {
+                position: fixed;
+                bottom: 2.5rem;
+                right: 2.5rem;
+                width: 72px;
+                height: 72px;
+                z-index: 999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .desktop-fab .camera-btn {
+                width: 100%;
+                height: 100%;
+            }
+
+            .desktop-fab .camera-btn span {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .desktop-fab {
+                display: none;
+            }
+        }
+
+        .material-symbols-outlined,
+        .material-symbols-rounded {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/paw_background.css') }}">
+</head>
+
+<body>
+    {% include 'includes/_header-up.html' %}
+    <main>
+        <div class="info-section">
+            <div>
+                <span class="badge">Emergencia</span>
+                <h1>Registrar Mascota Perdida</h1>
+                <p class="subtitle">Ayúdanos a encontrar a tu compañero. Completar este reporte permitirá que nuestra
+                    comunidad forestal esté alerta en tu zona.</p>
+            </div>
+            <div class="image-container">
+                <div class="blob-bg"></div>
+                <img alt="Mascota 3D" class="main-img"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoDDOnQoF5PXzlJXnvFMni1S6MC3NovYp733Jj1se2vRnjD2B8vwiCPJCP9I7Tp4qtt2zSZPSWZ-B0sT1L2UxZYNEjOjDUzXBHfaZQKdmlWtYhOGRcljTkVQR664tQToy8StqQgsQ7tM2T2QSrPs5Ad6IQKBGmzQcYYff32ik20iY7rMjC3pU_-nsntSTff_pcq52asSEO9tr3OGOMCWYI8jx00zQCgR-PVt6tImCJboGav8A4YPBV3rL8Sp1X51-htCim_LrYGS-b" />
+            </div>
+        </div>
+        <div class="form-card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <p style="margin-bottom: 1rem; color: {% if category == 'error' %}#ba1a1a{% else %}#2d6a4f{% endif %}; font-weight: 800;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <form action="{{ url_for('mascota.registro_mascota') }}" method="POST" enctype="multipart/form-data">
+                <!-- Data Section with Grid Alignment -->
+                <section>
+                    <div class="section-header">
+                        <span class="material-symbols-outlined fill">pets</span>
+                        <h2>Datos de tu Mascota</h2>
+                    </div>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Nombre de la mascota</label>
+                            <input name="nombre_mascota" placeholder="Ej: Canela" required type="text" />
+                        </div>
+                        <div class="input-group">
+                            <label>Raza</label>
+                            <input name="raza" placeholder="Ej: Golden Retriever" type="text" />
+                        </div>
+                        <div class="input-group">
+                            <label>Edad exacta (años)</label>
+                            <input id="edad" name="edad" min="0" max="30" placeholder="Ej: 3" type="number" />
+                        </div>
+                        <div class="input-group">
+                            <label>Tamaño</label>
+                            <div class="toggle-group" id="size-toggle">
+                                <button class="toggle-btn active" data-val="pequeño" type="button">Pequeño</button>
+                                <button class="toggle-btn" data-val="mediano" type="button">Mediano</button>
+                                <button class="toggle-btn" data-val="grande" type="button">Grande</button>
+                            </div>
+                            <input id="tamano" name="tamano" type="hidden" value="pequeño" />
+                        </div>
+                        <div class="input-group">
+                            <label>Color</label>
+                            <input name="color" placeholder="Ej: Café con blanco" type="text" />
+                        </div>
+                        <div class="input-group">
+                            <label>Pelaje</label>
+                            <input name="pelaje" placeholder="Ej: Corto, largo, rizado" type="text" />
+                        </div>
+                    </div>
+                    <div class="input-group" style="margin-top: 2rem;">
+                        <label>Características distintivas</label>
+                        <textarea placeholder="Describe manchas, cicatrices, collar o cualquier rasgo único..."
+                            name="descripcion" rows="3"></textarea>
+                    </div>
+                </section>
+                <section>
+                    <div class="section-header">
+                        <span class="material-symbols-outlined fill">location_on</span>
+                        <h2>Último lugar donde se vio</h2>
+                    </div>
+                    <div class="map-search">
+                        <input id="buscar-lugar" type="search" placeholder="Buscar dirección, barrio o punto de referencia">
+                        <button class="map-action" id="buscar-lugar-btn" type="button">
+                            <span class="material-symbols-outlined">search</span>
+                            Buscar
+                        </button>
+                    </div>
+                    <div class="map-container" id="mapa-ubicacion" aria-label="Mapa para seleccionar el último lugar donde se vio la mascota">
+                        <div class="map-hint">Mueve el mapa y haz clic para elegir</div>
+                    </div>
+                    <div class="map-tools">
+                        <button class="map-action" id="usar-ubicacion" type="button">
+                            <span class="material-symbols-outlined">my_location</span>
+                            Estoy en ese lugar
+                        </button>
+                        <button class="map-action" id="confirmar-lugar" type="button">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            Confirmar lugar
+                        </button>
+                    </div>
+                    <p class="map-status" id="ubicacion-status">Busca el lugar donde se vio por última vez y confirma la selección.</p>
+                    <div class="map-selected" id="lugar-seleccionado">Lugar seleccionado: ninguno</div>
+                    <input id="ubicacion" name="ubicacion" type="hidden" required>
+                    <input id="latitud" name="latitud" type="hidden">
+                    <input id="longitud" name="longitud" type="hidden">
+                </section>
+                <section>
+                    <div class="section-header">
+                        <span class="material-symbols-outlined fill">add_a_photo</span>
+                        <h2>Fotos Recientes (Mínimo 2)</h2>
+                    </div>
+                    <div class="photo-upload-grid" id="photo-preview-grid">
+                        <label class="photo-slot" for="foto-mascota">
+                            <span class="material-symbols-outlined">add_photo_alternate</span>
+                            <small>Subir varias</small>
+                            <input id="foto-mascota" name="fotos_mascota" type="file" accept="image/*" hidden multiple required>
+                        </label>
+                    </div>
+                </section>
+                <button class="submit-btn" type="submit">Publicar Reporte</button>
+            </form>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-inner">
+            <p>© 2024 Busca Huellas. Hecho con amor por los animales.</p>
+            <nav class="footer-nav">
+                <a href="#">Privacidad</a>
+                <a href="#">Términos</a>
+                <a href="#">Contacto</a>
+            </nav>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+    <script>
+        // Size toggle logic
+        const toggleButtons = document.querySelectorAll('#size-toggle .toggle-btn');
+        toggleButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                toggleButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('tamano').value = btn.dataset.val;
+            });
+        });
+
+        const photoInput = document.getElementById('foto-mascota');
+        const photoGrid = document.getElementById('photo-preview-grid');
+        const uploadSlot = photoGrid.querySelector('.photo-slot');
+        const selectedFiles = new DataTransfer();
+
+        function syncPhotoInput() {
+            photoInput.files = selectedFiles.files;
+            photoInput.required = selectedFiles.files.length < 2;
+        }
+
+        function renderPhotos() {
+            photoGrid.querySelectorAll('.photo-preview').forEach(preview => preview.remove());
+            Array.from(selectedFiles.files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const preview = document.createElement('div');
+                    preview.className = 'photo-preview';
+                    preview.innerHTML = `
+                        <img src="${event.target.result}" alt="Foto seleccionada ${index + 1}">
+                        <button class="remove-photo" type="button" aria-label="Eliminar foto">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    `;
+                    preview.querySelector('.remove-photo').addEventListener('click', () => {
+                        const nextFiles = Array.from(selectedFiles.files).filter((_, itemIndex) => itemIndex !== index);
+                        selectedFiles.items.clear();
+                        nextFiles.forEach(item => selectedFiles.items.add(item));
+                        syncPhotoInput();
+                        renderPhotos();
+                    });
+                    photoGrid.insertBefore(preview, uploadSlot);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        photoInput.addEventListener('change', () => {
+            Array.from(photoInput.files).forEach(file => selectedFiles.items.add(file));
+            syncPhotoInput();
+            renderPhotos();
+        });
+
+        const edadInput = document.getElementById('edad');
+        edadInput.addEventListener('input', () => {
+            if (Number(edadInput.value) > 30) {
+                edadInput.value = 30;
+            }
+        });
+
+        const ubicacionInput = document.getElementById('ubicacion');
+        const latitudInput = document.getElementById('latitud');
+        const longitudInput = document.getElementById('longitud');
+        const ubicacionStatus = document.getElementById('ubicacion-status');
+        const selectedPlaceText = document.getElementById('lugar-seleccionado');
+        const placeSearchInput = document.getElementById('buscar-lugar');
+        const placeSearchButton = document.getElementById('buscar-lugar-btn');
+        const confirmPlaceButton = document.getElementById('confirmar-lugar');
+        const defaultLocation = [4.711, -74.0721];
+        // Límite de Bogotá D.C.: mantiene disponibles todas las localidades y barrios.
+        const bogotaBounds = L.latLngBounds([4.45, -74.24], [4.84, -73.98]);
+        const map = L.map('mapa-ubicacion', {
+            zoomControl: true,
+            scrollWheelZoom: true,
+            maxBounds: bogotaBounds,
+            maxBoundsViscosity: 1.0,
+            minZoom: 11
+        }).setView(defaultLocation, 13);
+        let marker = null;
+        let pendingLocation = null;
+
+        const tileLayers = [
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 20,
+                attribution: '&copy; OpenStreetMap &copy; CARTO'
+            }),
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            })
+        ];
+
+        tileLayers[0].addTo(map);
+        tileLayers[0].on('tileerror', () => {
+            if (!map.hasLayer(tileLayers[1])) {
+                map.removeLayer(tileLayers[0]);
+                tileLayers[1].addTo(map);
+            }
+        });
+
+        function formatAddress(result) {
+            const address = result.address || {};
+            const road = address.road || address.pedestrian || address.footway || address.cycleway;
+            const number = address.house_number;
+            if (road) return `${road}${number ? ` #${number}` : ''}`;
+            return address.neighbourhood || address.suburb || address.city_district || result.display_name.split(',')[0] || 'Ubicación en Bogotá';
+        }
+
+        async function obtenerDireccion(lat, lng) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=es`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('No fue posible obtener la dirección');
+            return formatAddress(await response.json());
+        }
+
+        async function setSelectedLocation(lat, lng, placeName = '') {
+            if (!bogotaBounds.contains(L.latLng(lat, lng))) {
+                ubicacionStatus.textContent = 'Selecciona una dirección dentro de Bogotá D.C.';
+                return;
+            }
+            const latFixed = Number(lat).toFixed(6);
+            const lngFixed = Number(lng).toFixed(6);
+            const label = placeName || 'Buscando dirección en Bogotá...';
+
+            pendingLocation = {
+                label: label.slice(0, 150),
+                lat: latFixed,
+                lng: lngFixed
+            };
+            ubicacionInput.value = '';
+            latitudInput.value = '';
+            longitudInput.value = '';
+            ubicacionStatus.textContent = placeName ? 'Lugar elegido. Presiona Confirmar lugar para guardarlo.' : 'Buscando la dirección del lugar elegido...';
+            selectedPlaceText.textContent = `Lugar por confirmar: ${pendingLocation.label}`;
+
+            if (!marker) {
+                marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+                marker.on('dragend', event => {
+                    const position = event.target.getLatLng();
+                    setSelectedLocation(position.lat, position.lng);
+                });
+            } else {
+                marker.setLatLng([lat, lng]);
+            }
+
+            marker.bindPopup('Último lugar donde se vio').openPopup();
+
+            if (!placeName) {
+                try {
+                    const direccion = await obtenerDireccion(latFixed, lngFixed);
+                    if (!pendingLocation || pendingLocation.lat !== latFixed || pendingLocation.lng !== lngFixed) return;
+                    pendingLocation.label = direccion.slice(0, 150);
+                    selectedPlaceText.textContent = `Lugar por confirmar: ${pendingLocation.label}`;
+                    ubicacionStatus.textContent = 'Dirección encontrada. Presiona Confirmar lugar para guardarla.';
+                } catch (error) {
+                    if (pendingLocation && pendingLocation.lat === latFixed && pendingLocation.lng === lngFixed) {
+                        pendingLocation.label = 'Ubicación en Bogotá D.C.';
+                        selectedPlaceText.textContent = 'Lugar por confirmar: Ubicación en Bogotá D.C.';
+                        ubicacionStatus.textContent = 'No se pudo obtener la dirección. Busca una dirección o barrio para continuar.';
+                    }
+                }
+            }
+        }
+
+        // Al pulsar el mapa, guarda una dirección legible y nunca las coordenadas como texto.
+        map.on('click', event => {
+            setSelectedLocation(event.latlng.lat, event.latlng.lng);
+        });
+
+        confirmPlaceButton.addEventListener('click', async () => {
+            if (!pendingLocation) {
+                ubicacionStatus.textContent = 'Primero elige un punto en el mapa o busca una dirección.';
+                return;
+            }
+
+            if (pendingLocation.label === 'Buscando dirección en Bogotá...') {
+                ubicacionStatus.textContent = 'Espera un momento mientras se obtiene la dirección.';
+                return;
+            }
+            ubicacionInput.value = pendingLocation.label;
+            latitudInput.value = pendingLocation.lat;
+            longitudInput.value = pendingLocation.lng;
+            ubicacionStatus.textContent = 'Último lugar visto confirmado.';
+            selectedPlaceText.textContent = `Lugar seleccionado: ${ubicacionInput.value}`;
+        });
+
+        async function searchPlace() {
+            const query = placeSearchInput.value.trim();
+            if (!query) {
+                ubicacionStatus.textContent = 'Escribe una dirección, barrio o punto de referencia para buscar.';
+                return;
+            }
+
+            ubicacionStatus.textContent = 'Buscando lugar...';
+
+            const queryNormalizada = query.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            if (queryNormalizada.includes('antonio narino')) {
+                const antonioNarino = [4.5948, -74.1014];
+                map.setView(antonioNarino, 15);
+                setSelectedLocation(antonioNarino[0], antonioNarino[1], 'Localidad Antonio Nariño, Bogotá');
+                return;
+            }
+
+            try {
+                const queryBogota = `${query}, Bogotá, Colombia`;
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&bounded=1&viewbox=-74.24,4.84,-73.98,4.45&addressdetails=1&accept-language=es&q=${encodeURIComponent(queryBogota)}`);
+                const places = await response.json();
+                const place = places.find(item => bogotaBounds.contains(L.latLng(Number(item.lat), Number(item.lon))));
+                if (!place) {
+                    ubicacionStatus.textContent = 'No encontré ese lugar. Mueve el mapa con la mano y haz clic para elegir.';
+                    return;
+                }
+
+                const lat = Number(place.lat);
+                const lng = Number(place.lon);
+                if (!bogotaBounds.contains(L.latLng(lat, lng))) {
+                    ubicacionStatus.textContent = 'Solo puedes seleccionar direcciones ubicadas en Bogotá D.C.';
+                    return;
+                }
+                map.setView([lat, lng], 17);
+                setSelectedLocation(lat, lng, formatAddress(place));
+            } catch (error) {
+                ubicacionStatus.textContent = 'No se pudo buscar el lugar. Mueve el mapa con la mano y haz clic para elegir.';
+            }
+        }
+
+        placeSearchButton.addEventListener('click', searchPlace);
+        placeSearchInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                searchPlace();
+            }
+        });
+
+        document.getElementById('usar-ubicacion').addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                ubicacionStatus.textContent = 'Este navegador no permite obtener la ubicación actual.';
+                return;
+            }
+
+            ubicacionStatus.textContent = 'Solicitando ubicación actual...';
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const latFixed = position.coords.latitude.toFixed(6);
+                    const lngFixed = position.coords.longitude.toFixed(6);
+                    if (!bogotaBounds.contains(L.latLng(latFixed, lngFixed))) {
+                        ubicacionStatus.textContent = 'Tu ubicación actual está fuera de Bogotá D.C. Busca una dirección dentro de la ciudad.';
+                        return;
+                    }
+                    map.setView([latFixed, lngFixed], 17);
+                    setSelectedLocation(latFixed, lngFixed);
+                },
+                () => {
+                    ubicacionStatus.textContent = 'No se pudo obtener la ubicación actual. Busca el lugar por dirección o referencia.';
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        });
+    </script>
+</body>
+
+</html>

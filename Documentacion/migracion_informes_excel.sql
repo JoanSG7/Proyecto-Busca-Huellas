@@ -1,0 +1,1 @@
+-- No requiere cambios adicionales: cada informe conserva PDF y Excel.
