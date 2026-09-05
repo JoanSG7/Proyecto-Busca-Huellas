@@ -2,6 +2,7 @@ import os
 import re
 from flask import Flask, redirect, send_file, send_from_directory, url_for
 from dotenv import load_dotenv
+import ipaddress
 
 
 # Importamos el Blueprint que creamos en tu carpeta de rutas
@@ -145,6 +146,57 @@ def static_favicon_ico():
     return _servir_favicon("favicon.ico", "image/x-icon")
 
 
-# 5. Arrancamos el servidor
+# 5. Arrancamos el servidor (con puerto configurable + fallback contra puerto ocupado)
 if __name__ == "__main__":
-    app.run(debug=True)
+    # --- Host (IP que escucha Flask) ---
+    raw_host = os.getenv("FLASK_HOST", "127.0.0.1").strip()
+    try:
+        # Valida que sea una IP correcta (IPv4 o IPv6). Si no, falla seguro.
+        ipaddress.ip_address(raw_host)
+        flask_host = raw_host
+    except ValueError:
+        print(f"[WARNING] FLASK_HOST='{raw_host}' no es una IP valida. Usando 127.0.0.1")
+        flask_host = "127.0.0.1"
+
+    # --- Puerto (configurable via .env, con fallback si esta ocupado) ---
+    puerto_primario = 5000
+    raw_port = os.getenv("PORT", "").strip()
+    if raw_port:
+        try:
+            parsed = int(raw_port)
+            if 1 <= parsed <= 65535:
+                puerto_primario = parsed
+            else:
+                print(f"[WARNING] PORT={raw_port} fuera de rango (1-65535). Usando 5000")
+        except ValueError:
+            print(f"[WARNING] PORT='{raw_port}' no es un numero. Usando 5000")
+
+    # Lista de puertos a probar, en orden de preferencia.
+    # Si el primero esta ocupado (muy comun en PCs del SENA / Windows con
+    # servicios .NET, Skype, Docker, etc.) se pasa al siguiente.
+    puertos_a_probar = []
+    for p in [puerto_primario, 5001, 8000, 8080, 3000]:
+        if p not in puertos_a_probar:
+            puertos_a_probar.append(p)
+
+    puerto_elegido = None
+    for puerto in puertos_a_probar:
+        try:
+            # Usamos use_reloader=False para no arrancar 2 procesos Flask
+            # (así el puerto solo se ocupa una vez).
+            print(f"[INFO] Intentando arrancar Flask en {flask_host}:{puerto} ...")
+            app.run(host=flask_host, port=puerto, debug=True, use_reloader=False)
+            puerto_elegido = puerto
+            break
+        except OSError as e:
+            # WinError 10013 = Puerto ocupado / denegado por permisos
+            if "10013" in str(e) or "address already in use" in str(e).lower() \
+                    or "winerror 10048" in str(e).lower():
+                print(f"[WARNING] Puerto {puerto} OCUPADO o denegado ({e}). Proximo puerto...")
+                continue
+            # Cualquier otro OSError no esperado si lo propagamos
+            raise
+
+    if puerto_elegido is None:
+        print("[ERROR] No se pudo arrancar Flask en ningun puerto.")
+        print("  Intenta cerrar otros programas o cambia PORT en .env.")

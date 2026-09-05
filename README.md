@@ -107,6 +107,7 @@ python app.py
 Verás una salida similar a:
 
 ```
+[INFO] Intentando arrancar Flask en 127.0.0.1:5000 ...
  * Serving Flask app 'app'
  * Debug mode: on
 WARNING: This is a development server. Do not use it in a production deployment.
@@ -114,9 +115,57 @@ WARNING: This is a development server. Do not use it in a production deployment.
 Press CTRL+C to quit
 ```
 
-Abre en tu navegador: **<http://localhost:5000>**
+Abre en tu navegador la URL que muestre la terminal — normalmente **<http://localhost:5000>**.
 
-La raíz redirige automáticamente al inicio de sesión.
+> 🔧 **Puerto y host son configurables via `.env`** (variables `PORT` y `FLASK_HOST`, ver sección siguiente).
+> La raíz redirige automáticamente al inicio de sesión.
+
+#### ⚠️ Si el puerto 5000 está ocupado (muy común en PCs del SENA)
+
+En laboratorios del SENA es normal que el puerto 5000 ya lo use otro programa
+(Skype, Windows servicios, Docker, IIS Express, etc.). En ese caso no tienes
+que hacer nada manualmente — el script **ya intenta automáticamente** los
+puertos en este orden:
+
+1. El que hayas puesto en `PORT` del `.env` (por defecto `5000`)
+2. `5001`
+3. `8000`
+4. `8080`
+5. `3000`
+
+En la consola verás algo como:
+
+```
+[INFO] Intentando arrancar Flask en 127.0.0.1:5000 ...
+[WARNING] Puerto 5000 OCUPADO o denegado (...). Proximo puerto...
+[INFO] Intentando arrancar Flask en 127.0.0.1:5001 ...
+ * Running on http://127.0.0.1:5001
+```
+
+Simplemente abre la URL nueva (en el ejemplo `http://localhost:5001`). Si
+prefieres forzar un puerto concreto antes de arrancar, edita el `.env`:
+
+```ini
+PORT=8080
+```
+
+#### 🖧 Quieren ver la app desde otro PC del salón del SENA
+
+Por defecto Flask solo escucha en `127.0.0.1` (solo el mismo equipo). Si
+en la sustentación quieren que **otros PCs de la red local** abran la app:
+
+1. En el `.env` cambia:
+   ```ini
+   FLASK_HOST=0.0.0.0
+   ```
+2. Reinicia `python app.py`.
+3. Averigua la IP del PC donde corre Flask (`ipconfig` en Windows →
+   "Dirección IPv4" de Ethernet / Wi‑Fi, por ejemplo `192.168.0.20`).
+4. Desde otro PC de la misma red abren `http://192.168.0.20:5000`
+   (o el puerto que haya arrancado).
+
+> 🔒 En Windows puede saltar el Firewall al poner `0.0.0.0`. Acepta la
+> ventanita de "Permitir acceso" marcando redes **Privadas** y **Públicas**.
 
 ---
 
