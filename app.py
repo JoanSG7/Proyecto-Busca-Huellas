@@ -148,15 +148,30 @@ def static_favicon_ico():
 
 # 5. Arrancamos el servidor (con puerto configurable + fallback contra puerto ocupado)
 if __name__ == "__main__":
-    # --- Host (IP que escucha Flask) ---
-    raw_host = os.getenv("FLASK_HOST", "127.0.0.1").strip()
-    try:
-        # Valida que sea una IP correcta (IPv4 o IPv6). Si no, falla seguro.
-        ipaddress.ip_address(raw_host)
-        flask_host = raw_host
-    except ValueError:
-        print(f"[WARNING] FLASK_HOST='{raw_host}' no es una IP valida. Usando 127.0.0.1")
+    # --- Host (IP/nombre que escucha Flask) ---
+    # Aceptamos "localhost" como valor preferido (el que usan en el SENA).
+    # "localhost" NO es una IP válida para ipaddress, así que lo aceptamos
+    # como caso especial y lo traducimos internamente a 127.0.0.1.
+    raw_host = os.getenv("FLASK_HOST", "localhost").strip().lower()
+    if raw_host in ("localhost", "::1"):
+        # 127.0.0.1 es la IP a la que realmente se enlaza (equivalente a localhost).
+        # Pero seguimos mostrando "localhost" en los mensajes, que es lo familiar.
         flask_host = "127.0.0.1"
+        host_amigable = "localhost"
+    elif raw_host in ("*", "0.0.0.0", "::"):
+        # Escuchar en todas las interfaces de red (desde cualquier PC).
+        flask_host = "0.0.0.0"
+        host_amigable = "localhost (tambien accesible via IP de esta maquina)"
+    else:
+        # Si escriben una IP concreta (192.168.x.x etc) validamos.
+        try:
+            ipaddress.ip_address(raw_host)
+            flask_host = raw_host
+            host_amigable = raw_host
+        except ValueError:
+            print(f"[WARNING] FLASK_HOST='{raw_host}' no valido. Usando localhost")
+            flask_host = "127.0.0.1"
+            host_amigable = "localhost"
 
     # --- Puerto (configurable via .env, con fallback si esta ocupado) ---
     puerto_primario = 5000
@@ -182,9 +197,9 @@ if __name__ == "__main__":
     puerto_elegido = None
     for puerto in puertos_a_probar:
         try:
-            # Usamos use_reloader=False para no arrancar 2 procesos Flask
-            # (así el puerto solo se ocupa una vez).
-            print(f"[INFO] Intentando arrancar Flask en {flask_host}:{puerto} ...")
+            # Mostramos "localhost" en los mensajes, que es lo que el usuario
+            # del SENA espera ver. La IP real de enlace es flask_host.
+            print(f"[INFO] Intentando arrancar Flask en {host_amigable}:{puerto} ...")
             app.run(host=flask_host, port=puerto, debug=True, use_reloader=False)
             puerto_elegido = puerto
             break

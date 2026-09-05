@@ -107,11 +107,11 @@ python app.py
 Verás una salida similar a:
 
 ```
-[INFO] Intentando arrancar Flask en 127.0.0.1:5000 ...
+[INFO] Intentando arrancar Flask en localhost:5000 ...
  * Serving Flask app 'app'
  * Debug mode: on
 WARNING: This is a development server. Do not use it in a production deployment.
- * Running on http://127.0.0.1:5000
+ * Running on http://localhost:5000
 Press CTRL+C to quit
 ```
 
@@ -136,10 +136,10 @@ puertos en este orden:
 En la consola verás algo como:
 
 ```
-[INFO] Intentando arrancar Flask en 127.0.0.1:5000 ...
+[INFO] Intentando arrancar Flask en localhost:5000 ...
 [WARNING] Puerto 5000 OCUPADO o denegado (...). Proximo puerto...
-[INFO] Intentando arrancar Flask en 127.0.0.1:5001 ...
- * Running on http://127.0.0.1:5001
+[INFO] Intentando arrancar Flask en localhost:5001 ...
+ * Running on http://localhost:5001
 ```
 
 Simplemente abre la URL nueva (en el ejemplo `http://localhost:5001`). Si
@@ -151,7 +151,7 @@ PORT=8080
 
 #### 🖧 Quieren ver la app desde otro PC del salón del SENA
 
-Por defecto Flask solo escucha en `127.0.0.1` (solo el mismo equipo). Si
+Por defecto Flask solo escucha en `localhost` (solo el mismo equipo). Si
 en la sustentación quieren que **otros PCs de la red local** abran la app:
 
 1. En el `.env` cambia:
@@ -162,7 +162,8 @@ en la sustentación quieren que **otros PCs de la red local** abran la app:
 3. Averigua la IP del PC donde corre Flask (`ipconfig` en Windows →
    "Dirección IPv4" de Ethernet / Wi‑Fi, por ejemplo `192.168.0.20`).
 4. Desde otro PC de la misma red abren `http://192.168.0.20:5000`
-   (o el puerto que haya arrancado).
+   (o el puerto que haya arrancado — en tu propio PC sigue funcionando
+   **también** con `http://localhost:5000`).
 
 > 🔒 En Windows puede saltar el Firewall al poner `0.0.0.0`. Acepta la
 > ventanita de "Permitir acceso" marcando redes **Privadas** y **Públicas**.
