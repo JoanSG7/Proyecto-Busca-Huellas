@@ -553,24 +553,75 @@
             .impact-section { padding: 1.5rem 1rem; }
         }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/paw_background.css') }}">
-</head> 
+    <link rel="stylesheet" href="/static/css/paw_background.css">
+<link rel="icon" type="image/png" href="/static/img/favicon.png?v=2"></head> 
 
 <body>
-    {% include 'includes/_header-up.html' %}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div class="toast-stack" aria-live="polite">
-            {% for category, message in messages %}
-            <div class="toast {{ category }}" role="status">
-                <span class="material-symbols-outlined toast-icon">{% if category == 'error' %}error{% elif category == 'warning' %}warning{% else %}check_circle{% endif %}</span>
-                <span>{{ message }}</span>
-                <button class="toast-close" type="button" aria-label="Cerrar notificación">×</button>
-            </div>
-            {% endfor %}
+    <link href="/static/css/header_iniciada.css" rel="stylesheet">
+<link href="/static/css/preferencias.css" rel="stylesheet">
+<script>
+    (function () {
+        const raiz = document.documentElement;
+        raiz.classList.add('tema-claro');
+        
+    }());
+</script>
+<link href="/static/css/interacciones.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&family=Material+Symbols+Rounded:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<header>
+    <div class="header-content">
+        <a class="logo" href="/inicio">Busca Huellas</a>
+        <nav class="desktop-nav">
+            <a class="active" href="/inicio">Inicio</a>
+            <a class="" href="/articulos/lista">Artículos</a>
+            <a class="" href="/alertas/lista">Alertas</a>
+            
+            <a class="" href="/admin/">Admin</a>
+            
+        </nav>
+        <div class="header-actions">
+            <a class="icon-btn" href="/autenticacion/perfil" aria-label="Perfil">
+                
+                <span class="material-symbols-outlined">account_circle</span>
+                
+            </a>
         </div>
-        {% endif %}
-    {% endwith %}
+    </div>
+</header>
+<nav class="nav-bar">
+    <a class="nav-link" href="/inicio">
+        <span class="material-symbols-outlined">home</span>
+        <label>Inicio</label>
+    </a>
+    <a class="nav-link" href="/articulos/lista">
+        <span class="material-symbols-outlined">newspaper</span>
+        <label>Artículo</label>
+    </a>
+    <a class="camera-btn" href="/reconocimiento/capturar-foto">
+        <span class="material-symbols-rounded fill">photo_camera</span>
+    </a>
+    <a class="nav-link" href="/alertas/lista">
+        <span class="material-symbols-outlined">notifications</span>
+        <label>Alertas</label>
+    </a>
+    <a class="nav-link " href="/mensaje/chat" aria-label="Chat">
+        <span class="material-symbols-outlined">forum</span>
+        <label>Chat</label>
+    </a>
+</nav>
+<div class="desktop-chat-fab">
+    <a href="/mensaje/chat" class="chat-btn" aria-label="Abrir chat">
+        <span class="material-symbols-rounded fill">forum</span>
+    </a>
+</div>
+<div class="desktop-fab">
+    <a href="/reconocimiento/capturar-foto" class="camera-btn">
+        <span class="material-symbols-rounded fill">photo_camera</span>
+    </a>
+</div>
+    
+        
+    
     <main class="container">
         <section class="hero">
             <div class="hero-content">
@@ -579,8 +630,8 @@
                 <p>Tu presencia fortalece nuestro refugio digital. Juntos, seguimos conectando corazones y
                     encontrando caminos a casa.</p>
                 <div class="btn-group">
-                    <a class="enlace-btn-principal btn btn-primary" href="{{ url_for('reconocimiento.capturar_foto') }}">Reportar Hallazgo</a>
-                    <a class="enlace-btn-principal btn btn-secondary" href="{{ url_for('mascota.registro_mascota') }}">Registrar Mascota Perdida</a>
+                    <a class="enlace-btn-principal btn btn-primary" href="/reconocimiento/capturar-foto">Reportar Hallazgo</a>
+                    <a class="enlace-btn-principal btn btn-secondary" href="/mascota/registro-mascota">Registrar Mascota Perdida</a>
                 </div>
                 <p class="hero-note"><span class="material-symbols-outlined">verified_user</span> Reporta y coordina de forma segura con la comunidad.</p>
             </div>
@@ -595,18 +646,18 @@
             <div class="impact-grid">
                 <div class="impact-item">
 
-                    <h3 id="mascotas-reencontradas">{{ estadisticas.mascotas_reencontradas }}</h3>
+                    <h3 id="mascotas-reencontradas">0</h3>
                     <p>Mascotas Reencontradas</p>
                 </div>
                 <div class="divider"></div>
                 <div class="impact-item">
 
-                    <h3 id="voluntarios-activos">{{ estadisticas.voluntarios_activos }}</h3>
+                    <h3 id="voluntarios-activos">2</h3>
                     <p>Voluntarios Activos</p>
                 </div>
                 <div class="divider"></div>
                 <div class="impact-item alt">
-                    <h3 id="reportes-activos">{{ estadisticas.reportes_activos_hoy }}</h3>
+                    <h3 id="reportes-activos">0</h3>
                     <p>Reportes Activos Hoy</p>
                 </div>
             </div>
@@ -618,27 +669,25 @@
                     <p>Consejos expertos para mantener a nuestros
                         compañeros del bosque sanos y seguros.</p>
                 </div>
-                <a class="view-all" href="{{ url_for('articulo.lista_articulos') }}">
+                <a class="view-all" href="/articulos/lista">
                     Ver todos los artículos <span class="material-symbols-outlined">arrow_forward</span>
                 </a>
             </div>
             <div class="articles-grid">
-                {% for articulo in articulos %}
+                
                 <article class="article-card">
-                    <a class="article-link" href="{{ url_for('articulo.articulo_completo', id_articulo=articulo.id_articulo) }}">
+                    <a class="article-link" href="/articulos/articulo/4">
                         <div class="article-image-wrapper">
-                            <span class="badge {% if loop.index is even %}alt{% endif %}">Artículo</span>
+                            <span class="badge ">Artículo</span>
                             <img
-                                src="{{ articulo.url_imagen or 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=900&q=80' }}"
-                                alt="{{ articulo.titulo or 'Artículo de Busca Huellas' }}">
+                                src="/static/uploads/articulos/c968c927c40e45fcad0079dbc81708ae.jpg"
+                                alt="💡 Cinco claves para cuidar a tu perro en casa">
                         </div>
-                        <h3>{{ articulo.titulo or 'Artículo sin título' }}</h3>
-                        <p>{{ (articulo.contenido or '')[:150] }}{% if articulo.contenido and articulo.contenido|length > 150 %}...{% endif %}</p>
+                        <h3>💡 Cinco claves para cuidar a tu perro en casa</h3>
+                        <p>Alimentación sana: Da a tu perro comida de buena calidad según su edad y tamaño.Agua limpia: Cambia el agua de su plato varias veces al día para que s...</p>
                     </a>
                 </article>
-                {% else %}
-                <div class="empty-articles"><span class="material-symbols-outlined">menu_book</span><strong>Pronto tendremos consejos para ti</strong><span>Aún no hay artículos publicados.</span></div>
-                {% endfor %}
+                
             </div>
         </section>
         <div style="padding-bottom: 5rem;"></div>
@@ -646,7 +695,7 @@
     <script>
         async function actualizarEstadisticas() {
             try {
-                const respuesta = await fetch("{{ url_for('inicio.estadisticas') }}", { headers: { "Accept": "application/json" } });
+                const respuesta = await fetch("/inicio/estadisticas", { headers: { "Accept": "application/json" } });
                 if (!respuesta.ok) return;
                 const estadisticas = await respuesta.json();
                 const elementos = {
@@ -674,8 +723,8 @@
 
 
         (function () {
-            const logoutUrl = "{{ url_for('usuario.logout') }}";
-            const loginUrl = "{{ url_for('usuario.inicio_sesion') }}";
+            const logoutUrl = "/autenticacion/cerrar-sesion";
+            const loginUrl = "/autenticacion/";
             let leavingByBack = false;
 
             function logoutAndRedirect() {
