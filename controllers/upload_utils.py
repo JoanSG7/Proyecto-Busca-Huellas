@@ -8,8 +8,8 @@ from PIL import Image, UnidentifiedImageError
 
 
 ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
-MAX_IMAGE_BYTES = 5 * 1024 * 1024
-MAX_IMAGE_PIXELS = 20_000_000
+MAX_IMAGE_BYTES = 10 * 1024 * 1024
+MAX_IMAGE_PIXELS = 24_000_000
 IMAGE_FORMAT_EXTENSIONS = {"PNG": "png", "JPEG": "jpg", "GIF": "gif", "WEBP": "webp"}
 
 

@@ -27,7 +27,7 @@ app = Flask(__name__)
 app.config["SERVER_NAME"] = "localhost:5000"
 app.config["PREFERRED_URL_SCHEME"] = "http"
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "busca-huellas-dev-secret-change-me")
-app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = 14 * 1024 * 1024
 
 # 2. Registramos las rutas (Blueprints)
 app.register_blueprint(inicio_bp)
