@@ -77,6 +77,24 @@
             letter-spacing: -0.05em;
         }
 
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            margin-bottom: 1.1rem;
+            padding: .45rem .8rem;
+            border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent);
+            border-radius: 9999px;
+            background: color-mix(in srgb, var(--primary) 9%, transparent);
+            color: var(--primary);
+            font-size: .78rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .hero-eyebrow .material-symbols-outlined { font-size: 1.05rem; }
+
         .hero-content p {
             font-size: 1.25rem;
             color: var(--on-surface-variant);
@@ -132,6 +150,18 @@
             background-color: var(--secondary-container);
             color: var(--on-secondary-container);
         }
+
+        .hero-note {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            margin-top: 1.25rem;
+            color: var(--on-surface-variant);
+            font-size: .86rem;
+            font-weight: 600;
+        }
+
+        .hero-note .material-symbols-outlined { color: var(--primary); font-size: 1.2rem; }
 
         .organic-blob {
             border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
@@ -194,6 +224,18 @@
             letter-spacing: -0.05em;
             margin-bottom: 0.5rem;
         }
+
+        .impact-item {
+            min-width: 180px;
+            padding: 1.15rem 1.4rem;
+            border: 1px solid color-mix(in srgb, var(--primary) 12%, transparent);
+            border-radius: 1.15rem;
+            background: var(--surface);
+            box-shadow: 0 10px 24px rgba(28, 28, 23, .05);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .impact-item:hover { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(28, 28, 23, .1); }
 
         .impact-item.alt h3 {
             color: var(--secondary);
@@ -268,7 +310,14 @@
 
         .article-card {
             cursor: pointer;
+            padding: .7rem;
+            border: 1px solid transparent;
+            border-radius: 1.75rem;
+            background: var(--surface);
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
         }
+
+        .article-card:hover { transform: translateY(-5px); border-color: var(--outline-variant); box-shadow: 0 18px 35px rgba(28, 28, 23, .1); }
 
         .article-image-wrapper {
             position: relative;
@@ -322,6 +371,58 @@
             color: var(--on-surface-variant);
             line-height: 1.6;
         }
+
+        .empty-articles {
+            display: grid;
+            place-items: center;
+            gap: .65rem;
+            min-height: 230px;
+            padding: 2rem;
+            border: 1px dashed var(--outline-variant);
+            border-radius: 1.5rem;
+            background: var(--surface-container-low);
+            color: var(--on-surface-variant);
+            text-align: center;
+        }
+
+        .empty-articles .material-symbols-outlined { color: var(--primary); font-size: 2.5rem; }
+
+        .toast-stack {
+            position: fixed;
+            top: 5.5rem;
+            right: 1.25rem;
+            z-index: 1200;
+            display: grid;
+            gap: .65rem;
+            width: min(390px, calc(100vw - 2rem));
+        }
+
+        .toast {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: .7rem;
+            padding: .9rem 1rem;
+            border: 1px solid var(--outline-variant);
+            border-left: 5px solid var(--primary);
+            border-radius: 1rem;
+            background: var(--surface);
+            color: var(--on-surface);
+            box-shadow: 0 14px 30px rgba(28, 28, 23, .16);
+            font-size: .9rem;
+            font-weight: 700;
+            animation: toast-in .3s ease-out;
+        }
+
+        .toast.success { border-left-color: #2d6a4f; }
+        .toast.error { border-left-color: #ba1a1a; }
+        .toast.warning { border-left-color: #bd7b12; }
+        .toast-icon { color: var(--primary); }
+        .toast.error .toast-icon { color: #ba1a1a; }
+        .toast.warning .toast-icon { color: #bd7b12; }
+        .toast-close { width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--on-surface-variant); font-size: 1.15rem; cursor: pointer; }
+
+        @keyframes toast-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Floating Button */
         .fab {
@@ -427,6 +528,7 @@
             .articles-grid { gap: 2rem; }
             .article-image-wrapper { margin-bottom: 1rem; border-radius: 1.25rem; }
             .article-card h3 { font-size: 1.3rem; margin-bottom: .65rem; }
+            .article-card { padding: .55rem; border-radius: 1.4rem; }
         }
 
         @media (max-width: 360px) {
@@ -439,18 +541,31 @@
 
 <body>
     {% include 'includes/_header-up.html' %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="toast-stack" aria-live="polite">
+            {% for category, message in messages %}
+            <div class="toast {{ category }}" role="status">
+                <span class="material-symbols-outlined toast-icon">{% if category == 'error' %}error{% elif category == 'warning' %}warning{% else %}check_circle{% endif %}</span>
+                <span>{{ message }}</span>
+                <button class="toast-close" type="button" aria-label="Cerrar notificación">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
     <main class="container">
         <section class="hero">
             <div class="hero-content">
-                <h1 class style>Bienvenido a nuestro refugio Digital</h1>
+                <p class="hero-eyebrow"><span class="material-symbols-outlined">pets</span> Red de apoyo para mascotas</p>
+                <h1 class style>Juntos las ayudamos a volver a casa</h1>
                 <p class style>Tu presencia fortalece nuestro refugio digital. Juntos, seguimos conectando corazones y
                     encontrando caminos a casa.</p>
                 <div class="btn-group">
-                    <a class="enlace-btn-principal" href="{{ url_for('reconocimiento.capturar_foto') }}"><button
-                            class="btn btn-primary" style>Reportar Hallazgo</button></a>
-                    <a class="enlace-btn-principal" href="{{ url_for('mascota.registro_mascota') }}"><button
-                            class="btn btn-secondary" style>Registrar Mascota Perdida</button></a>
+                    <a class="enlace-btn-principal btn btn-primary" href="{{ url_for('reconocimiento.capturar_foto') }}">Reportar Hallazgo</a>
+                    <a class="enlace-btn-principal btn btn-secondary" href="{{ url_for('mascota.registro_mascota') }}">Registrar Mascota Perdida</a>
                 </div>
+                <p class="hero-note"><span class="material-symbols-outlined">verified_user</span> Reporta y coordina de forma segura con la comunidad.</p>
             </div>
             <div class="blob-container">
                 <div class="blob-bg"></div>
@@ -505,7 +620,7 @@
                     </a>
                 </article>
                 {% else %}
-                <p style="color: var(--on-surface-variant);">Aún no hay artículos publicados.</p>
+                <div class="empty-articles"><span class="material-symbols-outlined">menu_book</span><strong>Pronto tendremos consejos para ti</strong><span>Aún no hay artículos publicados.</span></div>
                 {% endfor %}
             </div>
         </section>
@@ -513,8 +628,6 @@
     </main>
     <script>
         async function actualizarEstadisticas() {
-
-        async function actualizarReportesActivos() {
             try {
                 const respuesta = await fetch("{{ url_for('inicio.estadisticas') }}", { headers: { "Accept": "application/json" } });
                 if (!respuesta.ok) return;
@@ -536,15 +649,11 @@
         actualizarEstadisticas();
         setInterval(actualizarEstadisticas, 15000);
 
-                const reportes = document.getElementById("reportes-activos");
-                if (reportes) reportes.textContent = estadisticas.reportes_activos_hoy ?? reportes.textContent;
-            } catch (error) {
-                console.warn("No se pudieron actualizar los reportes activos.", error);
-            }
-        }
-
-        actualizarReportesActivos();
-        setInterval(actualizarReportesActivos, 15000);
+        document.querySelectorAll('.toast').forEach(toast => {
+            const close = () => toast.remove();
+            toast.querySelector('.toast-close').addEventListener('click', close);
+            setTimeout(close, 5000);
+        });
 
 
         (function () {
