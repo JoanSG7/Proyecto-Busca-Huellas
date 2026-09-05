@@ -8,15 +8,12 @@ from flask import flash, make_response, redirect, render_template, request, send
 from controllers.report_pdf import crear_pdf_informe, ruta_archivo_informe
 
 from controllers.report_excel import crear_excel_informe
-from controllers.security import clean_text, is_valid_email, is_valid_phone
+from controllers.security import VALID_PET_STATES, clean_text, is_valid_email, is_valid_phone
 from models.admin_model import (
     actualizar_alerta_admin,
     actualizar_articulo_admin,
     actualizar_avistamiento_admin,
-
     actualizar_archivos_informe,
-
-
     actualizar_informe_admin,
     actualizar_mascota_admin,
     actualizar_usuario_admin,
@@ -28,6 +25,12 @@ from models.admin_model import (
     eliminar_mascota_admin,
     eliminar_usuario_admin,
     reactivar_articulo_admin,
+    reactivar_usuario_admin,
+    reactivar_mascota_admin,
+    reactivar_alerta_admin,
+    reactivar_avistamiento_admin,
+    reactivar_avistamiento_confirmado_admin,
+    reactivar_informe_admin,
     generar_datos_informe,
     listar_alertas_admin,
     listar_articulos_admin,
@@ -147,13 +150,29 @@ def eliminar_item_admin(seccion, item_id):
 
 
 def reactivar_item_admin(seccion, item_id):
-    if seccion != "articulos":
-        return redirect(url_for("admin.panel", seccion="articulos"))
-    if reactivar_articulo_admin(item_id):
-        flash("Artículo reactivado.", "success")
+    if seccion not in ADMIN_SECTIONS:
+        return redirect(url_for("admin.panel", seccion="usuarios"))
+
+    reactivadores = {
+        "usuarios": (reactivar_usuario_admin, "Usuario"),
+        "articulos": (reactivar_articulo_admin, "Artículo"),
+        "mascotas": (reactivar_mascota_admin, "Mascota"),
+        "alertas": (reactivar_alerta_admin, "Alerta"),
+        "avistamientos": (reactivar_avistamiento_admin, "Avistamiento"),
+        "avistamientos_confirmados": (reactivar_avistamiento_confirmado_admin, "Confirmación de avistamiento"),
+        "informes": (reactivar_informe_admin, "Informe"),
+    }
+
+    reactivar_fn, nombre = reactivadores.get(seccion, (None, "Registro"))
+    if not reactivar_fn:
+        flash(f"No se puede reactivar esta sección.", "error")
+        return redirect(url_for("admin.panel", seccion=seccion, vista="eliminados"))
+
+    if reactivar_fn(item_id):
+        flash(f"{nombre} reactivado.", "success")
     else:
-        flash("No fue posible reactivar el artículo.", "error")
-    return redirect(url_for("admin.panel", seccion="articulos", vista="eliminados"))
+        flash(f"No fue posible reactivar el {nombre.lower()}.", "error")
+    return redirect(url_for("admin.panel", seccion=seccion, vista="eliminados"))
 
 
 def guardar_detalle_admin(seccion, item_id):
@@ -178,19 +197,23 @@ def guardar_detalle_admin(seccion, item_id):
             edad = int(request.form.get("edad") or 0)
         except ValueError:
             edad = 0
-        actualizar_mascota_admin(
-            item_id,
-            clean_text(request.form.get("id_usuario"), 20) or None,
-            clean_text(request.form.get("nombre_mascota"), 100),
-            clean_text(request.form.get("raza"), 100),
-            edad,
-            clean_text(request.form.get("color"), 50),
-            clean_text(request.form.get("pelaje"), 50),
-            clean_text(request.form.get("tamano"), 50),
-            clean_text(request.form.get("descripcion"), 1000),
-            clean_text(request.form.get("estado"), 50),
-        )
-        flash("Mascota actualizada.", "success")
+        estado_mascota = clean_text(request.form.get("estado"), 50).lower()
+        if estado_mascota not in VALID_PET_STATES:
+            flash("Selecciona un estado v\u00e1lido para la mascota.", "error")
+        else:
+            actualizar_mascota_admin(
+                item_id,
+                clean_text(request.form.get("id_usuario"), 20) or None,
+                clean_text(request.form.get("nombre_mascota"), 100),
+                clean_text(request.form.get("raza"), 100),
+                edad,
+                clean_text(request.form.get("color"), 50),
+                clean_text(request.form.get("pelaje"), 50),
+                clean_text(request.form.get("tamano"), 50),
+                clean_text(request.form.get("descripcion"), 1000),
+                estado_mascota,
+            )
+            flash("Mascota actualizada.", "success")
     elif seccion == "articulos":
         actualizar_articulo_admin(
             item_id,

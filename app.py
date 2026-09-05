@@ -1,6 +1,6 @@
 import os
 import re
-from flask import Flask, redirect, send_file, send_from_directory, url_for
+from flask import Flask, redirect, send_file, send_from_directory, url_for, request
 from dotenv import load_dotenv
 import ipaddress
 
@@ -188,6 +188,72 @@ def static_favicon_png():
 def static_favicon_ico():
     """Favicon .ico bajo la ruta classic de static/img (fallback extra)."""
     return _servir_favicon("favicon.ico", "image/x-icon")
+
+
+@app.errorhandler(404)
+def pagina_no_encontrada(error):
+    from flask import render_template
+    from controllers.security import current_user_id, is_admin
+    try:
+        return render_template(
+            "inicio.html",
+            articulos=[],
+            estadisticas={
+                "mascotas_reencontradas": 0,
+                "voluntarios_activos": 0,
+                "colaboradores_activos": 0,
+                "hogares_felices": 0,
+                "reportes_activos_hoy": 0,
+            },
+            _error_404=True,
+        ), 404
+    except Exception:
+        usuario_id = current_user_id()
+        if usuario_id:
+            destino = "/inicio"
+        else:
+            destino = "/autenticacion/"
+        return (
+            f"<html><head><title>404 - P&aacute;gina no encontrada</title></head>"
+            f"<body style='font-family:sans-serif;text-align:center;padding:4rem;'>"
+            f"<h1 style='color:#0F5238'>404</h1>"
+            f"<h2>P&aacute;gina no encontrada</h2>"
+            f"<p>La ruta solicitada no existe en Busca Huellas.</p>"
+            f"<p><a href='{destino}' style='color:#0F5238;font-weight:bold'>Volver al inicio</a></p>"
+            f"</body></html>",
+            404,
+        )
+
+
+@app.errorhandler(500)
+def error_servidor(error):
+    from flask import render_template
+    try:
+        return (
+            render_template(
+                "inicio.html",
+                articulos=[],
+                estadisticas={
+                    "mascotas_reencontradas": 0,
+                    "voluntarios_activos": 0,
+                    "colaboradores_activos": 0,
+                    "hogares_felices": 0,
+                    "reportes_activos_hoy": 0,
+                },
+                _error_500=True,
+            ),
+            500,
+        )
+    except Exception:
+        return (
+            "<html><head><title>500 - Error del servidor</title></head>"
+            "<body style='font-family:sans-serif;text-align:center;padding:4rem;'>"
+            "<h1 style='color:#b03a2e'>500</h1>"
+            "<h2>Error interno del servidor</h2>"
+            "<p>Ocurri&oacute; un problema inesperado. Intenta de nuevo m&aacute;s tarde.</p>"
+            "</body></html>",
+            500,
+        )
 
 
 # 5. Arrancamos el servidor (con puerto configurable + fallback contra puerto ocupado)

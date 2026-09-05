@@ -1052,6 +1052,9 @@ def editar_mi_mascota(id_mascota):
         if len(nombre) < 2 or edad < 0 or edad > 30 or tamano not in VALID_PET_SIZES:
             flash("Revisa el nombre, edad y tamaño de la mascota.", "error")
             return render_template("modulo_mascota/editar_mascota.html", mascota=mascota), 400
+        if estado not in VALID_PET_STATES:
+            flash("Selecciona un estado válido para la mascota.", "error")
+            return render_template("modulo_mascota/editar_mascota.html", mascota=mascota), 400
 
         actualizar_mascota(
             id_mascota, current_user_id(), nombre, raza, edad, color, pelaje, tamano, descripcion, estado

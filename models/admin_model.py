@@ -1,4 +1,4 @@
-﻿from config.database import db_cursor
+from config.database import db_cursor
 
 
 from models.eliminacion_model import (
@@ -9,6 +9,12 @@ from models.eliminacion_model import (
     desactivar_mascota,
     desactivar_usuario,
     reactivar_articulo,
+    reactivar_usuario,
+    reactivar_mascota,
+    reactivar_alerta,
+    reactivar_avistamiento,
+    reactivar_avistamiento_confirmado,
+    reactivar_informe,
 )
 
 
@@ -146,6 +152,30 @@ def eliminar_articulo_admin(id_articulo):
 
 def reactivar_articulo_admin(id_articulo):
     return reactivar_articulo(id_articulo)
+
+
+def reactivar_usuario_admin(id_usuario):
+    return reactivar_usuario(id_usuario)
+
+
+def reactivar_mascota_admin(id_mascota):
+    return reactivar_mascota(id_mascota)
+
+
+def reactivar_alerta_admin(id_alerta):
+    return reactivar_alerta(id_alerta)
+
+
+def reactivar_avistamiento_admin(id_avistamiento):
+    return reactivar_avistamiento(id_avistamiento)
+
+
+def reactivar_avistamiento_confirmado_admin(id_avistamiento_confirmado):
+    return reactivar_avistamiento_confirmado(id_avistamiento_confirmado)
+
+
+def reactivar_informe_admin(id_informe):
+    return reactivar_informe(id_informe)
 
 
 def listar_mascotas_admin(q="", estado="", eliminados=False):
