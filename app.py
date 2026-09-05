@@ -1,5 +1,5 @@
 import os
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, send_from_directory, url_for
 from dotenv import load_dotenv
 
 
@@ -27,6 +27,7 @@ app = Flask(__name__)
 app.config["SERVER_NAME"] = "localhost:5000"
 app.config["PREFERRED_URL_SCHEME"] = "http"
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "busca-huellas-dev-secret-change-me")
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 # 2. Registramos las rutas (Blueprints)
 app.register_blueprint(inicio_bp)
@@ -55,6 +56,15 @@ def inject_usuario_actual():
 
 @app.after_request
 def evitar_cache_sesion(response):
+    # Lo agregamos a todas las vistas HTML, incluso las que no comparten
+    # una plantilla base. El parámetro de versión evita un favicon anterior
+    # almacenado por el navegador.
+    if response.mimetype == "text/html":
+        html = response.get_data(as_text=True)
+        if 'rel="icon"' not in html:
+            icono = '<link rel="icon" type="image/png" href="/static/img/favicon.png?v=2">'
+            response.set_data(html.replace("</head>", f"{icono}</head>"))
+
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
@@ -66,6 +76,16 @@ def evitar_cache_sesion(response):
 def index():
     # Redirige a la función 'login' que está dentro del blueprint 'usuario'
     return redirect(url_for("usuario.inicio_sesion"))
+
+
+@app.route("/favicon.ico")
+def favicon():
+    """Sirve el icono que los navegadores solicitan para la pestaña."""
+    return send_from_directory(
+        os.path.join(app.root_path, "static", "img"),
+        "favicon.png",
+        mimetype="image/png",
+    )
 
 
 # 5. Arrancamos el servidor

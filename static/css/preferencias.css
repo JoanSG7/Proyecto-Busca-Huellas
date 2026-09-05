@@ -40,6 +40,21 @@ html.tema-oscuro td, html.tema-oscuro .notif-title, html.tema-oscuro .value { co
 html.tema-oscuro .badge.found, html.tema-oscuro .notif-badge { background: #315d3e !important; color: #c3f8cf !important; }
 html.tema-oscuro .hero { background: #161916 !important; }
 
+/* Chat: las burbujas y el encabezado usan colores propios, por lo que
+   necesitan una paleta completa al cambiar el tema global. */
+html.tema-oscuro .chat-shell { background: #242a25 !important; border-color: #526258 !important; }
+html.tema-oscuro .chat-header { background: #307045 !important; color: #f4fff5 !important; }
+html.tema-oscuro .chat-header h1 { color: #f4fff5 !important; }
+html.tema-oscuro .chat-header p, html.tema-oscuro .back { color: #e2f0e3 !important; }
+html.tema-oscuro .messages { background: #1d231e !important; }
+html.tema-oscuro .bubble.received { background: #2d352f !important; color: #edf4ed !important; border-color: #526258 !important; }
+html.tema-oscuro .bubble.sent { background: #307045 !important; color: #f4fff5 !important; }
+html.tema-oscuro .location-link, html.tema-oscuro .confirm-sighting { background: #203f2b !important; color: #c3f8cf !important; border-color: #5d9b6d !important; }
+html.tema-oscuro .location-link:hover { background: #285536 !important; }
+html.tema-oscuro .location-link-text small, html.tema-oscuro .confirmation-note { color: #b9e8c3 !important; }
+html.tema-oscuro .message-image { background: #161916 !important; }
+html.tema-oscuro .delete-chat { background: #5d2525 !important; color: #ffd9d5 !important; }
+
 html.tema-sepia {
     --background: #f4ead8; --bg: #f4ead8; --bg-site: #f4ead8; --bg-cream: #f4ead8; --bg-creme: #f4ead8;
     --surface: #fff8ea; --bg-card: #fff8ea; --white: #fff8ea; --surface-container: #f6e7cf; --surface-container-low: #f8eddc; --surface-container-high: #ead8bb; --surface-container-highest: #e2cdaa; --surface-soft: #f6e7cf;
@@ -68,5 +83,18 @@ html.tema-sepia .btn.danger, html.tema-sepia .danger:not(.panel), html.tema-sepi
 html.tema-sepia th { background: #f1dfc4 !important; color: #543414 !important; }
 html.tema-sepia td, html.tema-sepia .notif-title, html.tema-sepia .value { color: #3e2c20 !important; }
 html.tema-sepia .hero { background: #f4ead8 !important; }
+
+html.tema-sepia .chat-shell { background: #fff8ea !important; border-color: #d4bfa6 !important; }
+html.tema-sepia .chat-header { background: #704214 !important; color: #fff8ea !important; }
+html.tema-sepia .chat-header h1, html.tema-sepia .chat-header p, html.tema-sepia .back { color: #fff8ea !important; }
+html.tema-sepia .messages { background: #f6e7cf !important; }
+html.tema-sepia .bubble.received { background: #fffdf7 !important; color: #3e2c20 !important; border-color: #d4bfa6 !important; }
+html.tema-sepia .bubble.sent { background: #704214 !important; color: #fff8ea !important; }
+html.tema-sepia .composer { background: rgba(255, 248, 234, .97) !important; color: #3e2c20 !important; border-color: #d4bfa6 !important; }
+html.tema-sepia .location-link, html.tema-sepia .confirm-sighting { background: #efd1ac !important; color: #543414 !important; border-color: #c7aa89 !important; }
+html.tema-sepia .location-link:hover { background: #e5c193 !important; }
+html.tema-sepia .location-link-text small, html.tema-sepia .confirmation-note { color: #704214 !important; }
+html.tema-sepia .message-image { background: #ead8bb !important; }
+html.tema-sepia .delete-chat { background: #f3d8d1 !important; color: #8a2420 !important; }
 
 html.movimiento-reducido *, html.movimiento-reducido *::before, html.movimiento-reducido *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
