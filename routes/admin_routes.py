@@ -75,3 +75,9 @@ def descargar_pdf(item_id):
 @admin_required
 def descargar_excel(item_id):
     return entregar_pdf_informe(item_id, "excel", descargar=True)
+
+
+@admin_bp.route("/informes/<int:item_id>/excel")
+@admin_required
+def ver_excel(item_id):
+    return entregar_pdf_informe(item_id, "excel")

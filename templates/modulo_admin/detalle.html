@@ -99,9 +99,7 @@
                 <div><label>Fecha</label><input value="{{ item.fecha_generacion or '' }}" disabled></div>
             </div>
             <div><label>Descripción</label><textarea name="descripcion">{{ item.descripcion or '' }}</textarea></div>
-            {% if item.ruta_pdf %}
-            <div class="actions"><a class="btn primary" target="_blank" href="{{ url_for('admin.ver_pdf', item_id=item.id_informe) }}">Visualizar PDF</a><a class="btn secondary" href="{{ url_for('admin.descargar_pdf', item_id=item.id_informe) }}">Descargar PDF</a>{% if item.ruta_excel %}<a class="btn secondary" href="{{ url_for('admin.descargar_excel', item_id=item.id_informe) }}">Descargar Excel</a>{% endif %}</div>
-            {% endif %}
+            <div class="actions"><a class="btn primary" target="_blank" href="{{ url_for('admin.ver_pdf', item_id=item.id_informe) }}">Visualizar PDF</a><a class="btn secondary" href="{{ url_for('admin.descargar_pdf', item_id=item.id_informe) }}">Descargar PDF</a><a class="btn primary" target="_blank" href="{{ url_for('admin.ver_excel', item_id=item.id_informe) }}">Abrir Excel</a><a class="btn secondary" href="{{ url_for('admin.descargar_excel', item_id=item.id_informe) }}">Descargar Excel</a></div>
             {% endif %}
             <div class="actions" id="detail-actions">
                 <button class="btn primary" name="accion" value="guardar">Guardar cambios</button>

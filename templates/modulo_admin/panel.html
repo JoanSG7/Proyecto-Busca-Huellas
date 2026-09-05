@@ -12,7 +12,17 @@
         main { width:min(100%,1180px); margin:0 auto; padding:2rem 1rem 7rem; }
         h1 { margin:1rem 0 .4rem; color:var(--primary); font-size:clamp(2rem,5vw,3rem); }
         .tabs,.filters,.actions { display:flex; gap:.55rem; flex-wrap:wrap; align-items:end; }
-        .tabs { margin:1rem 0; }
+        .tabs { margin:0 0 .7rem; align-items:center; }
+        .tabs .tab { padding:.65rem .8rem; }
+        .tabs .view-toggle { padding:.65rem .8rem; }
+        .page-header { display:flex; justify-content:space-between; gap:1rem; align-items:center; margin:1rem 0; }
+        .page-header h1 { margin:0; }
+        .report-view-bar { display:flex; align-items:center; gap:.8rem; width:fit-content; margin:0 0 1.25rem; padding:.5rem .65rem; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); }
+        .report-view-label { color:var(--muted); font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.03em; }
+        .view-switch { display:flex; gap:.35rem; align-items:center; flex-wrap:nowrap; padding:.2rem; border-radius:6px; background:var(--soft); }
+        .reports-page .page-header, .reports-page .tabs { justify-content:center; }
+        .reports-page .report-view-bar { margin-left:auto; margin-right:auto; }
+        @media (max-width:640px) { .report-view-bar { align-items:flex-start; flex-direction:column; } }
         .tab,.btn { border:0; border-radius:var(--radius); padding:.75rem 1rem; font-weight:800; text-decoration:none; font:inherit; cursor:pointer; }
         .tab { background:var(--soft); color:var(--primary); }
         .tab.active,.btn.primary { background:var(--primary); color:#fff; }
@@ -39,23 +49,33 @@
 </head>
 <body>
     {% include 'includes/_header-up.html' %}
-    <main>
-        <h1>{{ config.titulo }}</h1>
+    <main class="{% if seccion == 'informes' %}reports-page{% endif %}">
+        <div class="page-header">
+            <h1>{{ config.titulo }}</h1>
+            {% if seccion != 'informes' %}<a class="btn primary" href="{{ url_for('admin.panel', seccion='informes') }}">Generar informe</a>{% endif %}
+        </div>
         <nav class="tabs">
             {% for key, item in secciones.items() %}
             <a class="tab {% if key == seccion %}active{% endif %}" href="{{ url_for('admin.panel', seccion=key) }}">{{ item.titulo }}</a>
             {% endfor %}
         </nav>
-        <div class="actions" style="margin-bottom:1rem;">
-            <a class="btn {% if not eliminados %}primary{% else %}secondary{% endif %}" href="{{ url_for('admin.panel', seccion=seccion) }}">Registros activos</a>
-            <a class="btn {% if eliminados %}primary{% else %}secondary{% endif %}" href="{{ url_for('admin.panel', seccion=seccion, vista='eliminados') }}">Eliminados</a>
+
+        {% if seccion == 'informes' %}
+        <div class="report-view-bar">
+            <span class="report-view-label">Vista de informes</span>
+            <div class="view-switch">
+                <a class="tab view-toggle {% if not eliminados %}active{% endif %}" href="{{ url_for('admin.panel', seccion=seccion) }}">Registros activos</a>
+                <a class="tab view-toggle {% if eliminados %}active{% endif %}" href="{{ url_for('admin.panel', seccion=seccion, vista='eliminados') }}">Eliminados</a>
+            </div>
         </div>
+        {% endif %}
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}{% for category, message in messages %}<p class="flash">{{ message }}</p>{% endfor %}{% endif %}
         {% endwith %}
 
         {% if seccion == 'informes' %}
+        <p class="flash">Elige el tipo de informe, completa los filtros opcionales y pulsa “Guardar informe” para crear el PDF y el Excel.</p>
         <section class="metrics">
             {% for key, value in resumen.items() %}
             <div class="metric"><strong>{{ value }}</strong><span>{{ key.replace('_',' ')|title }}</span></div>
@@ -109,7 +129,7 @@
                 <tbody>{% for item in items %}<tr><td>{{ item.id_confirmacion }}</td><td>{{ item.id_usuario_alerto }}<br><small>{{ item.nombre_usuario_alerto or '-' }}</small></td><td>{{ item.id_usuario_dueno }}<br><small>{{ item.nombre_dueno or '-' }}</small></td><td>{{ item.id_mascota }}</td><td>{{ item.nombre_mascota }}</td><td>{% if item.url_imagen %}<a href="{{ item.url_imagen }}" target="_blank"><img class="thumb" src="{{ item.url_imagen }}" alt="Foto del avistamiento confirmado"></a>{% else %}-{% endif %}</td><td>{{ item.ubicacion or '-' }}</td><td>{{ item.fecha_confirmacion }}</td></tr>{% else %}<tr><td colspan="8">Aún no hay avistamientos confirmados.</td></tr>{% endfor %}</tbody>
                 {% else %}
                 <thead><tr><th>ID</th><th>Título</th><th>Admin</th><th>Fecha</th><th>Acciones</th></tr></thead>
-                <tbody>{% for item in items %}<tr><td>{{ item.id_informe }}</td><td>{{ item.titulo or 'Informe sin título' }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_generacion }}</td><td><div class="row-actions">{% if item.ruta_pdf %}<a class="btn primary" target="_blank" href="{{ url_for('admin.ver_pdf', item_id=item.id_informe) }}">Ver PDF</a><a class="btn secondary" href="{{ url_for('admin.descargar_pdf', item_id=item.id_informe) }}">Descargar PDF</a>{% endif %}{% if item.ruta_excel %}<a class="btn secondary" href="{{ url_for('admin.descargar_excel', item_id=item.id_informe) }}">Descargar Excel</a>{% endif %}<form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_informe) }}"><button class="btn danger" type="submit">Eliminar</button></form></div></td></tr>{% endfor %}</tbody>
+                <tbody>{% for item in items %}<tr><td>{{ item.id_informe }}</td><td>{{ item.titulo or 'Informe sin título' }}</td><td>{{ item.nombre_usuario }}</td><td>{{ item.fecha_generacion }}</td><td><div class="row-actions"><a class="btn primary" target="_blank" href="{{ url_for('admin.ver_pdf', item_id=item.id_informe) }}">Ver PDF</a><a class="btn secondary" href="{{ url_for('admin.descargar_pdf', item_id=item.id_informe) }}">Descargar PDF</a><a class="btn primary" target="_blank" href="{{ url_for('admin.ver_excel', item_id=item.id_informe) }}">Abrir Excel</a><a class="btn secondary" href="{{ url_for('admin.descargar_excel', item_id=item.id_informe) }}">Descargar Excel</a><form class="delete-form" method="POST" action="{{ url_for('admin.eliminar', seccion=seccion, item_id=item.id_informe) }}"><button class="btn danger" type="submit">Eliminar</button></form></div></td></tr>{% endfor %}</tbody>
                 {% endif %}
             </table>
         </div>

@@ -88,36 +88,3 @@ _RELS = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships
 _WORKBOOK = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Informe" sheetId="1" r:id="rId1"/></sheets></workbook>'''
 _WORKBOOK_RELS = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'''
 _STYLES = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="5"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FF0F5238"/><sz val="14"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0F5238"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border/><border><left style="thin"><color rgb="FFD8DED7"/></left><right style="thin"><color rgb="FFD8DED7"/></right><top style="thin"><color rgb="FFD8DED7"/></top><bottom style="thin"><color rgb="FFD8DED7"/></bottom></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="6"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="0" borderId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center"/></xf><xf numFmtId="0" fontId="3" fillId="2" borderId="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="4" fillId="0" borderId="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf><xf numFmtId="0" fontId="4" fillId="0" borderId="0" applyAlignment="1"><alignment horizontal="center"/></xf></cellXfs></styleSheet>'''
-
-"""Generación de libros Excel para los informes administrativos."""
-
-import json
-import os
-import subprocess
-import sys
-import uuid
-
-from controllers.report_pdf import REPORTS_FOLDER, ruta_pdf_informe
-
-
-def crear_excel_informe(preview):
-    os.makedirs(REPORTS_FOLDER, exist_ok=True)
-    nombre_archivo = f"informe_{uuid.uuid4().hex}.xlsx"
-    ruta_salida = os.path.join(REPORTS_FOLDER, nombre_archivo)
-    ruta_entrada = os.path.join(REPORTS_FOLDER, f".informe_{uuid.uuid4().hex}.json")
-    try:
-        with open(ruta_entrada, "w", encoding="utf-8") as archivo:
-            json.dump(preview, archivo, ensure_ascii=False)
-        resultado = subprocess.run(
-            ["node", os.path.join(os.path.dirname(__file__), "report_excel.mjs"), ruta_entrada, ruta_salida],
-            capture_output=True,
-            text=True,
-            timeout=45,
-            check=False,
-        )
-        if resultado.returncode != 0 or not os.path.isfile(ruta_salida):
-            raise RuntimeError(resultado.stderr.strip() or "No se pudo crear el archivo Excel.")
-        return nombre_archivo
-    finally:
-        if os.path.isfile(ruta_entrada):
-            os.remove(ruta_entrada)

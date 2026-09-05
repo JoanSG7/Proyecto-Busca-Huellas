@@ -1,12 +1,11 @@
 import os
+from datetime import date, datetime
 from io import BytesIO
 
 from flask import flash, make_response, redirect, render_template, request, send_file, session, url_for
 
 
 from controllers.report_pdf import crear_pdf_informe, ruta_archivo_informe
-
-from controllers.report_pdf import crear_pdf_informe, ruta_pdf_informe
 
 from controllers.report_excel import crear_excel_informe
 from controllers.security import clean_text, is_valid_email, is_valid_phone
@@ -239,7 +238,36 @@ def _delete_item(seccion, item_id):
         "avistamientos": eliminar_avistamiento_admin,
         "informes": eliminar_informe_admin,
     }
-    deletes[seccion](item_id)
+    if seccion != "informes":
+        return deletes[seccion](item_id)
+
+    informe = obtener_informe_admin(item_id)
+    eliminado = deletes[seccion](item_id)
+    if eliminado and informe:
+        _eliminar_archivos_informe(informe)
+    return eliminado
+
+
+def _eliminar_archivos_informe(informe):
+    """Elimina los dos adjuntos privados de un informe ya desactivado."""
+    for nombre_archivo in (informe.get("ruta_pdf"), informe.get("ruta_excel")):
+        ruta_archivo = ruta_archivo_informe(nombre_archivo)
+        if ruta_archivo:
+            try:
+                os.remove(ruta_archivo)
+            except OSError:
+                # El registro ya está desactivado; no bloqueamos la operación si
+                # el archivo fue retirado manualmente o está siendo usado.
+                pass
+
+
+def _eliminar_archivo(nombre_archivo):
+    ruta_archivo = ruta_archivo_informe(nombre_archivo)
+    if ruta_archivo:
+        try:
+            os.remove(ruta_archivo)
+        except OSError:
+            pass
 
 
 def generar_informe_admin():
@@ -265,46 +293,18 @@ def generar_informe_admin():
         try:
             nombre_excel = crear_excel_informe(preview)
         except Exception:
-
-            ruta_pdf = ruta_archivo_informe(nombre_pdf)
-
-            ruta_pdf = ruta_pdf_informe(nombre_pdf)
-
-            if ruta_pdf:
-                os.remove(ruta_pdf)
+            _eliminar_archivo(nombre_pdf)
             raise
         try:
             crear_informe_admin(session.get("usuario_id"), titulo, tipo, descripcion, nombre_pdf, nombre_excel)
         except RuntimeError as exc:
-
-            ruta_pdf = ruta_archivo_informe(nombre_pdf)
-            if ruta_pdf:
-                os.remove(ruta_pdf)
-            ruta_excel = ruta_archivo_informe(nombre_excel)
-
-            ruta_pdf = ruta_pdf_informe(nombre_pdf)
-            if ruta_pdf:
-                os.remove(ruta_pdf)
-            ruta_excel = ruta_pdf_informe(nombre_excel)
-
-            if ruta_excel:
-                os.remove(ruta_excel)
+            _eliminar_archivo(nombre_pdf)
+            _eliminar_archivo(nombre_excel)
             flash(f"{exc} Ejecuta Documentacion/migracion_informes_dos_formatos.sql.", "error")
             return redirect(url_for("admin.panel", seccion="informes"))
         except Exception:
-
-            ruta_pdf = ruta_archivo_informe(nombre_pdf)
-            if ruta_pdf:
-                os.remove(ruta_pdf)
-            ruta_excel = ruta_archivo_informe(nombre_excel)
-
-            ruta_pdf = ruta_pdf_informe(nombre_pdf)
-            if ruta_pdf:
-                os.remove(ruta_pdf)
-            ruta_excel = ruta_pdf_informe(nombre_excel)
-
-            if ruta_excel:
-                os.remove(ruta_excel)
+            _eliminar_archivo(nombre_pdf)
+            _eliminar_archivo(nombre_excel)
             raise
         flash("Informe en PDF y Excel generado y guardado correctamente.", "success")
     else:
@@ -313,13 +313,18 @@ def generar_informe_admin():
 
 
 def entregar_pdf_informe(id_informe, formato="pdf", descargar=False):
-    informe = obtener_informe_admin(id_informe)
+    if formato not in {"pdf", "excel"}:
+        flash("Formato de informe no válido.", "error")
+        return redirect(url_for("admin.panel", seccion="informes"))
 
+    informe = obtener_informe_admin(id_informe)
     if not informe:
         flash("El archivo solicitado no está disponible.", "error")
         return redirect(url_for("admin.panel", seccion="informes"))
+
     nombre_archivo = informe.get("ruta_pdf") if formato == "pdf" else informe.get("ruta_excel")
-    ruta_archivo = ruta_archivo_informe(nombre_archivo)
+    extension = ".pdf" if formato == "pdf" else ".xlsx"
+    ruta_archivo = ruta_archivo_informe(nombre_archivo) if str(nombre_archivo or "").lower().endswith(extension) else None
     if not ruta_archivo:
         try:
             preview = {
@@ -333,11 +338,11 @@ def entregar_pdf_informe(id_informe, formato="pdf", descargar=False):
             try:
                 nombre_excel = crear_excel_informe(preview)
             except Exception:
-                ruta_pdf = ruta_archivo_informe(nombre_pdf)
-                if ruta_pdf:
-                    os.remove(ruta_pdf)
+                _eliminar_archivo(nombre_pdf)
                 raise
             actualizar_archivos_informe(id_informe, nombre_pdf, nombre_excel)
+            _eliminar_archivo(informe.get("ruta_pdf"))
+            _eliminar_archivo(informe.get("ruta_excel"))
             nombre_archivo = nombre_pdf if formato == "pdf" else nombre_excel
             ruta_archivo = ruta_archivo_informe(nombre_archivo)
         except Exception:
@@ -348,18 +353,7 @@ def entregar_pdf_informe(id_informe, formato="pdf", descargar=False):
         return redirect(url_for("admin.panel", seccion="informes"))
     mimetype = "application/pdf" if formato == "pdf" else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     extension = "pdf" if formato == "pdf" else "xlsx"
-    return send_file(ruta_archivo, mimetype=mimetype, as_attachment=descargar or formato == "excel", download_name=f"informe_busca_huellas_{id_informe}.{extension}")
-
-    nombre_archivo = informe.get("ruta_pdf") if informe and formato == "pdf" else informe.get("ruta_excel") if informe else None
-    if not nombre_archivo:
-        flash("El archivo solicitado no está disponible.", "error")
-        return redirect(url_for("admin.panel", seccion="informes"))
-    ruta_pdf = ruta_pdf_informe(nombre_archivo)
-    if not ruta_pdf:
-        flash("No se encontró el archivo PDF de este informe.", "error")
-        return redirect(url_for("admin.panel", seccion="informes"))
-    mimetype = "application/pdf" if formato == "pdf" else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    return send_file(ruta_pdf, mimetype=mimetype, as_attachment=descargar or formato == "excel", download_name=f"informe_busca_huellas_{id_informe}.{formato}")
+    return send_file(ruta_archivo, mimetype=mimetype, as_attachment=descargar, download_name=f"informe_busca_huellas_{id_informe}.{extension}")
 
 
 
@@ -396,7 +390,20 @@ def _render_text_report(preview):
 
 
 def _serializar_fila(row):
-    return {key: "" if value is None else str(value) for key, value in row.items()}
+    """Convierte valores de BD a texto seguro y consistente para ambos formatos."""
+    resultado = {}
+    for key, value in row.items():
+        if value is None and key.startswith("fecha"):
+            resultado[key] = "Sin fecha registrada"
+        elif value is None:
+            resultado[key] = ""
+        elif isinstance(value, datetime):
+            resultado[key] = value.strftime("%d/%m/%Y %H:%M")
+        elif isinstance(value, date):
+            resultado[key] = value.strftime("%d/%m/%Y")
+        else:
+            resultado[key] = str(value)
+    return resultado
 
 
 def _simple_pdf(text):

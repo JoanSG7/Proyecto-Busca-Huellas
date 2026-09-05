@@ -462,7 +462,8 @@ def generar_datos_informe(tipo, fecha_inicio=None, fecha_fin=None, limite=5):
     params = []
     if tipo == "mascotas_por_fecha":
         sql = """
-            SELECT m.id_mascota, m.nombre_mascota, m.estado, m.raza, m.fecha_registro,
+            SELECT m.id_mascota, m.nombre_mascota, m.estado, m.raza,
+                   COALESCE(DATE_FORMAT(m.fecha_registro, '%d/%m/%Y %H:%i'), 'Sin fecha registrada') AS fecha_registro,
                    u.nombre_completo AS usuario
             FROM mascota m
             LEFT JOIN usuario u ON u.id_usuario = m.id_usuario
@@ -499,7 +500,8 @@ def generar_datos_informe(tipo, fecha_inicio=None, fecha_fin=None, limite=5):
         params.append(limite)
     else:
         sql = """
-            SELECT id_usuario, nombre_completo, correo, telefono, fecha_registro
+            SELECT id_usuario, nombre_completo, correo, telefono,
+                   COALESCE(DATE_FORMAT(fecha_registro, '%d/%m/%Y'), 'Sin fecha registrada') AS fecha_registro
             FROM usuario
             WHERE (%s IS NULL OR fecha_registro >= %s)
               AND (%s IS NULL OR fecha_registro <= %s)

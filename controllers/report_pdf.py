@@ -23,18 +23,23 @@ def _texto_pdf(valor):
 
 def ruta_archivo_informe(nombre_archivo):
     """Devuelve la ruta de un archivo de informe dentro del almacenamiento privado."""
-
-def ruta_pdf_informe(nombre_archivo):
-
     if not nombre_archivo:
         return None
-    ruta = os.path.abspath(os.path.join(REPORTS_FOLDER, os.path.basename(nombre_archivo)))
-    return ruta if ruta.startswith(REPORTS_FOLDER + os.sep) and os.path.isfile(ruta) else None
+    # La base de datos solo guarda el nombre generado por la aplicación. No se
+    # aceptan rutas para impedir que un valor alterado salga de private_reports.
+    nombre_seguro = os.path.basename(str(nombre_archivo))
+    if nombre_seguro != str(nombre_archivo):
+        return None
+    ruta = os.path.abspath(os.path.join(REPORTS_FOLDER, nombre_seguro))
+    try:
+        es_informe_privado = os.path.commonpath([REPORTS_FOLDER, ruta]) == REPORTS_FOLDER
+    except ValueError:
+        return None
+    return ruta if es_informe_privado and os.path.isfile(ruta) else None
 
 
-
-# Se conserva para no romper usos existentes del módulo.
 def ruta_pdf_informe(nombre_archivo):
+    """Compatibilidad con el nombre anterior de la función."""
     return ruta_archivo_informe(nombre_archivo)
 
 
