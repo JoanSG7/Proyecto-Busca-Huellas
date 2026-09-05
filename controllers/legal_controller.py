@@ -69,4 +69,4 @@ def mostrar_documento_legal(tipo):
 
 
 def mostrar_contacto():
-    return render_template("contacto.html", correo=CONTACTO)
+    return render_template("contacto.html", correo=CONTACTO, equipo=EQUIPO)
