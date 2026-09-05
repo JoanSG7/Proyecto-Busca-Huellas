@@ -1,6 +1,6 @@
 # Busca Huellas
 
-Plataforma web para reportar mascotas perdidas, encontradas y realizar su reconocimiento mediante inteligencia artificial. Desarrollada con **Flask** y **MySQL / MariaDB**, incluye sistema de usuarios con roles, alertas, chat seguro, artículos informativos y un módulo de reconocimiento visual de mascotas usando redes neuronales (TensorFlow).
+Plataforma web para reportar mascotas perdidas, encontradas y realizar su reconocimiento mediante inteligencia artificial. Desarrollada con **Flask** y **MySQL, incluye sistema de usuarios con roles, alertas, chat seguro, artículos informativos y un módulo de reconocimiento visual de mascotas usando redes neuronales (TensorFlow).
 
 ---
 
