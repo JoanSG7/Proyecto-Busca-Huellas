@@ -1,5 +1,6 @@
 import os
-from flask import Flask, redirect, send_from_directory, url_for
+import re
+from flask import Flask, redirect, send_file, send_from_directory, url_for
 from dotenv import load_dotenv
 
 
@@ -24,8 +25,13 @@ from models.usuario_model import obtener_preferencias_usuario, obtener_usuario_p
 
 # 1. Inicializamos la aplicación
 app = Flask(__name__)
-app.config["SERVER_NAME"] = "localhost:5000"
-app.config["PREFERRED_URL_SCHEME"] = "http"
+# SERVER_NAME activado puede romper el routing cuando accedes por IP
+# distinta (p. ej. 127.0.0.1 en vez de localhost). Por eso solo lo activamos
+# cuando explícitamente lo configuren via .env.
+_SERVER_NAME = os.getenv("SERVER_NAME", "").strip()
+if _SERVER_NAME:
+    app.config["SERVER_NAME"] = _SERVER_NAME
+    app.config["PREFERRED_URL_SCHEME"] = os.getenv("PREFERRED_URL_SCHEME", "http")
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "busca-huellas-dev-secret-change-me")
 app.config["MAX_CONTENT_LENGTH"] = 14 * 1024 * 1024
 
@@ -56,14 +62,32 @@ def inject_usuario_actual():
 
 @app.after_request
 def evitar_cache_sesion(response):
-    # Lo agregamos a todas las vistas HTML, incluso las que no comparten
-    # una plantilla base. El parámetro de versión evita un favicon anterior
-    # almacenado por el navegador.
+    # Bloquear cache HTML para que no se guarden datos de sesión.
     if response.mimetype == "text/html":
         html = response.get_data(as_text=True)
-        if 'rel="icon"' not in html:
-            icono = '<link rel="icon" type="image/png" href="/favicon.png?v=3">'
-            response.set_data(html.replace("</head>", f"{icono}</head>"))
+
+        # Etiquetas del favicon que insertamos en TODAS las páginas.
+        # V13 se incrementa cada vez que cambiamos el favicon para vencer
+        # la cache agresiva de los navegadores con este recurso.
+        iconos = (
+            '<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=13">'
+            '<link rel="icon" type="image/png" sizes="48x48" href="/static/img/favicon.png?v=13">'
+            '<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=13">'
+            '<link rel="apple-touch-icon" type="image/png" href="/favicon.png?v=13">'
+        )
+
+        # 1) Si la página ya tenía un favicon anterior (cualquier variante
+        #    de rel="icon", rel="shortcut icon" o favicon.png/.ico antiguo)
+        #    lo borramos primero para evitar duplicados y rutas rotas.
+        patron_link_icon = re.compile(
+            r'<link\b[^>]*\brel\s*=\s*"[^"]*(?:icon|apple-touch-icon)[^"]*"[^>]*>',
+            re.IGNORECASE,
+        )
+        html_limpio = patron_link_icon.sub("", html)
+
+        # 2) Insertar los favicons actualizados inmediatamente antes de </head>.
+        html_limpio = html_limpio.replace("</head>", f"{iconos}</head>")
+        response.set_data(html_limpio)
 
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
@@ -78,24 +102,47 @@ def index():
     return redirect(url_for("usuario.inicio_sesion"))
 
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def _servir_favicon(archivo, mime):
+    """Sirve un favicon con cache corta y fallback a varias rutas.
+
+    Primero busca en la raíz del proyecto (BASE_DIR), si no existe cae
+    a static/img. Así hay una copia en dos sitios y evitamos 404 al
+    mover/cambiar el proyecto de máquina.
+    """
+    ruta_raiz = os.path.join(BASE_DIR, archivo)
+    ruta_static = os.path.join(BASE_DIR, "static", "img", archivo)
+    ruta_final = ruta_raiz if os.path.exists(ruta_raiz) else ruta_static
+    response = send_file(ruta_final, mimetype=mime, max_age=60)
+    response.headers["Cache-Control"] = "public, max-age=60, must-revalidate"
+    response.headers["Vary"] = "Accept"
+    return response
+
+
 @app.route("/favicon.png")
 def favicon_png():
-    """Sirve el favicon desde la raíz del proyecto (ruta más portable)."""
-    return send_from_directory(
-        app.root_path,
-        "favicon.png",
-        mimetype="image/png",
-    )
+    """Sirve el favicon PNG desde la raíz (con fallback a static/img)."""
+    return _servir_favicon("favicon.png", "image/png")
 
 
 @app.route("/favicon.ico")
-def favicon():
-    """Sirve el icono que los navegadores solicitan para la pestaña (fallback)."""
-    return send_from_directory(
-        app.root_path,
-        "favicon.png",
-        mimetype="image/png",
-    )
+def favicon_ico():
+    """Sirve el favicon que el navegador pide por defecto (fallback)."""
+    return _servir_favicon("favicon.ico", "image/x-icon")
+
+
+@app.route("/static/img/favicon.png")
+def static_favicon_png():
+    """Ruta amigable para plantillas que siguen apuntando a static/img."""
+    return _servir_favicon("favicon.png", "image/png")
+
+
+@app.route("/static/img/favicon.ico")
+def static_favicon_ico():
+    """Favicon .ico bajo la ruta classic de static/img (fallback extra)."""
+    return _servir_favicon("favicon.ico", "image/x-icon")
 
 
 # 5. Arrancamos el servidor
