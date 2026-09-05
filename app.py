@@ -62,7 +62,7 @@ def evitar_cache_sesion(response):
     if response.mimetype == "text/html":
         html = response.get_data(as_text=True)
         if 'rel="icon"' not in html:
-            icono = '<link rel="icon" type="image/png" href="/static/img/favicon.png?v=2">'
+            icono = '<link rel="icon" type="image/png" href="/favicon.png?v=3">'
             response.set_data(html.replace("</head>", f"{icono}</head>"))
 
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
@@ -78,11 +78,21 @@ def index():
     return redirect(url_for("usuario.inicio_sesion"))
 
 
+@app.route("/favicon.png")
+def favicon_png():
+    """Sirve el favicon desde la raíz del proyecto (ruta más portable)."""
+    return send_from_directory(
+        app.root_path,
+        "favicon.png",
+        mimetype="image/png",
+    )
+
+
 @app.route("/favicon.ico")
 def favicon():
-    """Sirve el icono que los navegadores solicitan para la pestaña."""
+    """Sirve el icono que los navegadores solicitan para la pestaña (fallback)."""
     return send_from_directory(
-        os.path.join(app.root_path, "static", "img"),
+        app.root_path,
         "favicon.png",
         mimetype="image/png",
     )
