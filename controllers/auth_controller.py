@@ -197,6 +197,47 @@ def _oauth_config(provider):
     return {**config, "client_id": client_id, "client_secret": client_secret}
 
 
+def _build_redirect_uri(provider):
+    """Construye el redirect_uri de OAuth evitando el error redirect_uri_mismatch.
+
+    Google trata `localhost` y `127.0.0.1` como URLs distintas. Si el usuario
+    entro por 127.0.0.1 pero en Google Cloud registro localhost, falla.
+
+    Solucion:
+      1) Si la variable APP_PUBLIC_URL esta definida en .env
+         (p. ej. "http://localhost:5000"), la usamos como base. Asi el
+         redirect_uri es el MISMO siempre, sin importar por cual URL
+         acceda el usuario.
+      2) Si no, usamos url_for(..., _external=True) PERO normalizamos:
+         sustituimos `127.0.0.1` por `localhost` (es el caso mas comun
+         en los entornos del SENA).
+    """
+    from urllib.parse import urlparse, urlunparse
+
+    path = f"/autenticacion/login/{provider}/callback"
+    public_url = os.getenv("APP_PUBLIC_URL", "").strip()
+
+    if public_url:
+        # Quitamos barra final si la tiene para no duplicar.
+        return public_url.rstrip("/") + path
+
+    redirect_uri = url_for("usuario.oauth_callback", provider=provider, _external=True)
+
+    # Normalizacion automatica: 127.0.0.1 => localhost (mas frecuente en Google Console)
+    try:
+        parsed = urlparse(redirect_uri)
+        if parsed.hostname == "127.0.0.1":
+            new_netloc = "localhost"
+            if parsed.port:
+                new_netloc += f":{parsed.port}"
+            parsed = parsed._replace(netloc=new_netloc)
+            redirect_uri = urlunparse(parsed)
+    except Exception:
+        pass
+
+    return redirect_uri
+
+
 def _json_request(url, data=None, headers=None):
     body = None
     request_headers = headers or {}
@@ -296,7 +337,11 @@ def iniciar_login_social(provider):
     state = secrets.token_urlsafe(24)
     session["oauth_state"] = state
     session["oauth_provider"] = provider
-    redirect_uri = url_for("usuario.oauth_callback", provider=provider, _external=True)
+    redirect_uri = _build_redirect_uri(provider)
+    print(f"[DEBUG OAuth] Iniciando flujo {provider}")
+    print(f"[DEBUG OAuth]   redirect_uri enviado a Google: {redirect_uri}")
+    print(f"[DEBUG OAuth]   state guardado en sesion: {state[:8]}...")
+    print(f"[DEBUG OAuth]   Host actual: {request.host}")
     params = {
         "client_id": config["client_id"],
         "redirect_uri": redirect_uri,
@@ -315,11 +360,40 @@ def recibir_login_social(provider):
     state = request.args.get("state")
     code = request.args.get("code")
 
-    if not config or provider != session.get("oauth_provider") or state != session.get("oauth_state") or not code:
-        flash("No se pudo validar el inicio de sesion social.", "error")
+    session_provider = session.get("oauth_provider")
+    session_state = session.get("oauth_state")
+
+    # --- Diagnostico detallado por consola para depurar ---
+    print(f"[DEBUG OAuth] Callback recibido para provider={provider}")
+    print(f"[DEBUG OAuth]   code presente: {bool(code)} | state recibido: {bool(state)}")
+    print(f"[DEBUG OAuth]   session[oauth_provider]={session_provider!r}")
+    print(f"[DEBUG OAuth]   session[oauth_state]={session_state!r}")
+    if not session_state:
+        print("[DEBUG OAuth]   AVISO: La sesion esta VACIA. Problema de cookies?")
+        print(f"[DEBUG OAuth]   Host: {request.host} | URL: {request.url_root}")
+
+    if not config:
+        print(f"[DEBUG OAuth]   FALLO: No hay config para {provider} (revisa CLIENT_ID/SECRET)")
+        flash("Las credenciales de inicio de sesión social no están configuradas.", "error")
         return redirect(url_for("usuario.inicio_sesion"))
 
-    redirect_uri = url_for("usuario.oauth_callback", provider=provider, _external=True)
+    if provider != session_provider:
+        print(f"[DEBUG OAuth]   FALLO: provider mismatch {provider!r} vs sesion {session_provider!r}")
+        flash("El proveedor de inicio de sesión no coincide. Inténtalo de nuevo.", "error")
+        return redirect(url_for("usuario.inicio_sesion"))
+
+    if state != session_state:
+        print(f"[DEBUG OAuth]   FALLO: state OAuth no coincide (probablemente sesión perdida)")
+        flash("La sesión se perdió durante el inicio de sesión. Asegúrate de usar siempre 'localhost' y no '127.0.0.1'. Inténtalo de nuevo.", "error")
+        return redirect(url_for("usuario.inicio_sesion"))
+
+    if not code:
+        print("[DEBUG OAuth]   FALLO: No se recibio el parametro 'code' de Google")
+        flash("Google no devolvió el código de autorización. Inténtalo de nuevo.", "error")
+        return redirect(url_for("usuario.inicio_sesion"))
+
+    redirect_uri = _build_redirect_uri(provider)
+    print(f"[DEBUG OAuth]   redirect_uri usado en token exchange: {redirect_uri}")
     try:
         if provider == "google":
             token_data = _json_request(

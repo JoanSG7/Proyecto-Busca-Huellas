@@ -31,11 +31,11 @@ def registro_usuario():
 def recuperar_contrasena():
     return mostrar_recuperar_contrasena()
 
-@usuario_bp.route('/login/<provider>')
+@usuario_bp.route('/login/<provider>', strict_slashes=False)
 def oauth_login(provider):
     return iniciar_login_social(provider)
 
-@usuario_bp.route('/login/<provider>/callback')
+@usuario_bp.route('/login/<provider>/callback', strict_slashes=False)
 def oauth_callback(provider):
     return recibir_login_social(provider)
 

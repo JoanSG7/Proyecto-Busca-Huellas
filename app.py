@@ -36,6 +36,15 @@ if _SERVER_NAME:
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "busca-huellas-dev-secret-change-me")
 app.config["MAX_CONTENT_LENGTH"] = 14 * 1024 * 1024
 
+# --- Configuracion de la sesion (evitar que se pierda durante OAuth) ---
+# SameSite=Lax permite que la cookie llegue en el redirect de vuelta desde
+# Google (Strict haria que se perdiera en el cross-site redirect).
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+# En desarrollo/local siempre False (ya que usamos http). En produccion True.
+app.config["SESSION_COOKIE_SECURE"] = False
+# NO setear SESSION_COOKIE_DOMAIN a menos que tengas un dominio real,
+# porque entre localhost y 127.0.0.1 no se comparte y romperia OAuth.
+
 # 2. Registramos las rutas (Blueprints)
 app.register_blueprint(inicio_bp)
 app.register_blueprint(usuario_bp, url_prefix="/autenticacion")
@@ -48,6 +57,41 @@ app.register_blueprint(mascota_bp, url_prefix="/mascota")
 app.register_blueprint(mensaje_bp, url_prefix="/mensaje")
 app.register_blueprint(reconocimiento_bp, url_prefix="/reconocimiento")
 # app.register_blueprint(validacion_bp, url_prefix='/validacion')
+
+
+@app.before_request
+def _normalizar_host_para_oauth():
+    """Redirige 127.0.0.1 -> localhost para que la sesion (cookie) y el
+    redirect_uri de Google SIEMPRE apunten al mismo host. Sin esto, si un
+    usuario entra por 127.0.0.1:5000, se crea una cookie en 127.0.0.1,
+    luego Google redirige a localhost (APP_PUBLIC_URL) y la cookie no
+    existe ahi => sesion vacia => state falla.
+    """
+    from urllib.parse import urlparse, urlunparse
+
+    public_url = os.getenv("APP_PUBLIC_URL", "").strip()
+    if not public_url:
+        return None
+    try:
+        public_parsed = urlparse(public_url)
+    except Exception:
+        return None
+
+    current_host = request.host  # ej: "127.0.0.1:5000" o "localhost:5000"
+    public_host = public_parsed.netloc
+    # Si el host de la solicitud y el publico son distintos, normalizamos
+    if current_host != public_host and request.host.split(":")[0] in ("127.0.0.1", "localhost"):
+        # Si nos quedamos con la parte delantera, pero con el host publico
+        # (para no perder la URL y parametros
+        parsed = urlparse(request.url)
+        # Si ya esta en localhost / 127.0.0.1 pero APP_PUBLIC_URL tiene localhost =>
+        # reemplazamos scheme y netloc para mantener el resto igual
+        new_parsed = parsed._replace(scheme=public_parsed.scheme, netloc=public_host)
+        new_url = urlunparse(new_parsed)
+        # Solo redirigir GETs (GET y HEAD), no POSTs/otros
+        if request.method in ("GET", "HEAD"):
+            return redirect(new_url, code=307)
+    return None
 
 
 @app.context_processor
