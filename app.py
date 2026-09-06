@@ -67,6 +67,7 @@ def _normalizar_host_para_oauth():
     luego Google redirige a localhost (APP_PUBLIC_URL) y la cookie no
     existe ahi => sesion vacia => state falla.
     """
+    from flask import request as _request
     from urllib.parse import urlparse, urlunparse
 
     public_url = os.getenv("APP_PUBLIC_URL", "").strip()
@@ -77,19 +78,13 @@ def _normalizar_host_para_oauth():
     except Exception:
         return None
 
-    current_host = request.host  # ej: "127.0.0.1:5000" o "localhost:5000"
+    current_host = _request.host
     public_host = public_parsed.netloc
-    # Si el host de la solicitud y el publico son distintos, normalizamos
-    if current_host != public_host and request.host.split(":")[0] in ("127.0.0.1", "localhost"):
-        # Si nos quedamos con la parte delantera, pero con el host publico
-        # (para no perder la URL y parametros
-        parsed = urlparse(request.url)
-        # Si ya esta en localhost / 127.0.0.1 pero APP_PUBLIC_URL tiene localhost =>
-        # reemplazamos scheme y netloc para mantener el resto igual
+    if current_host != public_host and _request.host.split(":")[0] in ("127.0.0.1", "localhost"):
+        parsed = urlparse(_request.url)
         new_parsed = parsed._replace(scheme=public_parsed.scheme, netloc=public_host)
         new_url = urlunparse(new_parsed)
-        # Solo redirigir GETs (GET y HEAD), no POSTs/otros
-        if request.method in ("GET", "HEAD"):
+        if _request.method in ("GET", "HEAD"):
             return redirect(new_url, code=307)
     return None
 
