@@ -80,6 +80,68 @@ OAUTH_PROVIDERS = {
 }
 
 
+ARTICLE_BLOCKS_PREFIX = "__BH_BLOCKS_V1__:"
+ARTICLE_BLOCK_TYPES = {"titulo", "subtitulo", "texto", "imagen"}
+
+
+def _leer_bloques_articulo(contenido):
+    """Lee artículos nuevos por bloques y conserva los artículos antiguos en texto plano."""
+    contenido = contenido or ""
+    if not contenido.startswith(ARTICLE_BLOCKS_PREFIX):
+        return [], contenido
+    try:
+        bloques = json.loads(contenido[len(ARTICLE_BLOCKS_PREFIX):])
+    except (TypeError, json.JSONDecodeError):
+        return [], contenido
+    if not isinstance(bloques, list):
+        return [], ""
+    bloques_validos = []
+    for bloque in bloques:
+        if not isinstance(bloque, dict) or bloque.get("tipo") not in ARTICLE_BLOCK_TYPES:
+            continue
+        valor = str(bloque.get("valor") or "").strip()
+        if valor:
+            bloques_validos.append({"tipo": bloque["tipo"], "valor": valor})
+    return bloques_validos, ""
+
+
+def _preparar_articulo_para_vista(articulo):
+    bloques, contenido_plano = _leer_bloques_articulo(articulo.get("contenido"))
+    articulo["bloques"] = bloques
+    articulo["contenido_plano"] = contenido_plano
+    texto_resumen = " ".join(bloque["valor"] for bloque in bloques if bloque["tipo"] != "imagen")
+    articulo["resumen"] = texto_resumen or contenido_plano
+    return articulo
+
+
+def _contenido_articulo_desde_formulario():
+    """Convierte el editor opcional de bloques a una representación segura para la BD."""
+    contenido_plano = clean_text(request.form.get("contenido"), 5000)
+    tipos = request.form.getlist("bloque_tipo")[:12]
+    valores = request.form.getlist("bloque_valor")[:12]
+    bloques = []
+
+    for indice, tipo in enumerate(tipos):
+        tipo = clean_text(tipo, 20).lower()
+        valor = clean_text(valores[indice] if indice < len(valores) else "", 4000)
+        if tipo not in ARTICLE_BLOCK_TYPES:
+            continue
+        if tipo == "imagen":
+            imagen = guardar_imagen(request.files.get(f"bloque_imagen_{indice}"), "articulos")
+            valor = imagen or clean_text(request.form.get(f"bloque_imagen_actual_{indice}"), 255)
+        if valor:
+            bloques.append({"tipo": tipo, "valor": valor})
+
+    if not bloques:
+        return contenido_plano, len(contenido_plano)
+
+    if contenido_plano:
+        bloques.insert(0, {"tipo": "texto", "valor": contenido_plano})
+    contenido = ARTICLE_BLOCKS_PREFIX + json.dumps(bloques, ensure_ascii=False, separators=(",", ":"))
+    texto_total = sum(len(bloque["valor"]) for bloque in bloques if bloque["tipo"] != "imagen")
+    return contenido, texto_total
+
+
 def _es_mayor_de_edad(fecha_nacimiento_raw):
     try:
         fecha_nacimiento = datetime.strptime(fecha_nacimiento_raw or "", "%Y-%m-%d").date()
@@ -930,7 +992,7 @@ def eliminar_mi_chat(id_alerta):
 
 
 def mostrar_lista_articulos():
-    articulos = listar_articulos()
+    articulos = [_preparar_articulo_para_vista(articulo) for articulo in listar_articulos()]
     return render_template("modulo_articulo/lista_articulos.html", articulos=articulos)
 
 
@@ -939,7 +1001,12 @@ def mostrar_articulo_completo(id_articulo):
     if not articulo:
         flash("El artículo solicitado no existe.", "error")
         return redirect(url_for("articulo.lista_articulos"))
-    relacionados = [item for item in listar_articulos() if item["id_articulo"] != articulo["id_articulo"]][:3]
+    articulo = _preparar_articulo_para_vista(articulo)
+    relacionados = [
+        _preparar_articulo_para_vista(item)
+        for item in listar_articulos()
+        if item["id_articulo"] != articulo["id_articulo"]
+    ][:3]
     return render_template("modulo_articulo/articulo_completo.html", articulo=articulo, relacionados=relacionados)
 
 
@@ -949,10 +1016,10 @@ def registrar_articulo():
         return redirect(url_for("articulo.lista_articulos"))
 
     titulo = clean_text(request.form.get("titulo"), 255)
-    contenido = clean_text(request.form.get("contenido"), 5000)
+    contenido, contenido_texto_total = _contenido_articulo_desde_formulario()
     url_imagen = guardar_imagen(request.files.get("imagen_articulo"), "articulos")
 
-    if len(titulo) < 5 or len(contenido) < 20:
+    if len(titulo) < 5 or contenido_texto_total < 20:
         flash("El artículo necesita un título y contenido más completos.", "error")
         return redirect(url_for("articulo.lista_articulos"))
 
@@ -968,10 +1035,10 @@ def editar_articulo(id_articulo):
         return redirect(url_for("articulo.lista_articulos"))
 
     titulo = clean_text(request.form.get("titulo"), 255)
-    contenido = clean_text(request.form.get("contenido"), 5000)
+    contenido, contenido_texto_total = _contenido_articulo_desde_formulario()
     url_imagen = guardar_imagen(request.files.get("imagen_articulo"), "articulos") or articulo.get("url_imagen")
 
-    if len(titulo) < 5 or len(contenido) < 20:
+    if len(titulo) < 5 or contenido_texto_total < 20:
         flash("El artículo necesita un título y contenido más completos.", "error")
         return redirect(url_for("articulo.articulo_completo", id_articulo=id_articulo))
 

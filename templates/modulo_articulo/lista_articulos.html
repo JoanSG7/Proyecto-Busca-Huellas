@@ -24,6 +24,12 @@
         input, textarea { width: 100%; min-width: 0; border: 0; border-radius: 1rem; background: #ece8e0; padding: .9rem 1rem; font: inherit; }
         input[type="file"] { cursor: pointer; }
         button { border: 0; border-radius: 999px; padding: .9rem 1.2rem; font-weight: 800; background: #2d6a4f; color: white; cursor: pointer; }
+        .editor-help { color:#404943; font-size:.9rem; margin:0; }
+        .block-tools { display:flex; flex-wrap:wrap; gap:.55rem; }
+        .block-tools button, .remove-block { background:#f1ede5; color:#0f5238; padding:.6rem .85rem; }
+        .content-block { display:grid; gap:.65rem; padding:1rem; border:1px dashed #aeb8ad; border-radius:1rem; background:#f8f6f1; }
+        .block-heading { display:flex; justify-content:space-between; align-items:center; gap:.75rem; font-size:.85rem; font-weight:800; color:#0f5238; }
+        .remove-block { color:#ba1a1a; }
 
         @media (max-width: 767px) {
             main { padding: 2rem 1rem 8.5rem; }
@@ -59,10 +65,18 @@
         {% endif %}
         {% endwith %}
         {% if session.get('rol_id') == 2 %}
-        <form class="create" action="{{ url_for('articulo.crear') }}" method="POST" enctype="multipart/form-data">
+        <form class="create" id="article-create-form" action="{{ url_for('articulo.crear') }}" method="POST" enctype="multipart/form-data">
             <input name="titulo" maxlength="255" placeholder="Título del artículo" required>
-            <textarea name="contenido" rows="4" placeholder="Contenido del artículo" required></textarea>
+            <textarea name="contenido" rows="4" placeholder="Contenido plano opcional: escribe aquí si quieres un artículo sencillo."></textarea>
             <input name="imagen_articulo" type="file" accept="image/*">
+            <p class="editor-help">Opcionalmente, organiza el artículo añadiendo títulos, subtítulos, texto e imágenes intermedias.</p>
+            <div class="block-tools" aria-label="Añadir sección al artículo">
+                <button type="button" data-add-block="titulo">+ Título de sección</button>
+                <button type="button" data-add-block="subtitulo">+ Subtítulo</button>
+                <button type="button" data-add-block="texto">+ Texto</button>
+                <button type="button" data-add-block="imagen">+ Imagen intermedia</button>
+            </div>
+            <div id="article-create-blocks"></div>
             <button type="submit">Publicar artículo</button>
         </form>
         {% endif %}
@@ -73,7 +87,7 @@
                 <img alt="{{ articulo.titulo }}" src="{{ articulo.url_imagen or 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=900&q=80' }}">
                 <div class="content">
                     <h2>{{ articulo.titulo or 'Artículo sin título' }}</h2>
-                    <p>{{ (articulo.contenido or '')[:150] }}{% if articulo.contenido and articulo.contenido|length > 150 %}...{% endif %}</p>
+                    <p>{{ (articulo.resumen or '')[:150] }}{% if articulo.resumen and articulo.resumen|length > 150 %}...{% endif %}</p>
                     <div class="meta">
                         {{ articulo.autor or 'Busca Huellas' }}
                         {% if articulo.fecha_publicacion %} · {{ articulo.fecha_publicacion }}{% endif %}
@@ -86,5 +100,40 @@
         <div class="empty">Aún no hay artículos registrados en la base de datos.</div>
         {% endif %}
     </main>
+    {% if session.get('rol_id') == 2 %}
+    <script>
+        const createForm = document.getElementById('article-create-form');
+        const createBlocks = document.getElementById('article-create-blocks');
+        const labels = { titulo: 'Título de sección', subtitulo: 'Subtítulo', texto: 'Texto', imagen: 'Imagen intermedia' };
+        function addArticleBlock(type) {
+            const block = document.createElement('section');
+            block.className = 'content-block';
+            block.dataset.type = type;
+            const field = type === 'imagen'
+                ? '<input class="block-image" type="file" accept="image/*">'
+                : `<textarea class="block-value" rows="${type === 'texto' ? 5 : 2}" placeholder="${labels[type]}"></textarea>`;
+            block.innerHTML = `<div class="block-heading"><span>${labels[type]}</span><button class="remove-block" type="button">Quitar</button></div>${field}`;
+            block.querySelector('.remove-block').addEventListener('click', () => block.remove());
+            createBlocks.appendChild(block);
+        }
+        document.querySelectorAll('[data-add-block]').forEach(button => button.addEventListener('click', () => addArticleBlock(button.dataset.addBlock)));
+        createForm.addEventListener('submit', () => {
+            createBlocks.querySelectorAll('.content-block').forEach((block, index) => {
+                const type = document.createElement('input');
+                type.type = 'hidden'; type.name = 'bloque_tipo'; type.value = block.dataset.type;
+                block.appendChild(type);
+                const value = block.querySelector('.block-value');
+                const image = block.querySelector('.block-image');
+                if (value) value.name = 'bloque_valor';
+                if (image) {
+                    image.name = `bloque_imagen_${index}`;
+                    const emptyValue = document.createElement('input');
+                    emptyValue.type = 'hidden'; emptyValue.name = 'bloque_valor'; emptyValue.value = '';
+                    block.appendChild(emptyValue);
+                }
+            });
+        });
+    </script>
+    {% endif %}
 </body>
 </html>
