@@ -29,7 +29,7 @@ def listar_chats_alerta(id_usuario, es_admin=False):
             FROM alerta a2
             INNER JOIN mascota m2 ON m2.id_mascota = a2.id_mascota
             WHERE a2.confirmacion = 'si'
-              AND a2.estado_alerta = 'coincidencia_encontrada'
+              AND a2.estado_alerta IN ('coincidencia_encontrada', 'avistamiento_enviado')
               AND (a2.id_usuario = %s OR m2.id_usuario = %s)
             GROUP BY LEAST(a2.id_usuario, m2.id_usuario), GREATEST(a2.id_usuario, m2.id_usuario)
         )
@@ -65,7 +65,7 @@ def obtener_chat_alerta(id_alerta, id_usuario, es_admin=False):
         LEFT JOIN usuario alerta_usuario ON alerta_usuario.id_usuario = a.id_usuario
         WHERE a.id_alerta = %s
           AND a.confirmacion = 'si'
-          AND a.estado_alerta = 'coincidencia_encontrada'
+          AND a.estado_alerta IN ('coincidencia_encontrada', 'avistamiento_enviado')
           AND (a.id_usuario = %s OR m.id_usuario = %s)
         LIMIT 1
     """

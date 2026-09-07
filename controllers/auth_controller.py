@@ -27,7 +27,7 @@ from controllers.security import (
 )
 from controllers.reconocimiento_service import buscar_mascotas_similares, ruta_local_desde_url
 from controllers.upload_utils import guardar_imagen, guardar_imagen_base64
-from models.alerta_model import crear_alerta, crear_alerta_coincidencia, listar_alertas_usuario, marcar_alertas_como_leidas
+from models.alerta_model import crear_alerta, crear_alerta_coincidencia, listar_alertas_usuario, marcar_alerta_como_leida
 from models.articulo_model import actualizar_articulo, crear_articulo, eliminar_articulo, listar_articulos, obtener_articulo
 from models.inicio_model import obtener_estadisticas_inicio
 from models.avistamiento_model import crear_avistamiento, obtener_imagen_avistamiento
@@ -738,9 +738,17 @@ def mostrar_editar_perfil():
 
 
 def mostrar_lista_alertas():
-    marcar_alertas_como_leidas(current_user_id())
     alertas = listar_alertas_usuario(current_user_id())
     return render_template("modulo_alerta/lista_alertas.html", alertas=alertas)
+
+
+def abrir_alerta(id_alerta):
+    """Registra la alerta como vista antes de abrir su detalle interno."""
+    marcar_alerta_como_leida(id_alerta, current_user_id())
+    destino = request.args.get("destino") or url_for("alerta.alertas")
+    if not destino.startswith("/") or destino.startswith("//"):
+        destino = url_for("alerta.alertas")
+    return redirect(destino)
 
 
 def listar_alertas_json():
@@ -771,6 +779,13 @@ def crear_alerta_coincidencia_desde_resultado():
         return redirect(url_for("reconocimiento.capturar_foto"))
 
     id_alerta = crear_alerta_coincidencia(current_user_id(), id_mascota, mascota["nombre_mascota"])
+    crear_alerta(
+        mascota["id_usuario"],
+        id_mascota,
+        "coincidencia_encontrada",
+        f"Nuevo avistamiento recibido: posible coincidencia con {mascota['nombre_mascota']}.",
+        id_alerta_origen=id_alerta,
+    )
     ubicacion = clean_text(request.form.get("ubicacion_avistamiento"), 255) or "Ubicación no disponible"
     crear_avistamiento(
         id_alerta,

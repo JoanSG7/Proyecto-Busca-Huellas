@@ -14,11 +14,13 @@
         .subtitle { margin:0 0 1.25rem; color:var(--muted); font-weight:700; }
         .flash { font-weight:800; color:#ba1a1a; }
         .chat-list { display:grid; gap:.85rem; }
-        .chat-card { display:grid; grid-template-columns:1fr auto; gap:1rem; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:1rem; }
-        .chat-card:hover { border-color:var(--primary); }
+        .chat-card { display:grid; grid-template-columns:auto minmax(0, 1fr) auto; gap:1rem; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:1rem; box-shadow:0 4px 14px #00000008; transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+        .chat-card:hover { border-color:var(--primary); transform:translateY(-2px); box-shadow:0 10px 24px #00000012; }
+        .chat-avatar { width:48px; height:48px; display:grid; place-items:center; border-radius:50%; background:var(--soft); color:var(--primary); }
+        .chat-avatar span { font-size:1.45rem; }
         .chat-link { text-decoration:none; color:inherit; min-width:0; }
         .chat-title { font-weight:800; color:var(--primary); margin-bottom:.25rem; }
-        .meta { color:var(--muted); font-size:.9rem; font-weight:700; }
+        .meta { color:var(--muted); font-size:.9rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .delete-chat { border:0; border-radius:999px; padding:.45rem .75rem; color:#ba1a1a; background:#ffe7e7; font:inherit; font-weight:800; cursor:pointer; }
         .empty { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:1.25rem; color:var(--muted); font-weight:700; }
     </style>
@@ -41,11 +43,12 @@
         <section class="chat-list">
             {% for chat in chats %}
             <article class="chat-card">
+                <div class="chat-avatar" aria-hidden="true"><span class="material-symbols-rounded">pets</span></div>
                 <a class="chat-link" href="{{ url_for('mensaje.chat_alerta', id_alerta=chat.id_alerta) }}">
                 <div>
                     <div class="chat-title">Chat sobre {{ chat.nombre_mascota }}</div>
-                    <div class="meta">Reportó: {{ chat.nombre_alerta_usuario or 'Usuario' }} · Dueño/a: {{ chat.nombre_dueno or 'Usuario' }}</div>
-                    <div class="meta">{{ chat.estado_alerta or 'Sin estado' }} · {{ chat.fecha_alerta or '' }}</div>
+                    <div class="meta">Avistamiento reportado por {{ chat.nombre_alerta_usuario or 'Usuario' }}</div>
+                    <div class="meta">{{ chat.fecha_alerta or '' }}</div>
                 </div>
                 </a>
                 <div>

@@ -11,7 +11,7 @@ def _destinatario_alerta_sql():
     """Condición común para las alertas que puede ver cada usuario."""
     return """
         (a.id_usuario = %s
-         OR (m.id_usuario = %s AND COALESCE(a.estado_alerta, '') <> 'avistamiento_confirmado')
+         OR (m.id_usuario = %s AND COALESCE(a.estado_alerta, '') NOT IN ('avistamiento_confirmado', 'avistamiento_enviado'))
          OR a.id_usuario IS NULL)
     """
 
@@ -44,9 +44,9 @@ def crear_alerta_coincidencia(id_reportante, id_mascota, nombre_mascota):
             cursor,
             id_reportante,
             id_mascota,
-            "coincidencia_encontrada",
+            "avistamiento_enviado",
             "si",
-            f"Nueva coincidencia encontrada: posible coincidencia con {nombre_mascota}.",
+            f"Enviaste un avistamiento de posible coincidencia con {nombre_mascota}.",
         )
 
 
@@ -122,5 +122,24 @@ def marcar_alertas_como_leidas(id_usuario):
                   AND {_destinatario_alerta_sql()}
             """,
             (id_usuario, id_usuario),
+        )
+        return cursor.rowcount
+
+
+def marcar_alerta_como_leida(id_alerta, id_usuario):
+    """Marca una sola alerta como vista, después de comprobar que pertenece al usuario."""
+    with db_cursor(commit=True) as cursor:
+        if "leida" not in _columnas_alerta(cursor):
+            return 0
+        cursor.execute(
+            f"""
+                UPDATE alerta a
+                LEFT JOIN mascota m ON m.id_mascota = a.id_mascota
+                SET a.leida = 1
+                WHERE a.id_alerta = %s
+                  AND a.estado_alerta_registro = 1
+                  AND {_destinatario_alerta_sql()}
+            """,
+            (id_alerta, id_usuario, id_usuario),
         )
         return cursor.rowcount

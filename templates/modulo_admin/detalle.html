@@ -23,6 +23,7 @@
         .secondary { background:var(--soft); color:var(--primary); }
         .danger { background:#ffe7e7; color:var(--danger); }
         .flash { font-weight:800; color:var(--primary); }
+        .sighting-image { display:block; width:min(100%, 420px); max-height:300px; object-fit:contain; border:1px solid var(--line); border-radius:8px; background:var(--soft); }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/paw_background.css') }}">
 </head>
@@ -51,7 +52,8 @@
                 <div><label>Autor</label><input value="{{ item.nombre_usuario or '' }}" disabled></div>
                 <div><label>Fecha</label><input value="{{ item.fecha_publicacion or '' }}" disabled></div>
                 <div><label>Título</label><input name="titulo" value="{{ item.titulo or '' }}"></div>
-                <div><label>URL imagen</label><input name="url_imagen" value="{{ item.url_imagen or '' }}"></div>
+                <div><label>Foto del avistamiento</label>{% if item.url_imagen %}<a href="{{ item.url_imagen }}" target="_blank" rel="noopener"><img class="sighting-image" src="{{ item.url_imagen }}" alt="Foto del avistamiento de {{ item.nombre_mascota or 'mascota' }}"></a>{% else %}<p>Este avistamiento no tiene una foto registrada.</p>{% endif %}</div>
+                <input name="url_imagen" type="hidden" value="{{ item.url_imagen or '' }}">
             </div>
             <div><label>Contenido</label><textarea name="contenido">{{ item.contenido or '' }}</textarea></div>
             {% elif seccion == 'mascotas' %}

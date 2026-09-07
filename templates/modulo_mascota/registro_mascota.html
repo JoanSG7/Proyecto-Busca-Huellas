@@ -838,22 +838,25 @@
         let marker = null;
         let pendingLocation = null;
 
+        // Usamos proveedores de OpenStreetMap que no requieren una API key.
+        // La segunda capa solo se activa si el servidor principal no responde.
         const tileLayers = [
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                maxZoom: 20,
-                attribution: '&copy; OpenStreetMap &copy; CARTO'
-            }),
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; OpenStreetMap'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>'
+            }),
+            L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>, Tiles style by HOT'
             })
         ];
 
-        tileLayers[0].addTo(map);
-        tileLayers[0].on('tileerror', () => {
-            if (!map.hasLayer(tileLayers[1])) {
-                map.removeLayer(tileLayers[0]);
-                tileLayers[1].addTo(map);
+        let activeTileLayer = tileLayers[0].addTo(map);
+        activeTileLayer.on('tileerror', () => {
+            if (activeTileLayer !== tileLayers[1]) {
+                map.removeLayer(activeTileLayer);
+                activeTileLayer = tileLayers[1].addTo(map);
+                ubicacionStatus.textContent = 'Usando el mapa de respaldo. Puedes seleccionar el último lugar visto.';
             }
         });
 
