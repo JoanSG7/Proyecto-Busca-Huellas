@@ -33,6 +33,9 @@ def desactivar_avistamiento(id_avistamiento):
 def desactivar_avistamiento_confirmado(id_avistamiento_confirmado):
     """Oculta una confirmación sin perder el historial del avistamiento."""
     with db_cursor(commit=True) as cursor:
+        cursor.execute("SHOW COLUMNS FROM avistamiento_confirmado LIKE 'estado_confirmacion'")
+        if not cursor.fetchone():
+            return 0
         cursor.execute(
             "UPDATE avistamiento_confirmado SET estado_confirmacion = 0 "
             "WHERE id_confirmacion = %s AND estado_confirmacion = 1",
@@ -123,6 +126,9 @@ def reactivar_avistamiento(id_avistamiento):
 
 def reactivar_avistamiento_confirmado(id_avistamiento_confirmado):
     with db_cursor(commit=True) as cursor:
+        cursor.execute("SHOW COLUMNS FROM avistamiento_confirmado LIKE 'estado_confirmacion'")
+        if not cursor.fetchone():
+            return 0
         cursor.execute(
             "UPDATE avistamiento_confirmado SET estado_confirmacion = 1 WHERE id_confirmacion = %s AND estado_confirmacion = 0",
             (id_avistamiento_confirmado,),

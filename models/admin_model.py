@@ -38,6 +38,11 @@ def _tiene_columna_ruta_excel(cursor):
     return cursor.fetchone() is not None
 
 
+def _tiene_columna_estado_confirmacion(cursor):
+    cursor.execute("SHOW COLUMNS FROM avistamiento_confirmado LIKE 'estado_confirmacion'")
+    return cursor.fetchone() is not None
+
+
 def _where_text(fields, q, params):
     if not q:
         return None
@@ -367,8 +372,16 @@ def listar_avistamientos_confirmados_admin(q="", filtro="", eliminados=False):
     )
     if texto:
         where.append(texto)
-    where.append("ac.estado_confirmacion = %s")
-    params.append(0 if eliminados else 1)
+    with db_cursor() as cursor:
+        tiene_estado_confirmacion = _tiene_columna_estado_confirmacion(cursor)
+
+    # Las instalaciones previas a la migración no tenían eliminación lógica
+    # para estas confirmaciones: allí todos los registros existentes son activos.
+    if tiene_estado_confirmacion:
+        where.append("ac.estado_confirmacion = %s")
+        params.append(0 if eliminados else 1)
+    elif eliminados:
+        where.append("1 = 0")
     sql = """
         SELECT ac.id_confirmacion, ac.id_avistamiento, ac.id_usuario_alerto, ac.id_usuario_dueno, ac.id_mascota,
                ac.fecha_confirmacion, av.url_imagen, av.ubicacion, m.nombre_mascota,
