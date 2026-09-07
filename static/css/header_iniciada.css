@@ -65,6 +65,35 @@ nav.desktop-nav a.active {
     background-color: rgba(45, 106, 79, 0.12);
 }
 
+.nav-with-badge { position: relative; }
+
+.notification-count {
+    position: absolute;
+    top: -0.35rem;
+    right: -0.45rem;
+    min-width: 1.2rem;
+    height: 1.2rem;
+    padding: 0 .28rem;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--background);
+    border-radius: var(--radius-full);
+    background: #c63c32;
+    color: #fff;
+    font-size: .62rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.desktop-chat-fab .notification-count { top: -0.2rem; right: -0.2rem; }
+.nav-link .notification-count,
+.chat-btn .notification-count {
+    display: grid;
+    color: #fff;
+    font-size: .62rem;
+    line-height: 1;
+}
+
 @media (max-width: 767px) {
     .header-content {
         padding: 0 1rem;

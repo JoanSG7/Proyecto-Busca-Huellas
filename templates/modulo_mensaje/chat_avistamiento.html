@@ -42,6 +42,7 @@
         button { border:0; background:var(--primary); color:#fff; border-radius:999px; width:52px; height:52px; display:grid; place-items:center; cursor:pointer; }
         .notice { font-size:.78rem; color:var(--muted); font-weight:700; margin:.4rem 0 0; }
         .flash { margin:.5rem 0; color:var(--danger); font-weight:800; }
+        .flash.success { color:var(--primary); font-size:.95rem; }
         .empty { color:var(--muted); font-weight:800; text-align:center; margin:auto; }
 
         @media (max-width: 767px) {
@@ -79,7 +80,7 @@
                 {% with messages_flash = get_flashed_messages(with_categories=true) %}
                 {% if messages_flash %}
                     {% for category, message in messages_flash %}
-                    <p class="flash">{{ message }}</p>
+                    <p class="flash {{ category|e }}">{{ message }}</p>
                     {% endfor %}
                 {% endif %}
                 {% endwith %}
@@ -102,7 +103,7 @@
                         {% if mensaje.id_confirmacion %}
                         <span class="confirmation-note">✓ Avistamiento confirmado</span>
                         {% else %}
-                        <form method="POST">
+                        <form class="confirm-sighting-form" method="POST">
                             <input type="hidden" name="accion" value="confirmar_avistamiento">
                             <input type="hidden" name="id_avistamiento" value="{{ mensaje.id_avistamiento }}">
                             <button class="confirm-sighting" type="submit">¿Esta es tu mascota?</button>
@@ -118,7 +119,7 @@
             </div>
 
             <footer class="composer">
-                <form method="POST">
+                <form id="message-composer" method="POST">
                     <textarea name="mensaje" maxlength="700" placeholder="Escribe un mensaje seguro..." required></textarea>
                     <button type="submit" aria-label="Enviar">
                         <span class="material-symbols-outlined">send</span>
@@ -145,6 +146,22 @@
         imageDialog.querySelector('.dialog-close').addEventListener('click', () => imageDialog.close());
         imageDialog.addEventListener('click', event => {
             if (event.target === imageDialog) imageDialog.close();
+        });
+        const messageComposer = document.getElementById('message-composer');
+        const messageInput = messageComposer.querySelector('textarea[name="mensaje"]');
+        messageInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+                event.preventDefault();
+                if (messageInput.value.trim()) messageComposer.requestSubmit();
+            }
+        });
+        document.querySelectorAll('.confirm-sighting-form').forEach(form => {
+            form.addEventListener('submit', event => {
+                const confirmar = window.confirm(
+                    '¿Estás seguro de que esta es tu mascota? Esta acción marcará el reporte como encontrado y no se puede revertir.'
+                );
+                if (!confirmar) event.preventDefault();
+            });
         });
     </script>
 </body>

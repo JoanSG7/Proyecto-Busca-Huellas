@@ -30,6 +30,17 @@ def desactivar_avistamiento(id_avistamiento):
         return cursor.rowcount
 
 
+def desactivar_avistamiento_confirmado(id_avistamiento_confirmado):
+    """Oculta una confirmación sin perder el historial del avistamiento."""
+    with db_cursor(commit=True) as cursor:
+        cursor.execute(
+            "UPDATE avistamiento_confirmado SET estado_confirmacion = 0 "
+            "WHERE id_confirmacion = %s AND estado_confirmacion = 1",
+            (id_avistamiento_confirmado,),
+        )
+        return cursor.rowcount
+
+
 def desactivar_articulo(id_articulo):
     with db_cursor(commit=True) as cursor:
         cursor.execute(

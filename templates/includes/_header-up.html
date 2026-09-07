@@ -8,7 +8,7 @@
         <nav class="desktop-nav">
             <a class="{% if request.endpoint == 'inicio.inicio' %}active{% endif %}" href="{{ url_for('inicio.inicio') }}">Inicio</a>
             <a class="{% if request.endpoint == 'articulo.lista_articulos' %}active{% endif %}" href="{{ url_for('articulo.lista_articulos') }}">Artículos</a>
-            <a class="{% if request.endpoint == 'alerta.alertas' %}active{% endif %}" href="{{ url_for('alerta.alertas') }}">Alertas</a>
+            <a class="nav-with-badge {% if request.endpoint == 'alerta.alertas' %}active{% endif %}" href="{{ url_for('alerta.alertas') }}">Alertas{% if alertas_no_leidas %}<span class="notification-count">{{ '99+' if alertas_no_leidas > 99 else alertas_no_leidas }}</span>{% endif %}</a>
             {% if session.get('rol_id') == 2 %}
             <a class="{% if request.endpoint and request.endpoint.startswith('admin.') %}active{% endif %}" href="{{ url_for('admin.panel') }}">Admin</a>
             {% endif %}
@@ -36,18 +36,21 @@
     <a class="camera-btn" href="{{ url_for('reconocimiento.capturar_foto') }}">
         <span class="material-symbols-rounded fill">photo_camera</span>
     </a>
-    <a class="nav-link" href="{{ url_for('alerta.alertas') }}">
+    <a class="nav-link nav-with-badge" href="{{ url_for('alerta.alertas') }}">
         <span class="material-symbols-outlined">notifications</span>
         <label>Alertas</label>
+        {% if alertas_no_leidas %}<span class="notification-count">{{ '99+' if alertas_no_leidas > 99 else alertas_no_leidas }}</span>{% endif %}
     </a>
-    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('mensaje.') %}active{% endif %}" href="{{ url_for('mensaje.chat_seguro') }}" aria-label="Chat">
+    <a class="nav-link nav-with-badge {% if request.endpoint and request.endpoint.startswith('mensaje.') %}active{% endif %}" href="{{ url_for('mensaje.chat_seguro') }}" aria-label="Chat">
         <span class="material-symbols-outlined">forum</span>
         <label>Chat</label>
+        {% if mensajes_no_leidos %}<span class="notification-count">{{ '99+' if mensajes_no_leidos > 99 else mensajes_no_leidos }}</span>{% endif %}
     </a>
 </nav>
 <div class="desktop-chat-fab">
-    <a href="{{ url_for('mensaje.chat_seguro') }}" class="chat-btn" aria-label="Abrir chat">
+    <a href="{{ url_for('mensaje.chat_seguro') }}" class="chat-btn nav-with-badge" aria-label="Abrir chat">
         <span class="material-symbols-rounded fill">forum</span>
+        {% if mensajes_no_leidos %}<span class="notification-count">{{ '99+' if mensajes_no_leidos > 99 else mensajes_no_leidos }}</span>{% endif %}
     </a>
 </div>
 <div class="desktop-fab">

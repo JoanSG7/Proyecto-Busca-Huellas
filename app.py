@@ -23,6 +23,8 @@ from routes.reconocimiento_routes import reconocimiento_bp
 # from routes.validacion_routes import validacion_bp
 from controllers.security import current_user_id
 from models.usuario_model import obtener_preferencias_usuario, obtener_usuario_por_id
+from models.alerta_model import contar_alertas_no_leidas
+from models.mensaje_model import contar_mensajes_no_leidos
 
 # 1. Inicializamos la aplicación
 app = Flask(__name__)
@@ -93,10 +95,12 @@ def _normalizar_host_para_oauth():
 def inject_usuario_actual():
     usuario_id = current_user_id()
     if not usuario_id:
-        return {"usuario_actual": None, "preferencias_actual": None}
+        return {"usuario_actual": None, "preferencias_actual": None, "alertas_no_leidas": 0, "mensajes_no_leidos": 0}
     return {
         "usuario_actual": obtener_usuario_por_id(usuario_id),
         "preferencias_actual": obtener_preferencias_usuario(usuario_id),
+        "alertas_no_leidas": contar_alertas_no_leidas(usuario_id),
+        "mensajes_no_leidos": contar_mensajes_no_leidos(usuario_id),
     }
 
 

@@ -79,6 +79,12 @@
             {% elif tipo == 'coincidencia_encontrada' %}
                 {% set titulo = 'Coincidencia encontrada' %}
                 {% set destino = url_for('mensaje.chat_alerta', id_alerta=alerta.id_alerta) %}
+            {% elif tipo == 'mascota_encontrada' %}
+                {% set titulo = '¡Mascota encontrada!' %}
+                {% set destino = url_for('mascota.info_mascota', id_mascota=alerta.id_mascota) if alerta.id_mascota else url_for('alerta.alertas') %}
+            {% elif tipo == 'avistamiento_confirmado' %}
+                {% set titulo = '¡Tu ayuda hizo la diferencia!' %}
+                {% set destino = url_for('mensaje.chat_alerta', id_alerta=alerta.id_alerta_origen) if alerta.id_alerta_origen else url_for('mensaje.chat_seguro') %}
             {% elif alerta.id_mascota %}
                 {% set titulo = 'Actualización de mascota' %}
                 {% set destino = url_for('mascota.info_mascota', id_mascota=alerta.id_mascota) %}
@@ -91,7 +97,7 @@
                 <img class="notif-photo" src="{{ alerta.url_imagen }}" alt="{{ alerta.nombre_mascota or 'Mascota' }}">
                 {% else %}
                 <div class="notif-icon-box">
-                    <span class="material-symbols-rounded">{% if tipo == 'perfil_actualizado' %}account_circle{% elif tipo == 'mensaje_recibido' %}forum{% elif tipo == 'coincidencia_encontrada' %}notifications_active{% else %}pets{% endif %}</span>
+                    <span class="material-symbols-rounded">{% if tipo == 'perfil_actualizado' %}account_circle{% elif tipo in ['mensaje_recibido', 'avistamiento_confirmado'] %}forum{% elif tipo in ['coincidencia_encontrada', 'mascota_encontrada'] %}celebration{% else %}pets{% endif %}</span>
                 </div>
                 {% endif %}
                 <div class="notif-content">
@@ -106,6 +112,8 @@
                         {% elif tipo == 'contrasena_actualizada' %}Nueva contraseña actualizada correctamente.
                         {% elif tipo == 'mensaje_recibido' %}Nuevo mensaje recibido en uno de tus chats.
                         {% elif tipo == 'coincidencia_encontrada' %}Nueva coincidencia encontrada para {{ alerta.nombre_mascota or 'tu mascota' }}.
+                        {% elif tipo == 'mascota_encontrada' %}¡Felicitaciones! Tu mascota fue encontrada.
+                        {% elif tipo == 'avistamiento_confirmado' %}Gracias por ayudar a encontrar una mascota.
                         {% else %}Tienes una nueva actualización en Busca Huellas.
                         {% endif %}
                     </p>

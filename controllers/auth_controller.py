@@ -27,7 +27,7 @@ from controllers.security import (
 )
 from controllers.reconocimiento_service import buscar_mascotas_similares, ruta_local_desde_url
 from controllers.upload_utils import guardar_imagen, guardar_imagen_base64
-from models.alerta_model import crear_alerta, crear_alerta_coincidencia, listar_alertas_usuario
+from models.alerta_model import crear_alerta, crear_alerta_coincidencia, listar_alertas_usuario, marcar_alertas_como_leidas
 from models.articulo_model import actualizar_articulo, crear_articulo, eliminar_articulo, listar_articulos, obtener_articulo
 from models.inicio_model import obtener_estadisticas_inicio
 from models.avistamiento_model import crear_avistamiento, obtener_imagen_avistamiento
@@ -35,6 +35,7 @@ from models.avistamiento_confirmado_model import confirmar_avistamiento, obtener
 from models.mascota_model import actualizar_mascota, crear_fotos_mascota, crear_mascota, eliminar_mascota, listar_fotos_mascota, listar_mascotas_con_fotos, listar_mascotas_por_usuario, marcar_mascota_encontrada, obtener_mascota
 from models.mensaje_model import (
     crear_mensaje_alerta,
+    marcar_mensajes_como_leidos,
     eliminar_chat_para_usuario,
     listar_chats_alerta,
     listar_mensajes_alerta,
@@ -737,6 +738,7 @@ def mostrar_editar_perfil():
 
 
 def mostrar_lista_alertas():
+    marcar_alertas_como_leidas(current_user_id())
     alertas = listar_alertas_usuario(current_user_id())
     return render_template("modulo_alerta/lista_alertas.html", alertas=alertas)
 
@@ -857,7 +859,24 @@ def mostrar_chat_alerta(id_alerta):
                 flash("El avistamiento seleccionado no está disponible para confirmar.", "error")
             elif confirmar_avistamiento(id_avistamiento, chat["id_usuario_alerta"], chat["id_dueno"], chat["id_mascota"]):
                 marcar_mascota_encontrada(chat["id_mascota"], chat["id_dueno"])
-                flash("Avistamiento confirmado. La mascota ahora figura como encontrada.", "success")
+                crear_alerta(
+                    chat["id_dueno"],
+                    chat["id_mascota"],
+                    "mascota_encontrada",
+                    f"¡Felicitaciones! Confirmaste que {chat['nombre_mascota']} fue encontrada.",
+                    id_alerta_origen=id_alerta,
+                )
+                crear_alerta(
+                    chat["id_usuario_alerta"],
+                    chat["id_mascota"],
+                    "avistamiento_confirmado",
+                    f"¡Gracias y felicitaciones! Tu avistamiento ayudó a encontrar a {chat['nombre_mascota']}.",
+                    id_alerta_origen=id_alerta,
+                )
+                flash(
+                    f"¡Felicitaciones! Encontraste a {chat['nombre_mascota']}. La mascota ahora figura como encontrada.",
+                    "success",
+                )
             else:
                 marcar_mascota_encontrada(chat["id_mascota"], chat["id_dueno"])
                 flash("Este avistamiento ya había sido confirmado.", "warning")
@@ -873,15 +892,9 @@ def mostrar_chat_alerta(id_alerta):
             flash("No hay un usuario receptor para este chat.", "error")
         else:
             crear_mensaje_alerta(id_alerta, current_user_id(), receptor, mensaje)
-            crear_alerta(
-                receptor,
-                chat["id_mascota"],
-                "mensaje_recibido",
-                f"Nuevo mensaje recibido de {session.get('usuario_nombre') or 'un usuario'} sobre {chat['nombre_mascota']}.",
-                id_alerta_origen=id_alerta,
-            )
             return redirect(url_for("mensaje.chat_alerta", id_alerta=id_alerta))
 
+    marcar_mensajes_como_leidos(id_alerta, current_user_id())
     mensajes = listar_mensajes_alerta(chat["id_usuario_alerta"], chat["id_dueno"])
     return render_template(
         "modulo_mensaje/chat_avistamiento.html",

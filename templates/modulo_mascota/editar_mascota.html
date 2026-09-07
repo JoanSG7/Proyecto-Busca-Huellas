@@ -13,6 +13,7 @@
         label { display:block; margin-bottom:.35rem; font-weight:bold; color:#404943; }
         input, select, textarea { width:100%; box-sizing:border-box; border:1px solid #c9d0c8; border-radius:8px; padding:.75rem; font:inherit; }
         textarea { min-height:130px; }
+        .pet-description { min-height:130px; max-height:260px; resize:vertical; overflow-y:auto; }
         .actions { display:flex; gap:.75rem; flex-wrap:wrap; }
         .btn { border:0; border-radius:999px; padding:.85rem 1.2rem; font-weight:bold; text-decoration:none; cursor:pointer; background:#2d6a4f; color:#fff; }
         .btn-soft { background:#f1ede5; color:#0f5238; }
@@ -37,7 +38,7 @@
                 <div><label>Tamaño</label><select name="tamano" required>{% for opcion in ['pequeño', 'mediano', 'grande'] %}<option value="{{ opcion }}" {% if mascota.tamano == opcion %}selected{% endif %}>{{ opcion|title }}</option>{% endfor %}</select></div>
                 <div><label>Estado</label><select name="estado">{% for opcion in ['perdida', 'encontrada', 'en proceso'] %}<option value="{{ opcion }}" {% if mascota.estado == opcion %}selected{% endif %}>{{ opcion|title }}</option>{% endfor %}</select></div>
             </div>
-            <div><label>Descripción</label><textarea name="descripcion">{{ mascota.descripcion or '' }}</textarea></div>
+            <div><label>Descripción</label><textarea class="pet-description" name="descripcion">{{ mascota.descripcion or '' }}</textarea></div>
             <div class="actions">
                 <button class="btn" type="submit">Guardar cambios</button>
                 <a class="btn btn-soft" href="{{ url_for('mascota.info_mascota', id_mascota=mascota.id_mascota) }}">Cancelar</a>

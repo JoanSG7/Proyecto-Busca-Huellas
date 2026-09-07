@@ -86,6 +86,7 @@ CREATE TABLE `alerta` (
   `confirmacion` varchar(50) DEFAULT NULL,
   `mensaje` text DEFAULT NULL,
   `fecha_alerta` datetime DEFAULT NULL,
+  `leida` tinyint(1) NOT NULL DEFAULT 0,
   `estado_alerta_registro` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -114,7 +115,8 @@ CREATE TABLE `avistamiento_confirmado` (
   `id_usuario_alerto` int(11) NOT NULL,
   `id_usuario_dueno` int(11) NOT NULL,
   `id_mascota` int(11) NOT NULL,
-  `fecha_confirmacion` datetime NOT NULL DEFAULT current_timestamp()
+  `fecha_confirmacion` datetime NOT NULL DEFAULT current_timestamp(),
+  `estado_confirmacion` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -128,7 +130,8 @@ CREATE TABLE `mensaje` (
   `usuario_receptor` int(11) DEFAULT NULL,
   `mensaje_chat` text DEFAULT NULL,
   `url_imagen` varchar(255) DEFAULT NULL,
-  `fecha_envio` datetime DEFAULT NULL
+  `fecha_envio` datetime DEFAULT NULL,
+  `leido` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -201,6 +204,7 @@ ALTER TABLE `alerta`
   ADD KEY `id_usuario` (`id_usuario`),
   ADD KEY `id_mascota` (`id_mascota`),
   ADD KEY `idx_alerta_origen` (`id_alerta_origen`),
+  ADD KEY `idx_alerta_leida` (`leida`),
   ADD KEY `idx_alerta_estado_registro` (`estado_alerta_registro`);
 
 ALTER TABLE `avistamiento`
@@ -214,13 +218,15 @@ ALTER TABLE `avistamiento_confirmado`
   ADD UNIQUE KEY `uq_confirmacion_avistamiento` (`id_avistamiento`),
   ADD KEY `idx_confirmacion_alerto` (`id_usuario_alerto`),
   ADD KEY `idx_confirmacion_dueno` (`id_usuario_dueno`),
-  ADD KEY `idx_confirmacion_mascota` (`id_mascota`);
+  ADD KEY `idx_confirmacion_mascota` (`id_mascota`),
+  ADD KEY `idx_confirmacion_estado` (`estado_confirmacion`);
 
 ALTER TABLE `mensaje`
   ADD PRIMARY KEY (`id_mensaje`),
   ADD KEY `id_alerta` (`id_alerta`),
   ADD KEY `usuario_emisor` (`usuario_emisor`),
-  ADD KEY `usuario_receptor` (`usuario_receptor`);
+  ADD KEY `usuario_receptor` (`usuario_receptor`),
+  ADD KEY `idx_mensaje_receptor_leido` (`usuario_receptor`, `leido`);
 
 ALTER TABLE `chat_eliminado`
   ADD PRIMARY KEY (`id_chat_eliminado`),

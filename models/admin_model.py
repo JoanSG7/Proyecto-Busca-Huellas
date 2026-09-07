@@ -5,6 +5,7 @@ from models.eliminacion_model import (
     desactivar_alerta,
     desactivar_articulo,
     desactivar_avistamiento,
+    desactivar_avistamiento_confirmado,
     desactivar_informe,
     desactivar_mascota,
     desactivar_usuario,
@@ -354,6 +355,10 @@ def eliminar_avistamiento_admin(id_avistamiento):
     return desactivar_avistamiento(id_avistamiento)
 
 
+def eliminar_avistamiento_confirmado_admin(id_confirmacion):
+    return desactivar_avistamiento_confirmado(id_confirmacion)
+
+
 def listar_avistamientos_confirmados_admin(q="", filtro="", eliminados=False):
     params = []
     where = []
@@ -362,6 +367,8 @@ def listar_avistamientos_confirmados_admin(q="", filtro="", eliminados=False):
     )
     if texto:
         where.append(texto)
+    where.append("ac.estado_confirmacion = %s")
+    params.append(0 if eliminados else 1)
     sql = """
         SELECT ac.id_confirmacion, ac.id_avistamiento, ac.id_usuario_alerto, ac.id_usuario_dueno, ac.id_mascota,
                ac.fecha_confirmacion, av.url_imagen, av.ubicacion, m.nombre_mascota,

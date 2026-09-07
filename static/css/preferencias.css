@@ -1,4 +1,24 @@
 /* Variables compartidas: sobrescriben los colores declarados en cada módulo. */
+:root {
+    --scroll-track: #edf1ec;
+    --scroll-thumb: #4f8a63;
+    --scroll-thumb-hover: #2d6a4f;
+}
+
+html {
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+    scrollbar-width: thin;
+}
+
+html::-webkit-scrollbar { width: 12px; }
+html::-webkit-scrollbar-track { background: var(--scroll-track); }
+html::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border: 3px solid var(--scroll-track);
+    border-radius: 999px;
+}
+html::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
+
 html.tema-oscuro {
     --background: #161916; --bg: #161916; --bg-site: #161916; --bg-cream: #161916; --bg-creme: #161916;
     --surface: #242a25; --bg-card: #242a25; --white: #242a25;
@@ -9,6 +29,7 @@ html.tema-oscuro {
     --primary-light: #b9f4c7; --primary-fixed: #b9f4c7; --accent-green: #315d3e;
     --secondary: #efc28f; --secondary-container: #60472d; --accent: #60472d;
     --outline: #92a194; --outline-variant: #526258; --line: #526258; --on-primary: #102116;
+    --scroll-track: #1d231e; --scroll-thumb: #63bd7c; --scroll-thumb-hover: #8ed9a3;
 }
 
 html.tema-oscuro body { background: #161916 !important; color: #edf4ed !important; }
@@ -19,6 +40,9 @@ html.tema-oscuro .item, html.tema-oscuro .description, html.tema-oscuro form, ht
 html.tema-oscuro .notification-item, html.tema-oscuro .filters, html.tema-oscuro .builder,
 html.tema-oscuro .preview, html.tema-oscuro .metrics, html.tema-oscuro .table-wrap, html.tema-oscuro .chat,
 html.tema-oscuro .composer, html.tema-oscuro .message, html.tema-oscuro .result-card { background: #242a25 !important; color: #edf4ed !important; border-color: #526258 !important; }
+html.tema-oscuro .record-view-bar { background: #242a25 !important; border-color: #526258 !important; }
+html.tema-oscuro .view-switch, html.tema-oscuro .metric { background: #303831 !important; }
+html.tema-oscuro .view-switch .tab.active { background: #63bd7c !important; color: #102116 !important; }
 html.tema-oscuro h1, html.tema-oscuro h2, html.tema-oscuro h3, html.tema-oscuro .logo,
 html.tema-oscuro .page-title, html.tema-oscuro .section-title { color: #a8dfb7 !important; }
 html.tema-oscuro .muted, html.tema-oscuro .intro, html.tema-oscuro label, html.tema-oscuro .subtitle,
@@ -60,6 +84,7 @@ html.tema-sepia {
     --surface: #fff8ea; --bg-card: #fff8ea; --white: #fff8ea; --surface-container: #f6e7cf; --surface-container-low: #f8eddc; --surface-container-high: #ead8bb; --surface-container-highest: #e2cdaa; --surface-soft: #f6e7cf;
     --on-surface: #3e2c20; --text: #3e2c20; --text-main: #3e2c20; --text-dark: #3e2c20; --on-surface-variant: #665143; --text-muted: #665143; --muted: #665143;
     --primary: #704214; --primary-dark: #52300f; --primary-green: #704214; --primary-container: #9a6435; --secondary: #805e3f; --secondary-container: #efd1ac; --accent: #efd1ac; --outline: #8d7664; --outline-variant: #d4bfa6; --line: #d4bfa6;
+    --scroll-track: #f1dfc4; --scroll-thumb: #9a6435; --scroll-thumb-hover: #704214;
 }
 
 html.tema-sepia body { background: #f4ead8 !important; color: #3e2c20 !important; }
@@ -68,6 +93,9 @@ html.tema-sepia .profile, html.tema-sepia .hero, html.tema-sepia .pet-card, html
 html.tema-sepia .item, html.tema-sepia .description, html.tema-sepia form, html.tema-sepia .card,
 html.tema-sepia .notification-item, html.tema-sepia .filters, html.tema-sepia .builder,
 html.tema-sepia .preview, html.tema-sepia .metrics, html.tema-sepia .table-wrap { background: #fff8ea !important; color: #3e2c20 !important; border-color: #d4bfa6 !important; }
+html.tema-sepia .record-view-bar { background: #fff8ea !important; border-color: #d4bfa6 !important; }
+html.tema-sepia .view-switch, html.tema-sepia .metric { background: #f1dfc4 !important; }
+html.tema-sepia .view-switch .tab.active { background: #704214 !important; color: #fff !important; }
 html.tema-sepia h1, html.tema-sepia h2, html.tema-sepia h3, html.tema-sepia .logo, html.tema-sepia .page-title,
 html.tema-sepia .section-title { color: #704214 !important; }
 html.tema-sepia .muted, html.tema-sepia .intro, html.tema-sepia label, html.tema-sepia .subtitle,

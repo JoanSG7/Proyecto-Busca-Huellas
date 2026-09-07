@@ -21,6 +21,7 @@ from models.admin_model import (
     eliminar_alerta_admin,
     eliminar_articulo_admin,
     eliminar_avistamiento_admin,
+    eliminar_avistamiento_confirmado_admin,
     eliminar_informe_admin,
     eliminar_mascota_admin,
     eliminar_usuario_admin,
@@ -259,6 +260,7 @@ def _delete_item(seccion, item_id):
         "mascotas": eliminar_mascota_admin,
         "alertas": eliminar_alerta_admin,
         "avistamientos": eliminar_avistamiento_admin,
+        "avistamientos_confirmados": eliminar_avistamiento_confirmado_admin,
         "informes": eliminar_informe_admin,
     }
     if seccion != "informes":

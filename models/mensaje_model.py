@@ -112,6 +112,28 @@ def crear_mensaje_alerta(id_alerta, usuario_emisor, usuario_receptor, mensaje, u
         return cursor.lastrowid
 
 
+def contar_mensajes_no_leidos(id_usuario):
+    with db_cursor() as cursor:
+        if "leido" not in _columnas_mensaje(cursor):
+            return 0
+        cursor.execute(
+            "SELECT COUNT(*) AS total FROM mensaje WHERE usuario_receptor = %s AND leido = 0",
+            (id_usuario,),
+        )
+        return (cursor.fetchone() or {}).get("total", 0)
+
+
+def marcar_mensajes_como_leidos(id_alerta, id_usuario):
+    with db_cursor(commit=True) as cursor:
+        if "leido" not in _columnas_mensaje(cursor):
+            return 0
+        cursor.execute(
+            "UPDATE mensaje SET leido = 1 WHERE id_alerta = %s AND usuario_receptor = %s AND leido = 0",
+            (id_alerta, id_usuario),
+        )
+        return cursor.rowcount
+
+
 def eliminar_chat_para_usuario(id_alerta, id_usuario):
     """Oculta el chat solo para quien lo elimina, sin afectar al otro participante."""
     with db_cursor(commit=True) as cursor:

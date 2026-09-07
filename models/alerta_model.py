@@ -7,6 +7,15 @@ def _columnas_alerta(cursor):
     return {columna["Field"] for columna in cursor.fetchall()}
 
 
+def _destinatario_alerta_sql():
+    """Condición común para las alertas que puede ver cada usuario."""
+    return """
+        (a.id_usuario = %s
+         OR (m.id_usuario = %s AND COALESCE(a.estado_alerta, '') <> 'avistamiento_confirmado')
+         OR a.id_usuario IS NULL)
+    """
+
+
 def _insertar_alerta(cursor, id_usuario, id_mascota, tipo, confirmacion, mensaje, id_alerta_origen=None):
     columnas_alerta = _columnas_alerta(cursor)
     columnas = ["id_usuario", "id_mascota", "estado_alerta", "confirmacion", "fecha_alerta"]
@@ -71,8 +80,47 @@ def listar_alertas_usuario(id_usuario):
             LEFT JOIN usuario u ON u.id_usuario = a.id_usuario
             WHERE a.estado_alerta_registro = 1
               AND (m.id_mascota IS NULL OR m.estado_mascota = 1)
-              AND (a.id_usuario = %s OR m.id_usuario = %s OR a.id_usuario IS NULL)
+              AND {_destinatario_alerta_sql()}
             ORDER BY a.id_alerta DESC
         """
         cursor.execute(sql, (id_usuario, id_usuario))
         return cursor.fetchall()
+
+
+def contar_alertas_no_leidas(id_usuario):
+    with db_cursor() as cursor:
+        if "leida" not in _columnas_alerta(cursor):
+            return 0
+        cursor.execute(
+            f"""
+                SELECT COUNT(*) AS total
+                FROM alerta a
+                LEFT JOIN mascota m ON m.id_mascota = a.id_mascota
+                WHERE a.estado_alerta_registro = 1
+                  AND a.leida = 0
+                  AND (m.id_mascota IS NULL OR m.estado_mascota = 1)
+                  AND {_destinatario_alerta_sql()}
+            """,
+            (id_usuario, id_usuario),
+        )
+        return (cursor.fetchone() or {}).get("total", 0)
+
+
+def marcar_alertas_como_leidas(id_usuario):
+    """Marca como vistas únicamente las alertas visibles para este usuario."""
+    with db_cursor(commit=True) as cursor:
+        if "leida" not in _columnas_alerta(cursor):
+            return 0
+        cursor.execute(
+            f"""
+                UPDATE alerta a
+                LEFT JOIN mascota m ON m.id_mascota = a.id_mascota
+                SET a.leida = 1
+                WHERE a.estado_alerta_registro = 1
+                  AND a.leida = 0
+                  AND (m.id_mascota IS NULL OR m.estado_mascota = 1)
+                  AND {_destinatario_alerta_sql()}
+            """,
+            (id_usuario, id_usuario),
+        )
+        return cursor.rowcount

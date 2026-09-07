@@ -16,6 +16,7 @@
         label { display:block; color:var(--muted); text-transform:uppercase; font-size:.72rem; font-weight:800; margin-bottom:.3rem; }
         input,select,textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:.75rem; font:inherit; }
         textarea { min-height:140px; }
+        .pet-description { min-height:140px; max-height:260px; resize:vertical; overflow-y:auto; }
         .actions { display:flex; gap:.6rem; flex-wrap:wrap; }
         .btn { border:0; border-radius:8px; padding:.8rem 1rem; font-weight:800; text-decoration:none; cursor:pointer; }
         .primary { background:var(--primary); color:#fff; }
@@ -67,7 +68,7 @@
                 <div><label>Estado</label><input name="estado" value="{{ item.estado or '' }}"></div>
                 <div><label>Fecha de reporte</label><input value="{{ item.fecha_registro or '' }}" disabled></div>
             </div>
-            <div><label>Descripción</label><textarea name="descripcion">{{ item.descripcion or '' }}</textarea></div>
+            <div><label>Descripción</label><textarea class="pet-description" name="descripcion">{{ item.descripcion or '' }}</textarea></div>
             {% elif seccion == 'alertas' %}
             <div class="grid">
                 <div><label>ID</label><input value="{{ item.id_alerta }}" disabled></div>
