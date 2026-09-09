@@ -1,0 +1,8 @@
+<link href="{{ url_for('static', filename='css/preferencias.css') }}" rel="stylesheet">
+<script>
+    (function () {
+        const raiz = document.documentElement;
+        raiz.classList.add('tema-{{ (preferencias_actual.tema if preferencias_actual else "claro")|e }}');
+        {% if preferencias_actual and preferencias_actual.reducir_movimiento %}raiz.classList.add('movimiento-reducido');{% endif %}
+    }());
+</script>

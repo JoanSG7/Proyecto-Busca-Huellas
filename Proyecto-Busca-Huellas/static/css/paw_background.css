@@ -1,0 +1,13 @@
+body {
+    background-image: url("data:image/svg+xml,%3Csvg width='180' height='180' viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%236f776f' fill-opacity='0.10' transform='translate(26 34) rotate(-18)'%3E%3Cellipse cx='36' cy='48' rx='14' ry='18'/%3E%3Cellipse cx='18' cy='24' rx='7' ry='9'/%3E%3Cellipse cx='33' cy='14' rx='7' ry='10'/%3E%3Cellipse cx='49' cy='18' rx='7' ry='10'/%3E%3Cellipse cx='60' cy='34' rx='7' ry='9'/%3E%3C/g%3E%3Cg fill='%236f776f' fill-opacity='0.075' transform='translate(112 112) rotate(22)'%3E%3Cellipse cx='24' cy='32' rx='10' ry='13'/%3E%3Cellipse cx='11' cy='15' rx='5' ry='7'/%3E%3Cellipse cx='23' cy='8' rx='5' ry='7'/%3E%3Cellipse cx='35' cy='11' rx='5' ry='7'/%3E%3Cellipse cx='44' cy='23' rx='5' ry='7'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 180px 180px;
+    background-position: 0 0;
+    background-attachment: fixed;
+}
+
+@media (max-width: 640px) {
+    body {
+        background-size: 145px 145px;
+    }
+}

@@ -1,0 +1,3 @@
+-- Este archivo ya no contiene el dump de la base.
+-- Importa el esquema unico de la raiz del proyecto: busca_huellas.sql
+-- Ese archivo no incluye datos personales (Ley 1581 de 2012).

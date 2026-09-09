@@ -1,0 +1,9 @@
+-- Esta migración fue retirada deliberadamente.
+--
+-- El esquema estable usa la tabla `articulo` incluida en busca_huellas.sql:
+--   articulo.url_imagen = ruta de la portada
+--   articulo.contenido  = texto y, si aplica, rutas de imágenes intermedias
+--
+-- Los archivos se guardan en static/uploads/articulos/. No ejecute una
+-- migración para crear `articulo_imagen`: esa tabla ya no es requerida por la
+-- aplicación y el respaldo principal funciona sin ella.
